@@ -2,7 +2,8 @@
 
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.text.Text?>
-<BorderPane xmlns="http://javafx.com/javafx"
+<BorderPane fx:id="pane"
+            xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="wapuniverse.view.MainWindowController"
             prefHeight="600.0" prefWidth="800.0">
