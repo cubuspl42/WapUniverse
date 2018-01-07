@@ -12,51 +12,54 @@ import javafx.scene.transform.Affine
 import wapuniverse.geom.Vec2d
 import wapuniverse.view.ext.parentToLocal
 import wapuniverse.view.ext.position
-import wapuniverse.view.util.loadFxml
 import java.net.URL
 import java.util.ResourceBundle
-
-private val fxmlFilename = "/fxml/WorldView.fxml"
 
 class WorldViewController(
         private val root: Group
 ) : Initializable {
     @FXML
-    lateinit var pane: Pane
+    lateinit var wrapperPane: Pane
+
+    @FXML
+    lateinit var contentPane: Pane
+
+    @FXML
+    lateinit var uiPane: Pane
 
     var scale = 1.0
 
     var dragConstraint: Vec2d? = null
 
     override fun initialize(location: URL?, resources: ResourceBundle?) {
-        pane.children.add(root)
+        contentPane.children.add(root)
 
-        val clipRect = Rectangle()
-        clipRect.widthProperty().bind(pane.widthProperty())
-        clipRect.heightProperty().bind(pane.heightProperty())
-        pane.clip = clipRect
+        wrapperPane.clip = Rectangle().apply {
+            widthProperty().bind(wrapperPane.widthProperty())
+            heightProperty().bind(wrapperPane.heightProperty())
+        }
 
-        pane.addEventFilter(MouseEvent.MOUSE_PRESSED, { ev ->
+        wrapperPane.addEventFilter(MouseEvent.MOUSE_PRESSED, { ev ->
             if (ev.button == MouseButton.SECONDARY) {
                 dragConstraint = root.parentToLocal(ev.position)
                 ev.consume()
             }
         })
 
-        pane.addEventFilter(MouseEvent.MOUSE_DRAGGED, { ev ->
+        wrapperPane.addEventFilter(MouseEvent.MOUSE_DRAGGED, { ev ->
             if (ev.button == MouseButton.SECONDARY) {
                 transformSpace(ev.position, dragConstraint!!)
                 ev.consume()
             }
         })
 
-        pane.addEventFilter(MouseEvent.MOUSE_RELEASED, { ev ->
+        wrapperPane.addEventFilter(MouseEvent.MOUSE_RELEASED, { ev ->
             if (ev.button == MouseButton.SECONDARY) {
                 ev.consume()
             }
         })
 
-        pane.addEventFilter(ScrollEvent.SCROLL, { ev ->
+        wrapperPane.addEventFilter(ScrollEvent.SCROLL, { ev ->
             val scaleMultiplier = when {
                 ev.deltaY > 0 -> 2.0
                 else -> 0.5
@@ -79,6 +82,3 @@ class WorldViewController(
         root.transforms.setAll(affine)
     }
 }
-
-fun presentWorldView(root: Group) =
-        loadFxml(fxmlFilename) { WorldViewController(root) }

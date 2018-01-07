@@ -1,9 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.text.Text?>
-<Pane fx:id="pane"
-      xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="wapuniverse.view.WorldViewController">
-</Pane>
+<?import javafx.scene.layout.Pane?>
+<StackPane fx:id="wrapperPane"
+           xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="wapuniverse.view.WorldViewController"
+           prefHeight="600.0" prefWidth="800.0">
+
+    <Pane fx:id="contentPane"/>
+
+    <BorderPane fx:id="uiPane">
+        <center>
+            <Text text="UI"/>
+        </center>
+    </BorderPane>
+
+</StackPane>

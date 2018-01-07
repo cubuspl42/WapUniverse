@@ -19,9 +19,8 @@ class MainWindowController(
     lateinit var imageSetText: Text
 
     override fun initialize(location: URL?, resources: ResourceBundle?) {
-        val worldGroup = worldPresenter.presentWorldGroup(editorContext.world)
 
-        pane.center = presentWorldView(worldGroup)
+        pane.center = worldPresenter.presentWorldView()
 
         imageSetText.textProperty().bind(editorContext.world.objects.first().imageSet)
     }

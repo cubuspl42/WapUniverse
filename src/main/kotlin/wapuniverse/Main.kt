@@ -27,7 +27,7 @@ class MyApplication : Application() {
 
         val wapObjectPresenter = WapObjectPresenter(rezImageProvider)
 
-        val worldPresenter = WorldPresenter(wapObjectPresenter)
+        val worldPresenter = WorldPresenter(editorContext.world, wapObjectPresenter)
 
         val mainWindowPresenter = MainWindowPresenter(worldPresenter)
 
