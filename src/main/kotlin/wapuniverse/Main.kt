@@ -15,7 +15,6 @@ private val rezImageLoaderPrefix = "CLAW"
 
 class MyApplication : Application() {
     override fun start(primaryStage: Stage) {
-        val editorContext = EditorContext()
 
         val classLoader = Thread.currentThread().contextClassLoader
 
@@ -25,9 +24,9 @@ class MyApplication : Application() {
 
         val rezImageProvider = CachingRezImageProvider(rezIndex, rezImageLoader)
 
-        val wapObjectPresenter = WapObjectPresenter(rezImageProvider)
+        val editorContext = EditorContext(rezIndex)
 
-        val worldPresenter = WorldPresenter(editorContext.world, wapObjectPresenter)
+        val worldPresenter = WorldPresenter(editorContext.world, rezImageProvider)
 
         val mainWindowPresenter = MainWindowPresenter(worldPresenter)
 

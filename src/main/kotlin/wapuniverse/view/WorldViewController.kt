@@ -16,7 +16,9 @@ import java.net.URL
 import java.util.ResourceBundle
 
 class WorldViewController(
-        private val root: Group
+        private val root: Group,
+        private val uiNode: Group,
+        private val camera: Camera
 ) : Initializable {
     @FXML
     lateinit var wrapperPane: Pane
@@ -33,6 +35,11 @@ class WorldViewController(
 
     override fun initialize(location: URL?, resources: ResourceBundle?) {
         contentPane.children.add(root)
+        uiPane.children.add(uiNode)
+
+        camera.transform.addListener { observable, oldValue, newValue ->
+            root.transforms.setAll(newValue)
+        }
 
         wrapperPane.clip = Rectangle().apply {
             widthProperty().bind(wrapperPane.widthProperty())
@@ -79,6 +86,7 @@ class WorldViewController(
         affine.appendScale(scale, scale)
         affine.appendTranslation(translate.x, translate.y)
 
-        root.transforms.setAll(affine)
+        camera.transform.set(affine)
     }
 }
+

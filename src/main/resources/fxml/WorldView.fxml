@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.text.Text?>
 <?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
 <StackPane fx:id="wrapperPane"
            xmlns="http://javafx.com/javafx"
            xmlns:fx="http://javafx.com/fxml"
@@ -12,10 +10,6 @@
 
     <Pane fx:id="contentPane"/>
 
-    <BorderPane fx:id="uiPane">
-        <center>
-            <Text text="UI"/>
-        </center>
-    </BorderPane>
+    <Pane fx:id="uiPane"/>
 
 </StackPane>
