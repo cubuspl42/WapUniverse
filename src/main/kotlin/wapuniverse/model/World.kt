@@ -1,5 +1,7 @@
 package wapuniverse.model
 
+import javafx.collections.ObservableSet
+
 interface World {
-    val singleObject: WapObject
+    val objects: ObservableSet<WapObject>
 }
