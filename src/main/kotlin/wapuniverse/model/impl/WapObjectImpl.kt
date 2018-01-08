@@ -6,8 +6,12 @@ import javafx.geometry.BoundingBox
 import org.fxmisc.easybind.EasyBind.combine
 import wapuniverse.model.WapObject
 import wapuniverse.rez.RezIndex
+import wapuniverse.view.ext.asObservableBooleanValue
 
-class WapObjectImpl(rezIndex: RezIndex) : WapObject {
+class WapObjectImpl(
+        editorContext: EditorContextImpl,
+        rezIndex: RezIndex
+) : WapObject {
     override val imageSet = SimpleStringProperty("LEVEL1_OFFICER")
 
     override val x = SimpleIntegerProperty()
@@ -24,6 +28,10 @@ class WapObjectImpl(rezIndex: RezIndex) : WapObject {
             BoundingBox(minX, minY, width, height)
         } ?: BoundingBox(0.0, 0.0, 0.0, 0.0)
     }!!
+
+    override val isHovered = editorContext.hoveredObjects
+            .map { it.contains(this) }
+            .asObservableBooleanValue()
 }
 
 private fun resolveShortId(imageSet: String): String {

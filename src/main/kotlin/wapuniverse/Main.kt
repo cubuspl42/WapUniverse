@@ -7,7 +7,6 @@ import wapuniverse.rez.CachingRezImageProvider
 import wapuniverse.rez.ClassLoaderRezImageLoader
 import wapuniverse.rez.loadYamlRezIndex
 import wapuniverse.view.MainWindowPresenter
-import wapuniverse.view.WapObjectPresenter
 import wapuniverse.view.WorldPresenter
 
 private val rezIndexPath = "rezIndex.yaml"
@@ -26,12 +25,20 @@ class MyApplication : Application() {
 
         val editorContext = EditorContext(rezIndex)
 
+        val editorContextPresenter = EditorContextPresenter(editorContext)
+
         val worldPresenter = WorldPresenter(editorContext.world, rezImageProvider)
 
-        val mainWindowPresenter = MainWindowPresenter(worldPresenter)
+        val mainWindowPresenter = MainWindowPresenter(editorContextPresenter, worldPresenter)
 
         mainWindowPresenter.showMainWindow(editorContext)
     }
+}
+
+class EditorContextPresenter(
+        editorContext: EditorContext
+) {
+
 }
 
 fun main(args: Array<String>) {

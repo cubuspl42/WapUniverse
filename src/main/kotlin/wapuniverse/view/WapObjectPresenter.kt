@@ -7,6 +7,7 @@ import javafx.scene.shape.Rectangle
 import org.fxmisc.easybind.EasyBind.combine
 import wapuniverse.model.WapObject
 import wapuniverse.rez.RezImageProvider
+import wapuniverse.view.ext.map
 import wapuniverse.view.util.observableValue
 
 class WapObjectPresenter(
@@ -35,8 +36,11 @@ class WapObjectPresenter(
             widthProperty().bind(bounds.map { it.width })
             heightProperty().bind(bounds.map { it.height })
 
+            strokeProperty().bind(wapObject.isHovered.map { isHovered ->
+                if (isHovered) Color.BLUE else Color.RED
+            })
+
             fill = Color.TRANSPARENT
-            stroke = Color.RED
         }
     }
 }

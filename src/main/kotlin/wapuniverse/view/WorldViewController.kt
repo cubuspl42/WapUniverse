@@ -10,15 +10,20 @@ import javafx.scene.layout.Pane
 import javafx.scene.shape.Rectangle
 import javafx.scene.transform.Affine
 import wapuniverse.geom.Vec2d
+import wapuniverse.model.EditorContext
+import wapuniverse.view.ext.hoverPositionProperty
+import wapuniverse.view.ext.map
 import wapuniverse.view.ext.parentToLocal
 import wapuniverse.view.ext.position
+import wapuniverse.view.ext.toVec2d
 import java.net.URL
 import java.util.ResourceBundle
 
 class WorldViewController(
         private val root: Group,
         private val uiNode: Group,
-        private val camera: Camera
+        private val camera: Camera,
+        private val editorContext: EditorContext
 ) : Initializable {
     @FXML
     lateinit var wrapperPane: Pane
@@ -76,6 +81,10 @@ class WorldViewController(
 
             transformSpace(ev.position, root.parentToLocal(ev.position))
             ev.consume()
+        })
+
+        editorContext.hoverPositionProperty.bind(wrapperPane.hoverPositionProperty().map {
+            it?.let { root.parentToLocal(it).toVec2d() }
         })
     }
 

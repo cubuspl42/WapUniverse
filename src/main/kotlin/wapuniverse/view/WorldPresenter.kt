@@ -2,6 +2,7 @@ package wapuniverse.view
 
 import javafx.scene.Group
 import javafx.scene.Parent
+import wapuniverse.model.EditorContext
 import wapuniverse.model.World
 import wapuniverse.rez.RezImageProvider
 import wapuniverse.view.ext.mapTo
@@ -17,10 +18,10 @@ class WorldPresenter(
 
     private val wapObjectPresenter = WapObjectPresenter(rezImageProvider, camera)
 
-    fun presentWorldView(): Parent {
+    fun presentWorldView(editorContext: EditorContext): Parent {
         val contentNode = presentWorldContent()
         val uiNode = presentWorldUi()
-        return loadFxml(fxmlFilename) { WorldViewController(contentNode, uiNode, camera) }
+        return loadFxml(fxmlFilename) { WorldViewController(contentNode, uiNode, camera, editorContext) }
     }
 
     private fun presentWorldContent(): Group {

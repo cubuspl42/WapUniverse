@@ -4,13 +4,14 @@ import javafx.fxml.FXML
 import javafx.fxml.Initializable
 import javafx.scene.layout.BorderPane
 import javafx.scene.text.Text
+import wapuniverse.EditorContextPresenter
 import wapuniverse.model.EditorContext
 import java.net.URL
 import java.util.ResourceBundle
 
 class MainWindowController(
-        private val worldPresenter: WorldPresenter,
-        private val editorContext: EditorContext
+        private val editorContextPresenter: EditorContextPresenter,
+        private val worldPresenter: WorldPresenter, private val editorContext: EditorContext
 ) : Initializable {
     @FXML
     lateinit var pane: BorderPane
@@ -20,7 +21,7 @@ class MainWindowController(
 
     override fun initialize(location: URL?, resources: ResourceBundle?) {
 
-        pane.center = worldPresenter.presentWorldView()
+        pane.center = worldPresenter.presentWorldView(editorContext)
 
         imageSetText.textProperty().bind(editorContext.world.objects.first().imageSet)
     }
