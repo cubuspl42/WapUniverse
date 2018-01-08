@@ -1,5 +1,6 @@
 package wapuniverse.view
 
+import javafx.beans.value.ObservableValue
 import javafx.scene.Node
 import javafx.scene.image.ImageView
 import javafx.scene.paint.Color
@@ -36,12 +37,19 @@ class WapObjectPresenter(
             yProperty().bind(bounds.map { it.minY.toInt().toDouble() + 0.5 })
             widthProperty().bind(bounds.map { it.width })
             heightProperty().bind(bounds.map { it.height })
-
-            strokeProperty().bind(wapObject.isHovered.map { isHovered ->
-                if (isHovered) Color.BLUE else Color.RED
-            })
+            strokeProperty().bind(rectangleColor(wapObject))
 
             fill = Color.TRANSPARENT
+        }
+    }
+
+    private fun rectangleColor(wapObject: WapObject): ObservableValue<Color> {
+        return combine(wapObject.isHovered, wapObject.isSelected) { isHovered, isSelected ->
+            when {
+                isSelected -> Color.RED
+                isHovered -> Color.BLUE
+                else -> Color.LIGHTBLUE
+            }
         }
     }
 }

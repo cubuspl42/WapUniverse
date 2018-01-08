@@ -2,6 +2,7 @@ package wapuniverse.view
 
 import javafx.fxml.FXML
 import javafx.fxml.Initializable
+import javafx.geometry.Point2D
 import javafx.scene.Group
 import javafx.scene.input.MouseButton
 import javafx.scene.input.MouseEvent
@@ -84,9 +85,18 @@ class WorldViewController(
         })
 
         editorContext.hoverPositionProperty.bind(wrapperPane.hoverPositionProperty().map {
-            it?.let { root.parentToLocal(it).toVec2d() }
+            it?.let { viewToWorld(it.toVec2d()) }
         })
+
+        wrapperPane.addEventFilter(MouseEvent.MOUSE_CLICKED) { ev ->
+            if (ev.button == MouseButton.PRIMARY) {
+                editorContext.selectObjectsAt(viewToWorld(ev.position))
+            }
+        }
     }
+
+    private fun viewToWorld(it: Vec2d) =
+            root.parentToLocal(it)
 
     private fun transformSpace(viewConstraint: Vec2d, worldConstraint: Vec2d) {
         val translate = -(worldConstraint - (viewConstraint / scale))

@@ -7,6 +7,7 @@ import org.fxmisc.easybind.EasyBind.combine
 import wapuniverse.model.WapObject
 import wapuniverse.rez.RezIndex
 import wapuniverse.view.ext.asObservableBooleanValue
+import wapuniverse.view.ext.setContains
 
 class WapObjectImpl(
         editorContext: EditorContextImpl,
@@ -32,6 +33,8 @@ class WapObjectImpl(
     override val isHovered = editorContext.hoveredObjects
             .map { it.contains(this) }
             .asObservableBooleanValue()
+
+    override val isSelected = setContains(editorContext.selectedObjects, this)
 }
 
 private fun resolveShortId(imageSet: String): String {

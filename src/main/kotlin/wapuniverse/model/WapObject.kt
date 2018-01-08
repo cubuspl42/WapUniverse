@@ -12,4 +12,5 @@ interface WapObject {
     val y: ObservableIntegerValue
     val boundingBox: ObservableObjectValue<BoundingBox>
     val isHovered: ObservableBooleanValue
+    val isSelected: ObservableBooleanValue
 }
