@@ -23,9 +23,9 @@ class WapObjectImpl(
         rezIndex.findImageMetadata(fullyQualifiedImageSetId, -1)?.let { metadata ->
             val minX = x.toDouble() + metadata.offset.x
             val minY = y.toDouble() + metadata.offset.y
-            val width = 64.0
-            val height = 64.0
-            BoundingBox(minX, minY, width, height)
+            val width = metadata.size.width
+            val height = metadata.size.height
+            BoundingBox(minX, minY, width.toDouble(), height.toDouble())
         } ?: BoundingBox(0.0, 0.0, 0.0, 0.0)
     }!!
 

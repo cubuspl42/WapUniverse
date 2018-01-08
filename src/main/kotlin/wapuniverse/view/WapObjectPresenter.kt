@@ -16,7 +16,8 @@ class WapObjectPresenter(
 ) {
     fun presentObjectImageView(wapObject: WapObject) =
             ImageView().apply {
-                xProperty().bind(wapObject.x)
+                xProperty().bind(wapObject.boundingBox.map { it.minX })
+                yProperty().bind(wapObject.boundingBox.map { it.minY })
                 imageProperty().bind(provideImage(wapObject))
             }
 

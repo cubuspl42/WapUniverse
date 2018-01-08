@@ -5,6 +5,7 @@ import javafx.stage.Stage
 import wapuniverse.model.EditorContext
 import wapuniverse.rez.CachingRezImageProvider
 import wapuniverse.rez.ClassLoaderRezImageLoader
+import wapuniverse.rez.addImageSizes
 import wapuniverse.rez.loadYamlRezIndex
 import wapuniverse.view.MainWindowPresenter
 import wapuniverse.view.WorldPresenter
@@ -17,9 +18,11 @@ class MyApplication : Application() {
 
         val classLoader = Thread.currentThread().contextClassLoader
 
-        val rezIndex = loadYamlRezIndex(classLoader.getResourceAsStream(rezIndexPath))
+        val yamlRezIndex = loadYamlRezIndex(classLoader.getResourceAsStream(rezIndexPath))
 
         val rezImageLoader = ClassLoaderRezImageLoader(rezImageLoaderPrefix)
+
+        val rezIndex = addImageSizes(yamlRezIndex, rezImageLoader)
 
         val rezImageProvider = CachingRezImageProvider(rezIndex, rezImageLoader)
 
