@@ -1,6 +1,8 @@
 package wapuniverse.rez
 
-interface RezIndex {
-    fun findImageMetadata(fullyQualifiedImageSetId: String, i: Int): RezImageMetadata?
-
+data class RezIndex(
+        val imageSets: Map<String, RezImageSet>
+) {
+    fun findImageMetadata(fullyQualifiedImageSetId: String, i: Int): RezImageMetadata? =
+            imageSets[fullyQualifiedImageSetId]?.findImageMetadata(i)
 }

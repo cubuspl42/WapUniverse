@@ -17,36 +17,25 @@ private class Y {
             else true
         })
         var path: String = ""
+
+        fun toRezImageMetadata() = RezImageMetadata(path, Vec2i(offset[0], offset[1]), Vec2i())
     }
 
     class ImageSet {
         var sprites: Map<String, Image> = HashMap() // frame name -> image
         var frames: Map<Int, String> = HashMap() // frame index -> frame name
 
-        fun findImageMetadata(frameIndex: Int): RezImageMetadata? {
-            return frames[frameIndex]?.let { frameName ->
-                val imageMetadata = sprites[frameName]!!
-                val x = imageMetadata.offset[0]
-                val y = imageMetadata.offset[1]
-                val path = imageMetadata.path
-                return RezImageMetadata(path, Vec2i(x, y))
-            }
-        }
+        fun toRezImageSet() = RezImageSet(
+                sprites.mapValues { it.value.toRezImageMetadata() },
+                frames
+        )
     }
 
     class Root {
         var imageSets: Map<String, ImageSet> = HashMap() // fully qualified imageset id -> imageset
 
-        fun findImageSet(expandedImageSetId: String): ImageSet? {
-            val imageSet = imageSets[expandedImageSetId]
-            return imageSet
-        }
+        fun toRezIndex() = RezIndex(imageSets.mapValues { it.value.toRezImageSet() })
     }
-}
-
-private class YamlRezIndex(private val root: Y.Root) : RezIndex {
-    override fun findImageMetadata(fullyQualifiedImageSetId: String, i: Int): RezImageMetadata? =
-            root.findImageSet(fullyQualifiedImageSetId)?.findImageMetadata(i)
 }
 
 private val yaml = Yaml(Constructor(Y.Root::class.java).apply {
@@ -58,5 +47,5 @@ fun loadYamlRezIndex(yamlStream: InputStream): RezIndex {
     val root = yamlStream.use {
         yaml.load(it) as Y.Root
     }
-    return YamlRezIndex(root)
+    return root.toRezIndex()
 }
