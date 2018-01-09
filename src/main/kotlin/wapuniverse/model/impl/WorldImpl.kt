@@ -9,18 +9,10 @@ import wapuniverse.rez.RezIndex
 import wapuniverse.view.ext.contains
 
 class WorldImpl(
-        editorContext: EditorContextImpl,
-        rezIndex: RezIndex
+        private val editorContext: EditorContextImpl,
+        private val rezIndex: RezIndex
 ) : World {
-    override val objects = observableSet<WapObject>(
-            WapObjectImpl(editorContext, rezIndex).apply {
-                imageSet.set("LEVEL1_IMAGES_OFFICER")
-            },
-            WapObjectImpl(editorContext, rezIndex).apply {
-                imageSet.set("LEVEL1_IMAGES_SOLDIER")
-                x.set(128)
-            }
-    )!!
+    override val objects = observableSet<WapObject>()!!
 
     fun objectsAt(point: Vec2d): Set<WapObject> =
             objects.filter { it.boundingBox.value.contains(point) }.toSet()
@@ -30,5 +22,15 @@ class WorldImpl(
 
     fun deleteObjects(objectsToDelete: Set<WapObject>) {
         objects.removeAll(objectsToDelete)
+    }
+
+    fun init() {
+        objects.add(WapObjectImpl(editorContext, rezIndex).apply {
+            imageSet.set("LEVEL1_IMAGES_OFFICER")
+        })
+        objects.add(WapObjectImpl(editorContext, rezIndex).apply {
+            imageSet.set("LEVEL1_IMAGES_SOLDIER")
+            x.set(128)
+        })
     }
 }

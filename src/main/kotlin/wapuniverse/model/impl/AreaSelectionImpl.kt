@@ -1,8 +1,9 @@
-package wapuniverse.model
+package wapuniverse.model.impl
 
 import javafx.beans.property.SimpleObjectProperty
 import javafx.geometry.BoundingBox
-import wapuniverse.geom.Vec2d
+import wapuniverse.model.AreaSelection
+import wapuniverse.model.WapObject
 
 class AreaSelectionImpl : AreaSelection {
     override val boundingBox = SimpleObjectProperty<BoundingBox>()

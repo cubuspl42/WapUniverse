@@ -2,7 +2,6 @@ package wapuniverse.model.impl
 
 import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleStringProperty
-import javafx.beans.value.ObservableBooleanValue
 import javafx.geometry.BoundingBox
 import org.fxmisc.easybind.EasyBind.combine
 import org.fxmisc.easybind.EasyBind.monadic
@@ -15,6 +14,9 @@ class WapObjectImpl(
         editorContext: EditorContextImpl,
         rezIndex: RezIndex
 ) : WapObject {
+    private val selectToolContext = monadic(editorContext.activeToolContext)
+            .map { it as? SelectToolContextImpl }
+
     override val imageSet = SimpleStringProperty("LEVEL1_OFFICER")
 
     override val x = SimpleIntegerProperty()
@@ -36,9 +38,12 @@ class WapObjectImpl(
             .map { it.contains(this) }
             .asObservableBooleanValue()
 
-    override val isSelected = setContains(editorContext.selectedObjects, this)
+    override val isSelected = selectToolContext
+            .flatMap { setContains(it!!.selectedObjects, this) }
+            .asObservableBooleanValue()
 
-    override val isPreselected = monadic(editorContext.areaSelection)
+    override val isPreselected = selectToolContext
+            .flatMap { it!!.areaSelection }
             .flatMap { it.preselectedObjects }
             .map { it.contains(this) }
             .orElse(false)

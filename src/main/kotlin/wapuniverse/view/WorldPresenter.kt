@@ -6,6 +6,9 @@ import javafx.scene.Parent
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import wapuniverse.model.EditorContext
+import wapuniverse.model.MoveToolContext
+import wapuniverse.model.SelectToolContext
+import wapuniverse.model.ToolContext
 import wapuniverse.model.World
 import wapuniverse.rez.RezImageProvider
 import wapuniverse.view.ext.mapTo
@@ -48,13 +51,32 @@ class WorldPresenter(
         world.objects.mapTo(worldUi) {
             wapObjectPresenter.presentObjectUi(it)
         }
-        editorContext.areaSelection.mapTo(worldUi) {
+        editorContext.activeToolContext.mapTo(worldUi) {
+            presentActiveToolContext(it)
+        }
+        return worldUi
+    }
+
+    private fun presentActiveToolContext(toolContext: ToolContext): Node {
+        return when (toolContext) {
+            is SelectToolContext -> presentSelectToolContext(toolContext)
+            is MoveToolContext -> presentMoveToolContext(toolContext)
+            else -> throw AssertionError()
+        }
+    }
+
+    private fun presentSelectToolContext(toolContext: SelectToolContext): Node {
+        val selectToolUi = Group()
+        return toolContext.areaSelection.mapTo(selectToolUi) {
             presentRectangle(it.boundingBox, camera.transform).apply {
                 fill = Color.NAVY
                 stroke = Color.CYAN
                 opacity = 0.3
             }
         }
-        return worldUi
+    }
+
+    private fun presentMoveToolContext(toolContext: MoveToolContext): Node {
+        return Group()
     }
 }

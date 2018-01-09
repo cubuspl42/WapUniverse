@@ -15,7 +15,12 @@ fun ObservableValue<Boolean>.asObservableBooleanValue(): ObservableBooleanValue 
         Bindings.selectBoolean(this)
 
 fun <T> ObservableValue<T>.mapTo(destination: Group, transform: (value: T) -> Node): Group {
-    var node: Node? = null
+    var node: Node? = this.value?.let(transform)
+
+    if (node != null) {
+        destination.children.add(node)
+    }
+
     this.addListener { observable, oldValue, newValue ->
         if (node != null) {
             destination.children.remove(node)
@@ -25,5 +30,6 @@ fun <T> ObservableValue<T>.mapTo(destination: Group, transform: (value: T) -> No
             destination.children.add(node)
         }
     }
+
     return destination
 }

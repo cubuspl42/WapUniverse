@@ -12,6 +12,7 @@ import javafx.scene.shape.Rectangle
 import javafx.scene.transform.Affine
 import wapuniverse.geom.Vec2d
 import wapuniverse.model.EditorContext
+import wapuniverse.model.SelectToolContext
 import wapuniverse.view.ext.hoverPositionProperty
 import wapuniverse.view.ext.map
 import wapuniverse.view.ext.parentToLocal
@@ -90,7 +91,7 @@ class WorldViewController(
 
         wrapperPane.addEventFilter(MouseEvent.MOUSE_CLICKED) { ev ->
             if (ev.button == MouseButton.PRIMARY && ev.isStillSincePress) {
-                editorContext.selectObjectsAt(viewToWorld(ev.position))
+                (editorContext.activeToolContext as? SelectToolContext)?.selectObjectsAt(viewToWorld(ev.position))
             }
         }
 

@@ -1,24 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.text.Text?>
-<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.ButtonBar?>
 <?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
-<BorderPane fx:id="pane"
-            xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="wapuniverse.view.MainWindowController"
-            prefHeight="600.0" prefWidth="800.0">
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.control.ToggleGroup?>
+<BorderPane fx:id="pane" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.121"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="wapuniverse.view.MainWindowController">
     <top>
-        <MenuBar>
-            <Menu text="File">
-
-            </Menu>
-            <Menu text="Edit">
-                <MenuItem text="Delete" onAction="#onDelete"/>
-            </Menu>
-        </MenuBar>
+        <VBox>
+            <MenuBar>
+                <Menu text="File"/>
+                <Menu text="Edit">
+                    <MenuItem onAction="#onDelete" text="Delete"/>
+                </Menu>
+            </MenuBar>
+            <ButtonBar>
+                <buttons>
+                    <ToggleButton fx:id="selectToolButton" text="S" ButtonBar.buttonData="LEFT"/>
+                    <ToggleButton fx:id="moveToolButton" text="M" ButtonBar.buttonData="LEFT"/>
+                </buttons>
+            </ButtonBar>
+        </VBox>
     </top>
     <center>
         <Text fx:id="imageSetText" text="WapUniverse"/>
