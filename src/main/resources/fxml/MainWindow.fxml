@@ -2,11 +2,24 @@
 
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.text.Text?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuItem?>
 <BorderPane fx:id="pane"
             xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="wapuniverse.view.MainWindowController"
             prefHeight="600.0" prefWidth="800.0">
+    <top>
+        <MenuBar>
+            <Menu text="File">
+
+            </Menu>
+            <Menu text="Edit">
+                <MenuItem text="Delete" onAction="#onDelete"/>
+            </Menu>
+        </MenuBar>
+    </top>
     <center>
         <Text fx:id="imageSetText" text="WapUniverse"/>
     </center>

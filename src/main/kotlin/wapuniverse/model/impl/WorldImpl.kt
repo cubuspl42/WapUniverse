@@ -27,4 +27,8 @@ class WorldImpl(
 
     fun objectsIntersecting(bounds: Bounds): Set<WapObject> =
             objects.filter { it.boundingBox.value.intersects(bounds) }.toSet()
+
+    fun deleteObjects(objectsToDelete: Set<WapObject>) {
+        objects.removeAll(objectsToDelete)
+    }
 }

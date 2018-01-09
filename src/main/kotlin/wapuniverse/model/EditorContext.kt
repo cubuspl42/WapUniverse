@@ -20,6 +20,8 @@ interface EditorContext {
     fun selectObjectsAt(point: Vec2d)
 
     fun selectObjectsByArea(startPoint: Vec2d): AreaSelectionContext
+
+    fun deleteSelectedObjects()
 }
 
 interface AreaSelection {

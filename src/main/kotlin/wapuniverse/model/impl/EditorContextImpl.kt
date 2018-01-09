@@ -40,4 +40,9 @@ class EditorContextImpl(
         selectedObjects.clear()
         selectedObjects.addAll(areaSelection.value!!.preselectedObjects.value!!)
     }
+
+    override fun deleteSelectedObjects() {
+        world.deleteObjects(selectedObjects)
+        selectedObjects.clear()
+    }
 }

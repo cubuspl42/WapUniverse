@@ -17,7 +17,7 @@ class MainWindowPresenter(
     ) {
         val stage = Stage()
         val root = loadFxml(fxmlFilename) {
-            MainWindowController(editorContextPresenter, worldPresenter, editorContext)
+            MainWindowController(worldPresenter, editorContext)
         }
         stage.scene = Scene(root)
         stage.show()
