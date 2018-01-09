@@ -4,7 +4,6 @@ import javafx.beans.value.ObservableValue
 import javafx.scene.Node
 import javafx.scene.image.ImageView
 import javafx.scene.paint.Color
-import javafx.scene.shape.Rectangle
 import org.fxmisc.easybind.EasyBind.combine
 import wapuniverse.model.WapObject
 import wapuniverse.rez.RezImageProvider
@@ -29,23 +28,22 @@ class WapObjectPresenter(
     }
 
     fun presentObjectUi(wapObject: WapObject): Node {
-        val bounds = combine(wapObject.boundingBox, camera.transform) { bounds, transform ->
-            transform.transform(bounds)
-        }
-        return Rectangle().apply {
-            xProperty().bind(bounds.map { it.minX.toInt().toDouble() + 0.5 })
-            yProperty().bind(bounds.map { it.minY.toInt().toDouble() + 0.5 })
-            widthProperty().bind(bounds.map { it.width })
-            heightProperty().bind(bounds.map { it.height })
+        return presentRectangle(wapObject.boundingBox, camera.transform).apply {
             strokeProperty().bind(rectangleColor(wapObject))
-
             fill = Color.TRANSPARENT
         }
     }
 
     private fun rectangleColor(wapObject: WapObject): ObservableValue<Color> {
-        return combine(wapObject.isHovered, wapObject.isSelected) { isHovered, isSelected ->
+        return combine(
+                wapObject.isHovered,
+                wapObject.isSelected,
+                wapObject.isPreselected
+        ) { isHovered,
+            isSelected,
+            isPreselected ->
             when {
+                isPreselected -> Color.ORANGE
                 isSelected -> Color.RED
                 isHovered -> Color.BLUE
                 else -> Color.LIGHTBLUE
@@ -53,4 +51,3 @@ class WapObjectPresenter(
         }
     }
 }
-

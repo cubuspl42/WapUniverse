@@ -1,7 +1,10 @@
 package wapuniverse.view
 
 import javafx.scene.Group
+import javafx.scene.Node
 import javafx.scene.Parent
+import javafx.scene.paint.Color
+import javafx.scene.shape.Rectangle
 import wapuniverse.model.EditorContext
 import wapuniverse.model.World
 import wapuniverse.rez.RezImageProvider
@@ -11,6 +14,7 @@ import wapuniverse.view.util.loadFxml
 private val fxmlFilename = "/fxml/WorldView.fxml"
 
 class WorldPresenter(
+        private val editorContext: EditorContext,
         private val world: World,
         rezImageProvider: RezImageProvider
 ) {
@@ -25,14 +29,32 @@ class WorldPresenter(
     }
 
     private fun presentWorldContent(): Group {
-        return world.objects.mapTo(Group()) {
+        val worldContent = Group(presentWorldBackground())
+        return world.objects.mapTo(worldContent) {
             wapObjectPresenter.presentObjectImageView(it)
         }
     }
 
+    private fun presentWorldBackground(): Node {
+        val backgroundRect = Rectangle(-128.0, -128.0, 1024.0, 1024.0).apply {
+            opacity = 0.1
+        }
+        WorldBackgroundController(backgroundRect, editorContext)
+        return backgroundRect
+    }
+
     private fun presentWorldUi(): Group {
-        return world.objects.mapTo(Group()) {
+        val worldUi = Group()
+        world.objects.mapTo(worldUi) {
             wapObjectPresenter.presentObjectUi(it)
         }
+        editorContext.areaSelection.mapTo(worldUi) {
+            presentRectangle(it.boundingBox, camera.transform).apply {
+                fill = Color.NAVY
+                stroke = Color.CYAN
+                opacity = 0.3
+            }
+        }
+        return worldUi
     }
 }

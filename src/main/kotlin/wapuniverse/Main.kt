@@ -30,7 +30,7 @@ class MyApplication : Application() {
 
         val editorContextPresenter = EditorContextPresenter(editorContext)
 
-        val worldPresenter = WorldPresenter(editorContext.world, rezImageProvider)
+        val worldPresenter = WorldPresenter(editorContext, editorContext.world, rezImageProvider)
 
         val mainWindowPresenter = MainWindowPresenter(editorContextPresenter, worldPresenter)
 

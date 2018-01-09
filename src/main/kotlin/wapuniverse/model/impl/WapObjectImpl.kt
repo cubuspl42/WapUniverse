@@ -2,8 +2,10 @@ package wapuniverse.model.impl
 
 import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleStringProperty
+import javafx.beans.value.ObservableBooleanValue
 import javafx.geometry.BoundingBox
 import org.fxmisc.easybind.EasyBind.combine
+import org.fxmisc.easybind.EasyBind.monadic
 import wapuniverse.model.WapObject
 import wapuniverse.rez.RezIndex
 import wapuniverse.view.ext.asObservableBooleanValue
@@ -35,6 +37,12 @@ class WapObjectImpl(
             .asObservableBooleanValue()
 
     override val isSelected = setContains(editorContext.selectedObjects, this)
+
+    override val isPreselected = monadic(editorContext.areaSelection)
+            .flatMap { it.preselectedObjects }
+            .map { it.contains(this) }
+            .orElse(false)
+            .asObservableBooleanValue()
 }
 
 private fun resolveShortId(imageSet: String): String {

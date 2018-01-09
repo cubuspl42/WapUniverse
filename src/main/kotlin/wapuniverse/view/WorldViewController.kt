@@ -33,7 +33,7 @@ class WorldViewController(
     lateinit var contentPane: Pane
 
     @FXML
-    lateinit var uiPane: Pane
+    lateinit var uiPane: Group
 
     var scale = 1.0
 
@@ -89,9 +89,13 @@ class WorldViewController(
         })
 
         wrapperPane.addEventFilter(MouseEvent.MOUSE_CLICKED) { ev ->
-            if (ev.button == MouseButton.PRIMARY) {
+            if (ev.button == MouseButton.PRIMARY && ev.isStillSincePress) {
                 editorContext.selectObjectsAt(viewToWorld(ev.position))
             }
+        }
+
+        uiPane.setOnMousePressed {
+            println()
         }
     }
 

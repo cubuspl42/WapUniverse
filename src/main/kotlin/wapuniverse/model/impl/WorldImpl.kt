@@ -1,6 +1,7 @@
 package wapuniverse.model.impl
 
 import javafx.collections.FXCollections.observableSet
+import javafx.geometry.Bounds
 import wapuniverse.geom.Vec2d
 import wapuniverse.model.WapObject
 import wapuniverse.model.World
@@ -23,4 +24,7 @@ class WorldImpl(
 
     fun objectsAt(point: Vec2d): Set<WapObject> =
             objects.filter { it.boundingBox.value.contains(point) }.toSet()
+
+    fun objectsIntersecting(bounds: Bounds): Set<WapObject> =
+            objects.filter { it.boundingBox.value.intersects(bounds) }.toSet()
 }

@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.Group?>
 <?import javafx.scene.layout.Pane?>
-<?import javafx.scene.layout.StackPane?>
-<StackPane fx:id="wrapperPane"
-           xmlns="http://javafx.com/javafx"
-           xmlns:fx="http://javafx.com/fxml"
-           fx:controller="wapuniverse.view.WorldViewController"
-           prefHeight="600.0" prefWidth="800.0">
+<Pane fx:id="wrapperPane"
+      xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="wapuniverse.view.WorldViewController"
+      prefHeight="600.0" prefWidth="800.0">
 
     <Pane fx:id="contentPane"/>
 
-    <Pane fx:id="uiPane"/>
+    <Group fx:id="uiPane"/>
 
-</StackPane>
+</Pane>
