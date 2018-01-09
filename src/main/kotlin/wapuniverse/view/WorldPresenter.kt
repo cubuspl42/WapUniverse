@@ -23,7 +23,7 @@ class WorldPresenter(
 ) {
     private val camera = Camera()
 
-    private val wapObjectPresenter = WapObjectPresenter(rezImageProvider, camera)
+    private val wapObjectPresenter = WapObjectPresenter(rezImageProvider, camera, editorContext)
 
     fun presentWorldView(editorContext: EditorContext): Parent {
         val contentNode = presentWorldContent()
@@ -42,7 +42,7 @@ class WorldPresenter(
         val backgroundRect = Rectangle(-128.0, -128.0, 1024.0, 1024.0).apply {
             opacity = 0.1
         }
-        WorldBackgroundController(backgroundRect, editorContext)
+        attachSelectionSurfaceController(backgroundRect, editorContext)
         return backgroundRect
     }
 

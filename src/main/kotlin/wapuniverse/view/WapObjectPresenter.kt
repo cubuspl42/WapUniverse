@@ -5,6 +5,7 @@ import javafx.scene.Node
 import javafx.scene.image.ImageView
 import javafx.scene.paint.Color
 import org.fxmisc.easybind.EasyBind.combine
+import wapuniverse.model.EditorContext
 import wapuniverse.model.WapObject
 import wapuniverse.rez.RezImageProvider
 import wapuniverse.view.ext.map
@@ -12,14 +13,18 @@ import wapuniverse.view.util.observableValue
 
 class WapObjectPresenter(
         private val rezImageProvider: RezImageProvider,
-        private val camera: Camera
+        private val camera: Camera,
+        private val editorContext: EditorContext
 ) {
-    fun presentObjectImageView(wapObject: WapObject) =
-            ImageView().apply {
-                xProperty().bind(wapObject.boundingBox.map { it.minX })
-                yProperty().bind(wapObject.boundingBox.map { it.minY })
-                imageProperty().bind(provideImage(wapObject))
-            }
+    fun presentObjectImageView(wapObject: WapObject): ImageView {
+        val imageView = ImageView().apply {
+            xProperty().bind(wapObject.boundingBox.map { it.minX })
+            yProperty().bind(wapObject.boundingBox.map { it.minY })
+            imageProperty().bind(provideImage(wapObject))
+        }
+        attachSelectionSurfaceController(imageView, editorContext)
+        return imageView
+    }
 
     private fun provideImage(wapObject: WapObject) = observableValue {
         rezImageProvider.provideImage(
@@ -28,10 +33,12 @@ class WapObjectPresenter(
     }
 
     fun presentObjectUi(wapObject: WapObject): Node {
-        return presentRectangle(wapObject.boundingBox, camera.transform).apply {
+        val rectangle = presentRectangle(wapObject.boundingBox, camera.transform).apply {
             strokeProperty().bind(rectangleColor(wapObject))
             fill = Color.TRANSPARENT
+            isMouseTransparent = true
         }
+        return rectangle
     }
 
     private fun rectangleColor(wapObject: WapObject): ObservableValue<Color> {

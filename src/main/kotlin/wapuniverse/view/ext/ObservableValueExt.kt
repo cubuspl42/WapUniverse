@@ -1,6 +1,7 @@
 package wapuniverse.view.ext
 
 import javafx.beans.binding.Bindings
+import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.value.ObservableBooleanValue
 import javafx.beans.value.ObservableValue
 import javafx.scene.Group
@@ -32,4 +33,13 @@ fun <T> ObservableValue<T>.mapTo(destination: Group, transform: (value: T) -> No
     }
 
     return destination
+}
+
+ fun <T, R> ObservableValue<T>.map(transform: (T) -> R, uninit: (R) -> Unit): ObservableValue<R> {
+    val property = SimpleObjectProperty<R>(transform(this.value))
+    this.addListener { observable, oldValue, newValue ->
+        uninit(property.value)
+        property.set(transform(newValue))
+    }
+    return property
 }
