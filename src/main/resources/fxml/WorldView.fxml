@@ -9,7 +9,10 @@
       prefHeight="600.0" prefWidth="800.0">
 
     <Pane fx:id="contentPane">
-        <Group fx:id="contentGroup"/>
+        <Group fx:id="contentGroup">
+            <Group fx:id="tilesGroup"/>
+            <Group fx:id="objectsGroup"/>
+        </Group>
     </Pane>
 
     <Group fx:id="uiGroup">

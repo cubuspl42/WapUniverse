@@ -1,10 +1,13 @@
 package wapuniverse.view
 
 import javafx.beans.value.ObservableValue
+import javafx.collections.MapChangeListener
+import javafx.collections.ObservableMap
 import javafx.fxml.FXML
 import javafx.fxml.Initializable
 import javafx.scene.Group
 import javafx.scene.Node
+import javafx.scene.image.ImageView
 import javafx.scene.input.MouseButton
 import javafx.scene.input.MouseEvent
 import javafx.scene.input.ScrollEvent
@@ -14,6 +17,7 @@ import javafx.scene.shape.Rectangle
 import javafx.scene.transform.Affine
 import org.fxmisc.easybind.EasyBind.listBind
 import wapuniverse.geom.Vec2d
+import wapuniverse.geom.Vec2i
 import wapuniverse.model.EditorContext
 import wapuniverse.model.SelectToolContext
 import wapuniverse.model.selectToolContext
@@ -24,6 +28,7 @@ import wapuniverse.view.ext.parentToLocal
 import wapuniverse.view.ext.position
 import wapuniverse.view.ext.singletonObservableList
 import wapuniverse.view.ext.toVec2d
+import wapuniverse.view.util.observableValue
 import java.net.URL
 import java.util.ResourceBundle
 
@@ -40,6 +45,12 @@ class WorldViewController(
     lateinit var contentPane: Pane
 
     @FXML
+    lateinit var tilesGroup: Group
+
+    @FXML
+    lateinit var objectsGroup: Group
+
+    @FXML
     lateinit var contentGroup: Group
 
     @FXML
@@ -50,7 +61,6 @@ class WorldViewController(
 
     @FXML
     lateinit var editorUiGroup: Group
-
 
     var scale = 1.0
 
@@ -84,8 +94,10 @@ class WorldViewController(
             }
         }
 
+        presentTiles(tilesGroup, world.tiles)
+
         listBind(
-                contentGroup.children,
+                objectsGroup.children,
                 world.objects.map { wapObjectPresenter.presentObjectImageView(it) }
         )
 
@@ -95,6 +107,10 @@ class WorldViewController(
         )
 
         listBind(editorUiGroup.children, singletonObservableList(selectionAreaRectangle))
+    }
+
+    private fun presentTiles(tilesGroup: Group, tiles: ObservableMap<Vec2i, Int>) {
+        TilesController(tilesGroup, tiles, rezImageProvider)
     }
 
     private fun presentSelectionAreaRectangle(): ObservableValue<Node> {
