@@ -16,6 +16,7 @@ private class ObservableValueContinuation<T>(
     }
 
     override fun resumeWithException(exception: Throwable) {
+        println(exception)
     }
 }
 

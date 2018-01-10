@@ -26,8 +26,14 @@ class WapObjectPresenter(
 
     fun presentObjectImageView(wapObject: WapObject): ImageView {
         val imageView = ImageView().apply {
-            xProperty().bind(wapObject.boundingBox.map { it.minX })
-            yProperty().bind(wapObject.boundingBox.map { it.minY })
+            xProperty().bind(
+                    wapObject.rezImageMetadata.map { it!!.offset.x.toDouble() - it.size.width / 2 }.orElse(0.0))
+            yProperty().bind(
+                    wapObject.rezImageMetadata.map { it!!.offset.y.toDouble() - it.size.height / 2 }.orElse(0.0))
+
+            translateXProperty().bind(wapObject.x)
+            translateYProperty().bind(wapObject.y)
+
             imageProperty().bind(provideImage(wapObject))
         }
 

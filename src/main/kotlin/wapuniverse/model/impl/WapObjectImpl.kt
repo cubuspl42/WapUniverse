@@ -18,15 +18,21 @@ class WapObjectImpl(
     private val selectToolContext = monadic(editorContext.activeToolContext)
             .map { it as? SelectToolContextImpl }
 
-    override val imageSet = SimpleStringProperty()
+    override val imageSet = SimpleStringProperty("")
 
-    override val x = SimpleIntegerProperty()
+    override val x = SimpleIntegerProperty(0)
 
-    override val y = SimpleIntegerProperty()
+    override val y = SimpleIntegerProperty(0)
 
-    override val boundingBox = combine(imageSet, x, y) { imageSet, x, y ->
+    override val i = SimpleIntegerProperty(-1)
+
+    override val rezImageMetadata = combine(imageSet, i) { imageSet, i ->
         val fullyQualifiedImageSetId = resolveShortId(imageSet)
-        rezIndex.findImageMetadata(fullyQualifiedImageSetId, -1)?.let { metadata ->
+        rezIndex.findImageMetadata(fullyQualifiedImageSetId, i.toInt())
+    }
+
+    override val boundingBox = combine(rezImageMetadata, x, y) { rezImageMetadata, x, y ->
+        rezImageMetadata?.let { metadata ->
             val minX = x.toDouble() + metadata.offset.x
             val minY = y.toDouble() + metadata.offset.y
             val width = metadata.size.width
