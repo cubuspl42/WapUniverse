@@ -47,8 +47,6 @@ class EditorContextController(
         editorContext.activeTool.bind(toggleGroup.selectedToggleProperty().map { it.userData as Tool })
 
         pane.center = worldPresenter.presentWorldView(editorContext)
-
-        imageSetText.textProperty().bind(editorContext.world.objects.first().imageSet)
     }
 
     fun onDelete(actionEvent: ActionEvent) {

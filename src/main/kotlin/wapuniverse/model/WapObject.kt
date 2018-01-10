@@ -7,14 +7,11 @@ import javafx.beans.value.ObservableStringValue
 import javafx.geometry.BoundingBox
 import wapuniverse.rez.RezImageMetadata
 
-interface WapObject {
+interface WapObject : Entity {
     val imageSet: ObservableStringValue
     val x: ObservableIntegerValue
     val y: ObservableIntegerValue
     val i: ObservableIntegerValue
     val rezImageMetadata: ObservableObjectValue<RezImageMetadata?>
     val boundingBox: ObservableObjectValue<BoundingBox>
-    val isHovered: ObservableBooleanValue
-    val isSelected: ObservableBooleanValue
-    val isPreselected: ObservableBooleanValue
 }

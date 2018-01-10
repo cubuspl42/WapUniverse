@@ -1,11 +1,8 @@
 package wapuniverse.model
 
-import javafx.collections.ObservableList
 import javafx.collections.ObservableMap
 import wapuniverse.geom.Vec2i
 
-interface World {
-    val entities: ObservableList<out Entity>
-
+interface TileObject {
     val tiles: ObservableMap<Vec2i, Int>
 }

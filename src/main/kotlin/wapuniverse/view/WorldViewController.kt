@@ -1,13 +1,11 @@
 package wapuniverse.view
 
 import javafx.beans.value.ObservableValue
-import javafx.collections.MapChangeListener
 import javafx.collections.ObservableMap
 import javafx.fxml.FXML
 import javafx.fxml.Initializable
 import javafx.scene.Group
 import javafx.scene.Node
-import javafx.scene.image.ImageView
 import javafx.scene.input.MouseButton
 import javafx.scene.input.MouseEvent
 import javafx.scene.input.ScrollEvent
@@ -28,7 +26,6 @@ import wapuniverse.view.ext.parentToLocal
 import wapuniverse.view.ext.position
 import wapuniverse.view.ext.singletonObservableList
 import wapuniverse.view.ext.toVec2d
-import wapuniverse.view.util.observableValue
 import java.net.URL
 import java.util.ResourceBundle
 
@@ -70,6 +67,10 @@ class WorldViewController(
 
     private val wapObjectPresenter = WapObjectPresenter(rezImageProvider, camera, editorContext)
 
+    private val tileObjectPresenter = TileObjectPresenter()
+
+    private val entityPresenter = EntityPresenter(wapObjectPresenter, tileObjectPresenter)
+
     private val selectionAreaRectangle = presentSelectionAreaRectangle()
 
     override fun initialize(location: URL?, resources: ResourceBundle?) {
@@ -98,12 +99,12 @@ class WorldViewController(
 
         listBind(
                 objectsGroup.children,
-                world.objects.map { wapObjectPresenter.presentObjectImageView(it) }
+                world.entities.map { entityPresenter.presentEntity(it) }
         )
 
         listBind(
                 objectsUiGroup.children,
-                world.objects.map { wapObjectPresenter.presentObjectUi(it) }
+                world.entities.map { entityPresenter.presentEntityUi(it) }
         )
 
         listBind(editorUiGroup.children, singletonObservableList(selectionAreaRectangle))

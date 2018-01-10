@@ -2,17 +2,19 @@ package wapuniverse.model.impl
 
 import javafx.beans.property.SimpleObjectProperty
 import javafx.collections.FXCollections
+import javafx.collections.FXCollections.observableSet
 import javafx.collections.ObservableSet
 import wapuniverse.geom.Vec2d
 import wapuniverse.model.AreaSelection
 import wapuniverse.model.AreaSelectionContext
+import wapuniverse.model.Entity
 import wapuniverse.model.SelectToolContext
 import wapuniverse.model.WapObject
 
 class SelectToolContextImpl(
         private val world: WorldImpl
 ) : SelectToolContext {
-    override val selectedObjects: ObservableSet<WapObject> = FXCollections.observableSet()
+    override val selectedObjects: ObservableSet<Entity> = observableSet()
 
     override val areaSelection = SimpleObjectProperty<AreaSelection>()
 

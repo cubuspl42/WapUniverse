@@ -3,6 +3,7 @@ package wapuniverse.model.impl
 import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.BoundingBox
+import javafx.geometry.Bounds
 import org.fxmisc.easybind.EasyBind.combine
 import org.fxmisc.easybind.EasyBind.monadic
 import wapuniverse.geom.Vec2i
@@ -14,7 +15,7 @@ import wapuniverse.view.ext.setContains
 class WapObjectImpl(
         editorContext: EditorContextImpl,
         rezIndex: RezIndex
-) : WapObject {
+) : WapObject, EntityImpl(editorContext) {
     private val selectToolContext = monadic(editorContext.activeToolContext)
             .map { it as? SelectToolContextImpl }
 
@@ -41,27 +42,15 @@ class WapObjectImpl(
         } ?: BoundingBox(0.0, 0.0, 0.0, 0.0)
     }!!
 
-    override val isHovered = editorContext.hoveredObjects
-            .map { it.contains(this) }
-            .asObservableBooleanValue()
+    override val position = combine(x, y) { x, y -> Vec2i(x.toInt(), y.toInt()) }
 
-    override val isSelected = selectToolContext
-            .flatMap { setContains(it!!.selectedObjects, this) }
-            .asObservableBooleanValue()
-
-    override val isPreselected = selectToolContext
-            .flatMap { it!!.areaSelection }
-            .flatMap { it.preselectedObjects }
-            .map { it.contains(this) }
-            .orElse(false)
-            .asObservableBooleanValue()
-
-    val position = combine(x, y) { x, y -> Vec2i(x.toInt(), y.toInt()) }
-
-    fun setPosition(position: Vec2i) {
+    override fun setPosition(position: Vec2i) {
         x.value = position.x
         y.value = position.y
     }
+
+    override fun intersects(bounds: Bounds) =
+            boundingBox.value.intersects(bounds)
 }
 
 fun resolveShortId(imageSet: String): String {
