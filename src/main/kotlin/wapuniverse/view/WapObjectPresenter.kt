@@ -59,7 +59,7 @@ class WapObjectPresenter(
 
     private fun provideImage(wapObject: WapObject) = observableValue {
         rezImageProvider.provideImage(
-                resolveShortId(wapObject.imageSet.value), -1
+                resolveShortId(wapObject.imageSet.value), wapObject.i.value.toInt()
         )?.image
     }
 

@@ -45,6 +45,7 @@ private fun loadWorld(world: WorldImpl, wwd: Wwd) {
         wapObject.imageSet.set(wwdObject.imageSet)
         wapObject.x.set(wwdObject.x)
         wapObject.y.set(wwdObject.y)
+        wapObject.i.set(wwdObject.i)
     }
     for (i in 0 until plane.tilesHigh) {
         for (j in 0 until plane.tilesWide) {
