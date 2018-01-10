@@ -33,8 +33,8 @@ class WapObjectImpl(
 
     override val boundingBox = combine(rezImageMetadata, x, y) { rezImageMetadata, x, y ->
         rezImageMetadata?.let { metadata ->
-            val minX = x.toDouble() + metadata.offset.x
-            val minY = y.toDouble() + metadata.offset.y
+            val minX = x.toDouble() + metadata.offset.x - metadata.size.width / 2
+            val minY = y.toDouble() + metadata.offset.y - metadata.size.height / 2
             val width = metadata.size.width
             val height = metadata.size.height
             BoundingBox(minX, minY, width.toDouble(), height.toDouble())
