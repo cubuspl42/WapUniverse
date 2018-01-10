@@ -10,7 +10,7 @@ import org.fxmisc.easybind.EasyBind
 import org.fxmisc.easybind.monadic.MonadicBinding
 
 fun <T, R> ObservableValue<T>.map(transform: (T) -> R): MonadicBinding<R> =
-        EasyBind.map(this, transform)!!
+        EasyBind.monadic(this).map(transform)!!
 
 fun ObservableValue<Boolean>.asObservableBooleanValue(): ObservableBooleanValue =
         Bindings.selectBoolean(this)
@@ -35,7 +35,7 @@ fun <T> ObservableValue<T>.mapTo(destination: Group, transform: (value: T) -> No
     return destination
 }
 
- fun <T, R> ObservableValue<T>.map(transform: (T) -> R, uninit: (R) -> Unit): ObservableValue<R> {
+fun <T, R> ObservableValue<T>.map(transform: (T) -> R, uninit: (R) -> Unit): ObservableValue<R> {
     val property = SimpleObjectProperty<R>(transform(this.value))
     this.addListener { observable, oldValue, newValue ->
         uninit(property.value)

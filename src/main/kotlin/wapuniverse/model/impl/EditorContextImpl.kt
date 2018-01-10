@@ -1,15 +1,18 @@
 package wapuniverse.model.impl
 
 import javafx.beans.property.SimpleObjectProperty
+import jwap32.v1.Wwd
 import org.fxmisc.easybind.EasyBind.monadic
 import wapuniverse.geom.Vec2d
+import wapuniverse.geom.Vec2i
 import wapuniverse.model.EditorContext
 import wapuniverse.model.Tool
 import wapuniverse.rez.RezIndex
 import wapuniverse.view.ext.map
 
 class EditorContextImpl(
-        rezIndex: RezIndex
+        rezIndex: RezIndex,
+        wwd: Wwd
 ) : EditorContext {
     override val world = WorldImpl(this, rezIndex)
 
@@ -30,6 +33,23 @@ class EditorContextImpl(
     }
 
     init {
-        world.init()
+        loadWorld(world, wwd)
+    }
+}
+
+
+private fun loadWorld(world: WorldImpl, wwd: Wwd) {
+    val plane = wwd.planes[1]
+    plane.objects.forEach { wwdObject ->
+        val wapObject = world.addObject()
+        wapObject.imageSet.set(wwdObject.imageSet)
+        wapObject.x.set(wwdObject.x)
+        wapObject.y.set(wwdObject.y)
+    }
+    for (i in 0 until plane.tilesHigh) {
+        for (j in 0 until plane.tilesWide) {
+            val tileId = plane.getTile(i, j)
+            world.tiles.put(Vec2i(j, i), tileId)
+        }
     }
 }

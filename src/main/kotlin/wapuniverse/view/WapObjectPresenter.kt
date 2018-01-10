@@ -7,6 +7,7 @@ import javafx.scene.paint.Color
 import org.fxmisc.easybind.EasyBind.combine
 import wapuniverse.model.EditorContext
 import wapuniverse.model.WapObject
+import wapuniverse.model.impl.resolveShortId
 import wapuniverse.model.moveToolContext
 import wapuniverse.model.selectToolContext
 import wapuniverse.rez.RezImageProvider
@@ -39,7 +40,7 @@ class WapObjectPresenter(
 
     private fun provideImage(wapObject: WapObject) = observableValue {
         rezImageProvider.provideImage(
-                wapObject.imageSet.value, -1
+                resolveShortId(wapObject.imageSet.value), -1
         )?.image
     }
 

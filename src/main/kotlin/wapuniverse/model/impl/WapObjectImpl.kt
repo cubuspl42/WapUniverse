@@ -18,7 +18,7 @@ class WapObjectImpl(
     private val selectToolContext = monadic(editorContext.activeToolContext)
             .map { it as? SelectToolContextImpl }
 
-    override val imageSet = SimpleStringProperty("LEVEL1_OFFICER")
+    override val imageSet = SimpleStringProperty()
 
     override val x = SimpleIntegerProperty()
 
@@ -58,6 +58,6 @@ class WapObjectImpl(
     }
 }
 
-private fun resolveShortId(imageSet: String): String {
+fun resolveShortId(imageSet: String): String {
     return imageSet.replace("LEVEL_", "LEVEL1_IMAGES_")
 }

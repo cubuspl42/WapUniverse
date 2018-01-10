@@ -2,6 +2,7 @@ package wapuniverse.view
 
 import javafx.collections.MapChangeListener
 import javafx.collections.ObservableMap
+import javafx.scene.CacheHint
 import javafx.scene.Group
 import javafx.scene.Node
 import javafx.scene.image.ImageView
@@ -36,7 +37,13 @@ class TilesController(
         val image = observableValue {
             rezImageProvider.provideImage("LEVEL1_TILES_ACTION", tileId)!!.image
         }
-        val node = ImageView().apply { imageProperty().bind(image) }
+        val node = if (tileId >= 0) {
+            ImageView().apply {
+                x = index.x * 64.0
+                y = index.y * 64.0
+                imageProperty().bind(image)
+            }
+        } else Group()
         nodeMap[index] = node
         tilesGroup.children.add(node)
     }

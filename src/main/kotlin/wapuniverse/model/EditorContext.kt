@@ -18,7 +18,7 @@ interface EditorContext {
     val activeToolContext: ObservableValue<out ToolContext>
 }
 
-fun EditorContext(rezIndex: RezIndex): EditorContext = EditorContextImpl(rezIndex)
+//fun EditorContext(rezIndex: RezIndex): EditorContext = EditorContextImpl(rezIndex)
 
 val EditorContext.selectToolContext: MonadicObservableValue<SelectToolContext>
     get() = activeToolContext.map { it as? SelectToolContext }

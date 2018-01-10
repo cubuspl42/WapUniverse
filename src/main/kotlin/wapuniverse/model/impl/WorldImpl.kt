@@ -1,6 +1,5 @@
 package wapuniverse.model.impl
 
-import javafx.collections.FXCollections
 import javafx.collections.FXCollections.observableArrayList
 import javafx.collections.FXCollections.observableHashMap
 import javafx.collections.ObservableMap
@@ -30,15 +29,7 @@ class WorldImpl(
         objects.removeAll(objectsToDelete)
     }
 
-    fun init() {
-        objects.add(WapObjectImpl(editorContext, rezIndex).apply {
-            imageSet.set("LEVEL1_IMAGES_OFFICER")
-        })
-        objects.add(WapObjectImpl(editorContext, rezIndex).apply {
-            imageSet.set("LEVEL1_IMAGES_SOLDIER")
-            x.set(128)
-        })
-
-        tiles.put(Vec2i(0, 0), 12)
+    fun addObject() = WapObjectImpl(editorContext, rezIndex).also {
+        objects.add(it)
     }
 }

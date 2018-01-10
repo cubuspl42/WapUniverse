@@ -2,13 +2,15 @@ package wapuniverse
 
 import javafx.application.Application
 import javafx.stage.Stage
-import wapuniverse.model.EditorContext
+import wapuniverse.model.impl.MainContextImpl
 import wapuniverse.rez.CachingRezImageProvider
 import wapuniverse.rez.ClassLoaderRezImageLoader
 import wapuniverse.rez.addImageSizes
 import wapuniverse.rez.loadYamlRezIndex
+import wapuniverse.view.EditorContextPresenter
 import wapuniverse.view.MainWindowPresenter
 import wapuniverse.view.WorldPresenter
+import java.nio.file.Paths
 
 private val rezIndexPath = "rezIndex.yaml"
 private val rezImageLoaderPrefix = "CLAW"
@@ -26,22 +28,18 @@ class MyApplication : Application() {
 
         val rezImageProvider = CachingRezImageProvider(rezIndex, rezImageLoader)
 
-        val editorContext = EditorContext(rezIndex)
-
-        val editorContextPresenter = EditorContextPresenter(editorContext)
+        val mainContext = MainContextImpl(rezIndex).apply {
+            openFile(Paths.get("F:\\WORLD.WWD"))
+        }
 
         val worldPresenter = WorldPresenter(rezImageProvider)
 
-        val mainWindowPresenter = MainWindowPresenter(editorContextPresenter, worldPresenter)
+        val editorContextPresenter = EditorContextPresenter(worldPresenter)
 
-        mainWindowPresenter.showMainWindow(editorContext)
+        val mainWindowPresenter = MainWindowPresenter(editorContextPresenter)
+
+        mainWindowPresenter.showMainWindow(mainContext)
     }
-}
-
-class EditorContextPresenter(
-        editorContext: EditorContext
-) {
-
 }
 
 fun main(args: Array<String>) {

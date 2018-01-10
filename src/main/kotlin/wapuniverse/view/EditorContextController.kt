@@ -14,7 +14,7 @@ import wapuniverse.view.ext.map
 import java.net.URL
 import java.util.ResourceBundle
 
-class MainWindowController(
+class EditorContextController(
         private val worldPresenter: WorldPresenter,
         private val editorContext: EditorContext
 ) : Initializable {
