@@ -1,16 +1,16 @@
 package wapuniverse.view
 
-import javafx.scene.image.ImageView
+import javafx.scene.Node
 import wapuniverse.model.MoveToolContext
 import wapuniverse.view.ext.position
 
 class MoveToolObjectController(
-        private val imageView: ImageView,
+        private val node: Node,
         private val moveToolContext: MoveToolContext
 ) : Controller by DraggableNodeController(
-        imageView,
+        node,
         onMouseDragged = { event ->
             val objectsDragContext = moveToolContext.dragSelectedObjects(event.position)
-            ObjectsDragController(imageView, objectsDragContext)
+            ObjectsDragController(node, objectsDragContext)
         }
 )

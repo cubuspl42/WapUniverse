@@ -1,9 +1,11 @@
 package wapuniverse.view
 
 import javafx.beans.value.ObservableValue
+import javafx.scene.Group
 import javafx.scene.Node
 import javafx.scene.image.ImageView
 import javafx.scene.paint.Color
+import javafx.scene.shape.Rectangle
 import org.fxmisc.easybind.EasyBind.combine
 import wapuniverse.model.EditorContext
 import wapuniverse.model.WapObject
@@ -24,7 +26,18 @@ class WapObjectPresenter(
 
     private val moveToolContext = editorContext.moveToolContext
 
-    fun presentObjectImageView(wapObject: WapObject): ImageView {
+    fun presentObjectImageView(wapObject: WapObject): Node {
+        val bbox = wapObject.boundingBox
+        val backRect = Rectangle().apply {
+            xProperty().bind(bbox.map { it.minX.toInt().toDouble() + 0.5 })
+            yProperty().bind(bbox.map { it.minY.toInt().toDouble() + 0.5 })
+            widthProperty().bind(bbox.map { it.width })
+            heightProperty().bind(bbox.map { it.height })
+            opacity = 0.2
+        }
+
+        selectToolContext.attachController { SelectionSurfaceController(backRect, it) }
+
         val imageView = ImageView().apply {
             xProperty().bind(
                     wapObject.rezImageMetadata.map { it!!.offset.x.toDouble() - it.size.width / 2 }.orElse(0.0))
@@ -35,13 +48,13 @@ class WapObjectPresenter(
             translateYProperty().bind(wapObject.y)
 
             imageProperty().bind(provideImage(wapObject))
+
+            isMouseTransparent = true
         }
 
-        selectToolContext.attachController { SelectionSurfaceController(imageView, it) }
+        moveToolContext.attachController { MoveToolObjectController(backRect, it) }
 
-        moveToolContext.attachController { MoveToolObjectController(imageView, it) }
-
-        return imageView
+        return Group(backRect, imageView)
     }
 
     private fun provideImage(wapObject: WapObject) = observableValue {
