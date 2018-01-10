@@ -1,6 +1,6 @@
 package wapuniverse.model.impl
 
-import javafx.collections.FXCollections.observableSet
+import javafx.collections.FXCollections.observableArrayList
 import javafx.geometry.Bounds
 import wapuniverse.geom.Vec2d
 import wapuniverse.model.WapObject
@@ -12,7 +12,7 @@ class WorldImpl(
         private val editorContext: EditorContextImpl,
         private val rezIndex: RezIndex
 ) : World {
-    override val objects = observableSet<WapObject>()!!
+    override val objects = observableArrayList<WapObjectImpl>()!!
 
     fun objectsAt(point: Vec2d): Set<WapObject> =
             objects.filter { it.boundingBox.value.contains(point) }.toSet()

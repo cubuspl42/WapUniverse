@@ -7,22 +7,33 @@ import javafx.scene.paint.Color
 import org.fxmisc.easybind.EasyBind.combine
 import wapuniverse.model.EditorContext
 import wapuniverse.model.WapObject
+import wapuniverse.model.moveToolContext
+import wapuniverse.model.selectToolContext
 import wapuniverse.rez.RezImageProvider
+import wapuniverse.view.ext.attachController
 import wapuniverse.view.ext.map
 import wapuniverse.view.util.observableValue
 
 class WapObjectPresenter(
         private val rezImageProvider: RezImageProvider,
         private val camera: Camera,
-        private val editorContext: EditorContext
+        editorContext: EditorContext
 ) {
+    private val selectToolContext = editorContext.selectToolContext
+
+    private val moveToolContext = editorContext.moveToolContext
+
     fun presentObjectImageView(wapObject: WapObject): ImageView {
         val imageView = ImageView().apply {
             xProperty().bind(wapObject.boundingBox.map { it.minX })
             yProperty().bind(wapObject.boundingBox.map { it.minY })
             imageProperty().bind(provideImage(wapObject))
         }
-        attachSelectionSurfaceController(imageView, editorContext)
+
+        selectToolContext.attachController { SelectionSurfaceController(imageView, it) }
+
+        moveToolContext.attachController { MoveToolObjectController(imageView, it) }
+
         return imageView
     }
 

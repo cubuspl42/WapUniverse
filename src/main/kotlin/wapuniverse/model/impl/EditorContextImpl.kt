@@ -25,7 +25,7 @@ class EditorContextImpl(
         it!!
         when (it) {
             Tool.SELECT -> SelectToolContextImpl(world)
-            Tool.MOVE -> MoveToolContextImpl()
+            Tool.MOVE -> MoveToolContextImpl(world)
         }
     }
 

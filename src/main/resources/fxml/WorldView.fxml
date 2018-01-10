@@ -8,8 +8,13 @@
       fx:controller="wapuniverse.view.WorldViewController"
       prefHeight="600.0" prefWidth="800.0">
 
-    <Pane fx:id="contentPane"/>
+    <Pane fx:id="contentPane">
+        <Group fx:id="contentGroup"/>
+    </Pane>
 
-    <Group fx:id="uiPane"/>
+    <Group fx:id="uiGroup">
+        <Group fx:id="objectsUiGroup"/>
+        <Group fx:id="editorUiGroup"/>
+    </Group>
 
 </Pane>

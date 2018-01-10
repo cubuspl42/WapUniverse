@@ -5,6 +5,7 @@ import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.BoundingBox
 import org.fxmisc.easybind.EasyBind.combine
 import org.fxmisc.easybind.EasyBind.monadic
+import wapuniverse.geom.Vec2i
 import wapuniverse.model.WapObject
 import wapuniverse.rez.RezIndex
 import wapuniverse.view.ext.asObservableBooleanValue
@@ -48,6 +49,13 @@ class WapObjectImpl(
             .map { it.contains(this) }
             .orElse(false)
             .asObservableBooleanValue()
+
+    val position = combine(x, y) { x, y -> Vec2i(x.toInt(), y.toInt()) }
+
+    fun setPosition(position: Vec2i) {
+        x.value = position.x
+        y.value = position.y
+    }
 }
 
 private fun resolveShortId(imageSet: String): String {

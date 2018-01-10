@@ -29,7 +29,7 @@ data class Vec2d(val x: Double = 0.0, val y: Double = 0.0) {
         return Vec2d(-x, -y)
     }
 
-    fun toPoint2D(): Point2D {
-        return Point2D(x, y)
-    }
+    fun toPoint2D() = Point2D(x, y)
+
+    fun toVec2i() = Vec2i(x.toInt(), y.toInt())
 }
