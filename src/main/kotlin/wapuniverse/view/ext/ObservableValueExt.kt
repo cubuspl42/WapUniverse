@@ -4,6 +4,8 @@ import javafx.beans.binding.Bindings
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.value.ObservableBooleanValue
 import javafx.beans.value.ObservableValue
+import javafx.collections.FXCollections.observableList
+import javafx.collections.ObservableList
 import javafx.scene.Group
 import javafx.scene.Node
 import org.fxmisc.easybind.EasyBind
@@ -42,4 +44,13 @@ fun <T, R> ObservableValue<T>.map(transform: (T) -> R, uninit: (R) -> Unit): Obs
         property.set(transform(newValue))
     }
     return property
+}
+
+fun <T> ObservableValue<List<T>>.toObservableList(): ObservableList<T> {
+    val list = observableList(this.value)!!
+    this.addListener { observable, oldValue, newValue ->
+        list.clear()
+        list.addAll(newValue)
+    }
+    return list
 }

@@ -1,6 +1,5 @@
 package wapuniverse.view
 
-import javafx.scene.Group
 import javafx.scene.Node
 import wapuniverse.model.Entity
 import wapuniverse.model.TileObject
@@ -20,13 +19,7 @@ class EntityPresenter(
     fun presentEntityUi(entity: Entity) =
             when (entity) {
                 is WapObject -> wapObjectPresenter.presentObjectUi(entity)
-                is TileObject -> tileObjectPresenter.presentTileObject(entity)
+                is TileObject -> tileObjectPresenter.presentTileObjectUi(entity)
                 else -> throw AssertionError()
             }
-}
-
-class TileObjectPresenter {
-    fun presentTileObject(entity: TileObject): Node {
-        return Group()
-    }
 }

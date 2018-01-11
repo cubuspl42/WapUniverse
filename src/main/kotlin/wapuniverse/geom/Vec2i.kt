@@ -17,6 +17,15 @@ data class Vec2i(val x: Int = 0, val y: Int = 0) {
         return Vec2i(x + v.x, y + v.y)
     }
 
+
+    infix operator fun times(a: Int): Vec2i {
+        return Vec2i(x * a, y * a)
+    }
+
+    operator fun div(a: Int): Vec2i {
+        return Vec2i(x / a, y / a)
+    }
+
     val width: Int
         get() = Math.abs(x)
 

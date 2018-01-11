@@ -8,6 +8,7 @@ import javafx.geometry.Bounds
 import wapuniverse.geom.Vec2d
 import wapuniverse.geom.Vec2i
 import wapuniverse.model.Entity
+import wapuniverse.model.TileObjectImpl
 import wapuniverse.model.World
 import wapuniverse.rez.RezIndex
 
@@ -30,6 +31,10 @@ class WorldImpl(
     }
 
     fun addObject() = WapObjectImpl(editorContext, rezIndex).also {
+        entities.add(it)
+    }
+
+    fun addTileObject() = TileObjectImpl(editorContext).also {
         entities.add(it)
     }
 }

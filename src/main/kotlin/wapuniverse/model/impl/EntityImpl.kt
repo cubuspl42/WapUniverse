@@ -1,7 +1,5 @@
 package wapuniverse.model.impl
 
-import javafx.beans.value.ObservableBooleanValue
-import javafx.beans.value.ObservableValue
 import javafx.geometry.Bounds
 import org.fxmisc.easybind.EasyBind
 import wapuniverse.geom.Vec2i

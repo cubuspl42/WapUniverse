@@ -53,4 +53,5 @@ private fun loadWorld(world: WorldImpl, wwd: Wwd) {
             world.tiles.put(Vec2i(j, i), tileId)
         }
     }
+    world.addTileObject()
 }
