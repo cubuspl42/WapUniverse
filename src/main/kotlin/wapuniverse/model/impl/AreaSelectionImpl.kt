@@ -8,5 +8,5 @@ import wapuniverse.model.WapObject
 
 class AreaSelectionImpl : AreaSelection {
     override val boundingBox = SimpleObjectProperty<BoundingBox>()
-    override val preselectedObjects = SimpleObjectProperty<Set<Entity>>()
+    override val preselectedObjects = SimpleObjectProperty<Set<EntityImpl>>()
 }

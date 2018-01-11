@@ -16,6 +16,7 @@ import javafx.scene.transform.Affine
 import org.fxmisc.easybind.EasyBind.listBind
 import wapuniverse.geom.Vec2d
 import wapuniverse.geom.Vec2i
+import wapuniverse.model.AreaSelection
 import wapuniverse.model.EditorContext
 import wapuniverse.model.SelectToolContext
 import wapuniverse.model.selectToolContext
@@ -116,7 +117,7 @@ class WorldViewController(
 
     private fun presentSelectionAreaRectangle(): ObservableValue<Node> {
         return editorContext.selectToolContext
-                .flatMap { it.areaSelection }
+                .flatMap< AreaSelection> { it!!.areaSelection as ObservableValue<AreaSelection> }
                 .map {
                     presentRectangle(it.boundingBox, camera.transform).apply {
                         fill = Color.NAVY

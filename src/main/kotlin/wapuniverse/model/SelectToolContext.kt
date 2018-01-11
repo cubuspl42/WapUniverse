@@ -5,9 +5,7 @@ import javafx.collections.ObservableSet
 import wapuniverse.geom.Vec2d
 
 interface SelectToolContext : ToolContext {
-    val selectedObjects: ObservableSet<Entity>
-
-    val areaSelection: ObservableValue<AreaSelection>
+    val areaSelection: ObservableValue<out AreaSelection>
 
     fun selectObjectsAt(point: Vec2d)
 

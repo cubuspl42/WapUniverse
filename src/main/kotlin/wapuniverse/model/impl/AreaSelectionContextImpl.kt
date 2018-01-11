@@ -9,7 +9,7 @@ import wapuniverse.view.ext.map
 
 class AreaSelectionContextImpl(
         private val startPoint: Vec2d,
-        private val areaSelection: SimpleObjectProperty<AreaSelection>,
+        private val areaSelection: SimpleObjectProperty<AreaSelectionImpl>,
         private val selectToolContext: SelectToolContextImpl,
         private val world: WorldImpl
 ) : AreaSelectionContext {

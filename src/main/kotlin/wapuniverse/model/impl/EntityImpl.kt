@@ -10,6 +10,8 @@ import wapuniverse.view.ext.setContains
 abstract class EntityImpl(
         editorContext: EditorContextImpl
 ) : Entity {
+    private val world = editorContext.world
+
     private val selectToolContext = EasyBind.monadic(editorContext.activeToolContext)
             .map { it as? SelectToolContextImpl }
 
@@ -17,8 +19,7 @@ abstract class EntityImpl(
             .map { it!!.contains(this) }
             .asObservableBooleanValue()
 
-    override val isSelected = selectToolContext
-            .flatMap { setContains(it!!.selectedObjects, this) }
+    override val isSelected = setContains(world.selectedObjects, this)
             .asObservableBooleanValue()
 
     override val isPreselected = selectToolContext

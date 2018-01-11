@@ -5,5 +5,5 @@ import javafx.geometry.BoundingBox
 
 interface AreaSelection {
     val boundingBox: ObservableValue<BoundingBox>
-    val preselectedObjects: ObservableValue<Set<Entity>>
+    val preselectedObjects: ObservableValue<out Set<Entity>>
 }

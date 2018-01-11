@@ -16,7 +16,7 @@ class ObjectsDragContextImpl(
 
     private val delta = destination.map { it - origin }
 
-    private val snapshot = world.entities.map { Pair(it, it.position.value) }.toMap()
+    private val snapshot = world.selectedObjects.map { Pair(it, it.position.value) }.toMap()
 
     init {
         objectsDragProperty.value = ObjectsDragImpl(origin, delta)

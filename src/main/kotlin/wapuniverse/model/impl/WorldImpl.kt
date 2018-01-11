@@ -2,6 +2,7 @@ package wapuniverse.model.impl
 
 import javafx.collections.FXCollections.observableArrayList
 import javafx.collections.FXCollections.observableHashMap
+import javafx.collections.FXCollections.observableSet
 import javafx.collections.ObservableMap
 import javafx.geometry.BoundingBox
 import javafx.geometry.Bounds
@@ -20,14 +21,21 @@ class WorldImpl(
 
     override val tiles: ObservableMap<Vec2i, Int> = observableHashMap()
 
-    fun objectsAt(point: Vec2d): Set<Entity> =
+    override val selectedObjects = observableSet<EntityImpl>()
+
+    fun objectsAt(point: Vec2d): Set<EntityImpl> =
             entities.filter { it.intersects(BoundingBox(point.x, point.y, 1.0, 1.0)) }.toSet()
 
-    fun objectsIntersecting(bounds: Bounds): Set<Entity> =
+    fun objectsIntersecting(bounds: Bounds): Set<EntityImpl> =
             entities.filter { it.intersects(bounds) }.toSet()
 
     fun deleteObjects(objectsToDelete: Set<Entity>) {
         entities.removeAll(objectsToDelete)
+    }
+
+    fun selectObjects(objectsToSelect: Set<EntityImpl>) {
+        selectedObjects.clear()
+        selectedObjects.addAll(objectsToSelect)
     }
 
     fun addObject() = WapObjectImpl(editorContext, rezIndex).also {
