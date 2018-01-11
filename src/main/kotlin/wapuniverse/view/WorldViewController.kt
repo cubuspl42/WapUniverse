@@ -68,7 +68,7 @@ class WorldViewController(
 
     private val wapObjectPresenter = WapObjectPresenter(rezImageProvider, camera, editorContext)
 
-    private val tileObjectPresenter = TileObjectPresenter(rezImageProvider)
+    private val tileObjectPresenter = TileObjectPresenter(rezImageProvider, camera)
 
     private val entityPresenter = EntityPresenter(wapObjectPresenter, tileObjectPresenter)
 

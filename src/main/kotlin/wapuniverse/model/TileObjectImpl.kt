@@ -1,6 +1,5 @@
 package wapuniverse.model
 
-import com.google.common.base.Preconditions
 import javafx.beans.property.SimpleObjectProperty
 import javafx.collections.FXCollections.observableMap
 import javafx.geometry.BoundingBox
@@ -20,7 +19,9 @@ class TileObjectImpl(
     override val position = tilePosition.map { it * T }
 
     override val tiles = observableMap<Vec2i, Int>(mutableMapOf(
-            Vec2i() to 12
+            Vec2i() to 12,
+            Vec2i(1, 0) to 12,
+            Vec2i(2, 0) to 12
     ))
 
     override fun intersects(bounds: Bounds): Boolean {
