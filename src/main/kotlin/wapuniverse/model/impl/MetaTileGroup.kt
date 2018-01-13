@@ -73,6 +73,7 @@ class MetaTileLayer {
         } else {
             tiles.remove(globalCoord)
         }
+//        (0..5).forEach { i -> (0..5).forEach { j -> println("[$i, $j] = ${tiles[Vec2i(j, i)]}") } }
     }
 
     private fun calculateTile(metaTiles: Set<MetaTile>): Int {
@@ -86,8 +87,7 @@ class MetaTileLayer {
 
     private fun findMetaTilesAt(coord: Vec2i): Set<MetaTile> {
         return metaTileGroups.mapNotNull {
-            val localCoord = coord - it.tilePosition.value
-            it.metaTiles.value[localCoord]
+            it.metaTilesG.value[coord]
         }.toSet()
     }
 }

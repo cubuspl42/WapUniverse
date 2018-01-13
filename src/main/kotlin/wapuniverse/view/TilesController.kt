@@ -24,11 +24,12 @@ class TilesController(
 
         tiles.addListener { change: MapChangeListener.Change<out Vec2i, out Int> ->
             val index = change.key
+            if (change.wasRemoved()) {
+                destroyTile(index)
+            }
             if (change.wasAdded()) {
                 val tileId = change.valueAdded
                 showTile(index, tileId)
-            } else if (change.wasRemoved()) {
-                destroyTile(index)
             }
         }
     }
