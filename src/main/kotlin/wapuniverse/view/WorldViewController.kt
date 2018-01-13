@@ -68,7 +68,7 @@ class WorldViewController(
 
     private val wapObjectPresenter = WapObjectPresenter(rezImageProvider, camera, editorContext)
 
-    private val tileObjectPresenter = TileObjectPresenter(rezImageProvider, camera)
+    private val tileObjectPresenter = TileObjectPresenter(rezImageProvider, camera, editorContext)
 
     private val entityPresenter = EntityPresenter(wapObjectPresenter, tileObjectPresenter)
 
@@ -117,7 +117,7 @@ class WorldViewController(
 
     private fun presentSelectionAreaRectangle(): ObservableValue<Node> {
         return editorContext.selectToolContext
-                .flatMap< AreaSelection> { it!!.areaSelection as ObservableValue<AreaSelection> }
+                .flatMap<AreaSelection> { it!!.areaSelection as ObservableValue<AreaSelection> }
                 .map {
                     presentRectangle(it.boundingBox, camera.transform).apply {
                         fill = Color.NAVY

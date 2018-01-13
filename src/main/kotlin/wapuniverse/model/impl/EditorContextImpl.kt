@@ -50,8 +50,13 @@ private fun loadWorld(world: WorldImpl, wwd: Wwd) {
     for (i in 0 until plane.tilesHigh) {
         for (j in 0 until plane.tilesWide) {
             val tileId = plane.getTile(i, j)
-            world.tiles.put(Vec2i(j, i), tileId)
+            if (tileId > 0) {
+                world.tiles.put(Vec2i(j, i), tileId)
+            }
         }
     }
     world.addTileObject()
+    world.addTileObject().apply {
+        setPosition(Vec2i(0, 128))
+    }
 }

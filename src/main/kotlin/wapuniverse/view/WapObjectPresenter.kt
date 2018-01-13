@@ -1,6 +1,8 @@
 package wapuniverse.view
 
 import javafx.beans.value.ObservableValue
+import javafx.geometry.BoundingBox
+import javafx.geometry.Bounds
 import javafx.scene.Group
 import javafx.scene.Node
 import javafx.scene.image.ImageView
@@ -8,6 +10,7 @@ import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import org.fxmisc.easybind.EasyBind.combine
 import wapuniverse.model.EditorContext
+import wapuniverse.model.Entity
 import wapuniverse.model.WapObject
 import wapuniverse.model.impl.resolveShortId
 import wapuniverse.model.moveToolContext
@@ -64,28 +67,32 @@ class WapObjectPresenter(
     }
 
     fun presentObjectUi(wapObject: WapObject): Node {
-        val rectangle = presentRectangle(wapObject.boundingBox, camera.transform).apply {
-            strokeProperty().bind(rectangleColor(wapObject))
-            fill = Color.TRANSPARENT
-            isMouseTransparent = true
-        }
+        val rectangle = entityRectangle(wapObject, wapObject.boundingBox, camera)
         return rectangle
     }
+}
 
-    private fun rectangleColor(wapObject: WapObject): ObservableValue<Color> {
-        return combine(
-                wapObject.isHovered,
-                wapObject.isSelected,
-                wapObject.isPreselected
-        ) { isHovered,
-            isSelected,
-            isPreselected ->
-            when {
-                isPreselected -> Color.ORANGE
-                isSelected -> Color.RED
-                isHovered -> Color.BLUE
-                else -> Color.LIGHTBLUE
-            }
+fun entityRectangle(entity: Entity, boundingBox: ObservableValue<BoundingBox>, camera: Camera): Rectangle {
+    return presentRectangle(boundingBox, camera.transform).apply {
+        strokeProperty().bind(rectangleColor(entity))
+        fill = Color.TRANSPARENT
+        isMouseTransparent = true
+    }
+}
+
+fun rectangleColor(entity: Entity): ObservableValue<Color> {
+    return combine(
+            entity.isHovered,
+            entity.isSelected,
+            entity.isPreselected
+    ) { isHovered,
+        isSelected,
+        isPreselected ->
+        when {
+            isPreselected -> Color.ORANGE
+            isSelected -> Color.RED
+            isHovered -> Color.BLUE
+            else -> Color.LIGHTBLUE
         }
     }
 }

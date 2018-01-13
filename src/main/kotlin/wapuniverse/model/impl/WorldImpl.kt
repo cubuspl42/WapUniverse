@@ -1,13 +1,10 @@
 package wapuniverse.model.impl
 
 import javafx.collections.FXCollections.observableArrayList
-import javafx.collections.FXCollections.observableHashMap
 import javafx.collections.FXCollections.observableSet
-import javafx.collections.ObservableMap
 import javafx.geometry.BoundingBox
 import javafx.geometry.Bounds
 import wapuniverse.geom.Vec2d
-import wapuniverse.geom.Vec2i
 import wapuniverse.model.Entity
 import wapuniverse.model.TileObjectImpl
 import wapuniverse.model.World
@@ -19,9 +16,15 @@ class WorldImpl(
 ) : World {
     override val entities = observableArrayList<EntityImpl>()!!
 
-    override val tiles: ObservableMap<Vec2i, Int> = observableHashMap()
+    val metaTileLayer = MetaTileLayer()
 
-    override val selectedObjects = observableSet<EntityImpl>()
+    override val tiles = metaTileLayer.tiles
+
+    override val selectedObjects = observableSet<EntityImpl>()!!
+
+    init {
+    }
+
 
     fun objectsAt(point: Vec2d): Set<EntityImpl> =
             entities.filter { it.intersects(BoundingBox(point.x, point.y, 1.0, 1.0)) }.toSet()

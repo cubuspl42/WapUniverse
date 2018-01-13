@@ -9,7 +9,7 @@ class MoveToolObjectController(
         private val moveToolContext: MoveToolContext
 ) : Controller by DraggableNodeController(
         node,
-        onMouseDragged = { event ->
+        onMousePressed = { event ->
             val objectsDragContext = moveToolContext.dragSelectedObjects(event.position)
             ObjectsDragController(node, objectsDragContext)
         }

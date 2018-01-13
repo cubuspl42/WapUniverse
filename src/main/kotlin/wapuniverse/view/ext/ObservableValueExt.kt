@@ -52,5 +52,7 @@ fun <T> ObservableValue<List<T>>.toObservableList(): ObservableList<T> {
         list.clear()
         list.addAll(newValue)
     }
-    return list
+    return object : ObservableList<T> by list {
+        val binding = this@toObservableList
+    }
 }

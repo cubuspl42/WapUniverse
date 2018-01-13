@@ -6,9 +6,9 @@ import javafx.scene.input.MouseEvent
 
 class DraggableNodeController(
         private val node: Node,
-        private val onMouseDragged: (MouseEvent) -> Unit
+        private val onMousePressed: (MouseEvent) -> Unit
 ) : Controller {
-    private val onMousePressedHandler = EventHandler<MouseEvent> { onMouseDragged(it) }
+    private val onMousePressedHandler = EventHandler<MouseEvent> { onMousePressed(it) }
 
     init {
         node.addEventHandler(MouseEvent.MOUSE_PRESSED, onMousePressedHandler)
