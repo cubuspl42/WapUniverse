@@ -20,11 +20,11 @@ class TileObjectImpl(
 
     override val position = tilePosition.map { it * T }
 
+    val size = SimpleObjectProperty<Vec2i>(Vec2i(1, 3))
+
     override val metaTileGroup = MetaTileGroup().apply {
         tilePosition.bind(this@TileObjectImpl.tilePosition)
-        metaTiles.value = mapOf(
-                Vec2i() to MetaTile.BLOCK_LEFT,
-                Vec2i(1, 0) to MetaTile.BLOCK_TOP)
+        metaTiles.bind(size.map(::ladder))
     }.also {
         world.metaTileLayer.metaTileGroups.add(it)
     }
@@ -41,4 +41,15 @@ class TileObjectImpl(
         tilePosition.value = newTilePosition
     }
 
+}
+
+private fun ladder(size: Vec2i): Map<Vec2i, MetaTile> {
+    val (w, h) = size
+    return (0 until h).map { i ->
+        Vec2i(0, i) to when(i) {
+            0 -> MetaTile.LADDER_TOP
+            h - 1 -> MetaTile.LADDER_BOTTOM
+            else -> MetaTile.LADDER_MID
+        }
+    }.toMap()
 }

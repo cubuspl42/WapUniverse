@@ -76,18 +76,22 @@ class MetaTileLayer {
 //        (0..5).forEach { i -> (0..5).forEach { j -> println("[$i, $j] = ${tiles[Vec2i(j, i)]}") } }
     }
 
-    private fun calculateTile(metaTiles: Set<MetaTile>): Int {
-        return when {
-            metaTiles == setOf(MetaTile.BLOCK_TOP, MetaTile.BLOCK_LEFT) -> 74
-            metaTiles == setOf(MetaTile.BLOCK_TOP) -> 304
-            metaTiles == setOf(MetaTile.BLOCK_LEFT) -> 302
-            else -> -1
-        }
-    }
 
     private fun findMetaTilesAt(coord: Vec2i): Set<MetaTile> {
         return metaTileGroups.mapNotNull {
             it.metaTilesG.value[coord]
         }.toSet()
+    }
+}
+
+private fun calculateTile(metaTiles: Set<MetaTile>): Int {
+    return when {
+        metaTiles == setOf(MetaTile.BLOCK_TOP, MetaTile.BLOCK_LEFT) -> 74
+        metaTiles == setOf(MetaTile.BLOCK_TOP) -> 304
+        metaTiles == setOf(MetaTile.BLOCK_LEFT) -> 302
+        metaTiles == setOf(MetaTile.LADDER_TOP) -> 310
+        metaTiles == setOf(MetaTile.LADDER_MID) -> 311
+        metaTiles == setOf(MetaTile.LADDER_BOTTOM) -> 312
+        else -> -1
     }
 }
