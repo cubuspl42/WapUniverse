@@ -9,6 +9,7 @@ import javafx.scene.paint.Color.BLUE
 import javafx.scene.shape.Rectangle
 import org.fxmisc.easybind.EasyBind.listBind
 import org.fxmisc.easybind.EasyBind.monadic
+import wapuniverse.geom.Rect2i
 import wapuniverse.geom.Vec2i
 import wapuniverse.model.EditorContext
 import wapuniverse.model.TileObject
@@ -52,8 +53,8 @@ class TileObjectPresenter(
     private fun presentTile(offset: Vec2i, entity: TileObject): Node {
         val bbox = entity.tilePosition.map { tilePosition -> tileBbox(tilePosition + offset) }
         val rect = Rectangle().apply {
-            xProperty().bind( bbox.map { it.minX })
-            yProperty().bind( bbox.map { it.minY })
+            xProperty().bind(bbox.map { it.minX })
+            yProperty().bind(bbox.map { it.minY })
             width = T.toDouble()
             height = T.toDouble()
             opacity = 0.2
@@ -72,11 +73,23 @@ class TileObjectPresenter(
     }
 
     fun presentTileObjectUi(entity: TileObject): Group {
-        return group(entity.metaTileGroup.metaTilesG.map { tiles ->
-            tiles.map { (offset, _) ->
-                presentTileHoverUi(offset, entity)
-            }
-        }.toObservableList())
+        return Group(
+//                group(entity.metaTileGroup.metaTilesG.map { tiles ->
+//                    tiles.map { (offset, _) ->
+//                        presentTileHoverUi(offset, entity)
+//                    }
+//                }.toObservableList()),
+                resizer(entity.rect.map { it.scaled(T).toBoundingBox() }, camera.transform) { resizer ->
+                    resizer.resizeGesture.addListener { _, _, resizeGesture ->
+                        if (resizeGesture != null) {
+                            entity.rect.bind(resizeGesture.newRect.map { it.toRect2i().scaledDown(T) })
+                            resizeGesture.committed.subscribe {
+                                entity.rect.unbind()
+                            }
+                        }
+                    }
+                }
+        )
     }
 
     private fun presentTileHoverUi(offset: Vec2i, entity: TileObject): Node {
@@ -89,6 +102,10 @@ class TileObjectPresenter(
                 offset.x.toDouble() * T, offset.y.toDouble() * T, T.toDouble(), T.toDouble()
         )
     }
+}
+
+private fun BoundingBox.toRect2i(): Rect2i {
+    return Rect2i(minX.toInt(), minY.toInt(), width.toInt(), height.toInt())
 }
 
 private fun group(childrenObservableList: ObservableList<Node>): Group {

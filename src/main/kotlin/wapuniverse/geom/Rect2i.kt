@@ -1,5 +1,6 @@
 package wapuniverse.geom
 
+import javafx.geometry.BoundingBox
 import javafx.geometry.Rectangle2D
 
 class Rect2i(val minX: Int = 0, val minY: Int = 0, val width: Int = 0, val height: Int = 0) {
@@ -22,6 +23,9 @@ class Rect2i(val minX: Int = 0, val minY: Int = 0, val width: Int = 0, val heigh
 
     val maxV: Vec2i
         get() = Vec2i(maxX, maxY)
+
+    val size: Vec2i
+        get() = Vec2i(width, height)
 
     fun contains(x: Int, y: Int): Boolean {
         return x >= minX && y >= minY && x < maxX && y < maxY
@@ -48,4 +52,13 @@ class Rect2i(val minX: Int = 0, val minY: Int = 0, val width: Int = 0, val heigh
         val maxY = Math.max(v.y, maxY)
         return fromBounds(minX, minY, maxX, maxY)
     }
+
+    fun toBoundingBox() =
+            BoundingBox(minX.toDouble(), minY.toDouble(), width.toDouble(), height.toDouble())
+
+    fun scaled(a: Int) =
+            Rect2i(minX * a, minY * a, width * a, height * a)
+
+    fun scaledDown(a: Int) =
+            Rect2i(minX / a, minY / a, width / a, height / a)
 }
