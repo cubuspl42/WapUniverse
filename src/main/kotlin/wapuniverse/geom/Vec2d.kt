@@ -1,6 +1,8 @@
 package wapuniverse.geom
 
+import javafx.beans.value.ObservableValue
 import javafx.geometry.Point2D
+import wapuniverse.view.ext.map
 
 data class Vec2d(val x: Double = 0.0, val y: Double = 0.0) {
     companion object {
@@ -33,3 +35,6 @@ data class Vec2d(val x: Double = 0.0, val y: Double = 0.0) {
 
     fun toVec2i() = Vec2i(x.toInt(), y.toInt())
 }
+
+operator fun ObservableValue<Vec2d>.plus(v: Vec2d): ObservableValue<Vec2d> =
+        this.map { it + v }

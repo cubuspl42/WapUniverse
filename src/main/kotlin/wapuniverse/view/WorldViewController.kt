@@ -119,7 +119,7 @@ class WorldViewController(
         return editorContext.selectToolContext
                 .flatMap<AreaSelection> { it!!.areaSelection as ObservableValue<AreaSelection> }
                 .map {
-                    presentRectangle(it.boundingBox, camera.transform).apply {
+                    transformedRectangle(it.boundingBox, camera.transform).apply {
                         fill = Color.NAVY
                         stroke = Color.CYAN
                         opacity = 0.3

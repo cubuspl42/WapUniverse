@@ -3,7 +3,7 @@ package wapuniverse.geom
 import javafx.geometry.BoundingBox
 import javafx.geometry.Rectangle2D
 
-class Rect2i(val minX: Int = 0, val minY: Int = 0, val width: Int = 0, val height: Int = 0) {
+data class Rect2i(val minX: Int = 0, val minY: Int = 0, val width: Int = 0, val height: Int = 0) {
     companion object {
         fun fromBounds(minX: Int, minY: Int, maxX: Int, maxY: Int): Rect2i {
             assert(maxX >= minX)

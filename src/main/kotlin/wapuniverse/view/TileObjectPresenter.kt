@@ -3,6 +3,7 @@ package wapuniverse.view
 import javafx.beans.property.SimpleObjectProperty
 import javafx.collections.ObservableList
 import javafx.geometry.BoundingBox
+import javafx.geometry.Rectangle2D
 import javafx.scene.Group
 import javafx.scene.Node
 import javafx.scene.paint.Color.BLUE
@@ -35,10 +36,6 @@ class TileObjectPresenter(
 
     fun presentTileObject(entity: TileObject): Node {
         return group(presentTiles(entity))
-//                .apply {
-//            translateXProperty().bind(entity.position.map { it.x })
-//            translateYProperty().bind(entity.position.map { it.y })
-//        }
     }
 
     private fun presentTiles(entity: TileObject): ObservableList<Node> {
@@ -74,18 +71,16 @@ class TileObjectPresenter(
 
     fun presentTileObjectUi(entity: TileObject): Group {
         return Group(
-//                group(entity.metaTileGroup.metaTilesG.map { tiles ->
-//                    tiles.map { (offset, _) ->
-//                        presentTileHoverUi(offset, entity)
-//                    }
-//                }.toObservableList()),
-                resizer(entity.rect.map { it.scaled(T).toBoundingBox() }, camera.transform) { resizer ->
-                    resizer.resizeGesture.addListener { _, _, resizeGesture ->
-                        if (resizeGesture != null) {
-                            entity.rect.bind(resizeGesture.newRect.map { it.toRect2i().scaledDown(T) })
-                            resizeGesture.committed.subscribe {
-                                entity.rect.unbind()
-                            }
+                ResizerNode(entity.rect.map { it.scaled(T).toRectangle2D() }, camera.transform).apply {
+                    resizeInteraction.addListener { observable,
+                                                    oldValue,
+                                                    resizeInteraction ->
+                        if (resizeInteraction != null) {
+                            entity.rect.bind(resizeInteraction.resizedRectangle.map {
+                                it!!.toRect2i().scaledDown(T)
+                            })
+                        } else {
+                            entity.rect.unbind()
                         }
                     }
                 }
@@ -103,6 +98,9 @@ class TileObjectPresenter(
         )
     }
 }
+
+private fun Rectangle2D.toRect2i() =
+        Rect2i(minX.toInt(), minY.toInt(), width.toInt(), height.toInt())
 
 private fun BoundingBox.toRect2i(): Rect2i {
     return Rect2i(minX.toInt(), minY.toInt(), width.toInt(), height.toInt())

@@ -2,7 +2,6 @@ package wapuniverse.view
 
 import javafx.beans.value.ObservableValue
 import javafx.geometry.BoundingBox
-import javafx.geometry.Bounds
 import javafx.scene.Group
 import javafx.scene.Node
 import javafx.scene.image.ImageView
@@ -73,7 +72,7 @@ class WapObjectPresenter(
 }
 
 fun entityRectangle(entity: Entity, boundingBox: ObservableValue<BoundingBox>, camera: Camera): Rectangle {
-    return presentRectangle(boundingBox, camera.transform).apply {
+    return transformedRectangle(boundingBox, camera.transform).apply {
         strokeProperty().bind(rectangleColor(entity))
         fill = Color.TRANSPARENT
         isMouseTransparent = true
