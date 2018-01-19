@@ -15,7 +15,8 @@ import wapuniverse.view.ext.setContains
 class WapObjectImpl(
         editorContext: EditorContextImpl,
         rezIndex: RezIndex,
-        plane: PlaneImpl
+        plane: PlaneImpl,
+        world: WorldImpl
 ) : WapObject, EntityImpl(editorContext, plane) {
 //    private val selectToolContext = monadic(editorContext.activeToolContext)
 //            .map { it as? SelectToolContextImpl }
@@ -29,7 +30,7 @@ class WapObjectImpl(
     override val i = SimpleIntegerProperty(-1)
 
     override val rezImageMetadata = combine(imageSet, i) { imageSet, i ->
-        val fullyQualifiedImageSetId = resolveShortId(imageSet)
+        val fullyQualifiedImageSetId = world.resolveImageSetId(imageSet)
         rezIndex.findImageMetadata(fullyQualifiedImageSetId, i.toInt())
     }
 
@@ -52,8 +53,4 @@ class WapObjectImpl(
 
     override fun intersects(bounds: Bounds) =
             boundingBox.value.intersects(bounds)
-}
-
-fun resolveShortId(imageSet: String): String {
-    return imageSet.replace("LEVEL_", "LEVEL1_IMAGES_")
 }

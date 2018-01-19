@@ -61,6 +61,18 @@ class PlaneContextImpl(
 }
 
 private fun loadWorld(world: WorldImpl, wwd: Wwd) {
+    world.imageSets = listOf(
+            wwd.header.imageSet1,
+            wwd.header.imageSet2,
+            wwd.header.imageSet3,
+            wwd.header.imageSet4
+    )
+    world.prefixes = listOf(
+            wwd.header.prefix1,
+            wwd.header.prefix2,
+            wwd.header.prefix3,
+            wwd.header.prefix4
+    )
     wwd.planes.forEach {
         loadPlane(world, it)
     }

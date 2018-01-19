@@ -8,11 +8,10 @@ import javafx.scene.image.ImageView
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import org.fxmisc.easybind.EasyBind.combine
-import wapuniverse.model.EditorContext
 import wapuniverse.model.Entity
 import wapuniverse.model.WapObject
+import wapuniverse.model.World
 import wapuniverse.model.impl.PlaneContext
-import wapuniverse.model.impl.resolveShortId
 import wapuniverse.model.moveToolContext
 import wapuniverse.model.selectToolContext
 import wapuniverse.rez.RezImageProvider
@@ -23,7 +22,8 @@ import wapuniverse.view.util.observableValue
 class WapObjectPresenter(
         private val rezImageProvider: RezImageProvider,
         private val camera: Camera,
-        editorContext: PlaneContext
+        editorContext: PlaneContext,
+        private val world: World
 ) {
     private val selectToolContext = editorContext.selectToolContext
 
@@ -62,7 +62,7 @@ class WapObjectPresenter(
 
     private fun provideImage(wapObject: WapObject) = observableValue {
         rezImageProvider.provideImage(
-                resolveShortId(wapObject.imageSet.value), wapObject.i.value.toInt()
+                world.resolveImageSetId(wapObject.imageSet.value), wapObject.i.value.toInt()
         )?.image
     }
 

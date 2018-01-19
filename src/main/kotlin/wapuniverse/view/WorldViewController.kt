@@ -36,6 +36,8 @@ class WorldViewController(
 ) : Initializable {
     private val plane = planeContext.plane
 
+    private val world = plane.world
+
     @FXML
     lateinit var wrapperPane: Pane
 
@@ -66,9 +68,9 @@ class WorldViewController(
 
     private val camera = Camera()
 
-    private val wapObjectPresenter = WapObjectPresenter(rezImageProvider, camera, planeContext)
+    private val wapObjectPresenter = WapObjectPresenter(rezImageProvider, camera, planeContext, world)
 
-    private val tileObjectPresenter = TileObjectPresenter(rezImageProvider, camera, planeContext)
+    private val tileObjectPresenter = TileObjectPresenter(rezImageProvider, camera, planeContext, world)
 
     private val entityPresenter = EntityPresenter(wapObjectPresenter, tileObjectPresenter)
 

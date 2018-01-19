@@ -15,6 +15,8 @@ class PlaneImpl(
         private val editorContext: EditorContextImpl,
         private val rezIndex: RezIndex
 ) : Plane {
+    override val world = editorContext.world
+
     override val entities = observableArrayList<EntityImpl>()!!
 
     val metaTileLayer = MetaTileLayer()
@@ -42,7 +44,7 @@ class PlaneImpl(
         selectedObjects.addAll(objectsToSelect)
     }
 
-    fun addObject() = WapObjectImpl(editorContext, rezIndex, this).also {
+    fun addObject() = WapObjectImpl(editorContext, rezIndex, this, world).also {
         entities.add(it)
     }
 

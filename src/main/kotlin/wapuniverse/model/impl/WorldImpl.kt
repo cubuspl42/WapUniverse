@@ -10,6 +10,17 @@ class WorldImpl(
 ) : World {
     override val planes = observableArrayList<PlaneImpl>()!!
 
+    override var imageSets = listOf<String>()
+
+    override var prefixes = listOf<String>()
+
+    override fun resolveImageSetId(shortId: String): String {
+        val (imageSetPath, prefix) = imageSets.zip(prefixes).firstOrNull { (_, prefix) ->
+            shortId.startsWith(prefix)
+        } ?: return ""
+        return shortId.replace(prefix, imageSetPath.replace('\\', '_'))
+    }
+
     fun addPlane() =
             PlaneImpl(editorContext, rezIndex).also { planes.add(it) }
 }

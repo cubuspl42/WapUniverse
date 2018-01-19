@@ -12,10 +12,9 @@ import org.fxmisc.easybind.EasyBind.listBind
 import org.fxmisc.easybind.EasyBind.monadic
 import wapuniverse.geom.Rect2i
 import wapuniverse.geom.Vec2i
-import wapuniverse.model.EditorContext
 import wapuniverse.model.TileObject
+import wapuniverse.model.World
 import wapuniverse.model.impl.PlaneContext
-import wapuniverse.model.impl.resolveShortId
 import wapuniverse.model.moveToolContext
 import wapuniverse.model.selectToolContext
 import wapuniverse.rez.RezImageProvider
@@ -29,7 +28,8 @@ private val T = 64
 class TileObjectPresenter(
         private val rezImageProvider: RezImageProvider,
         private val camera: Camera,
-        editorContext: PlaneContext
+        editorContext: PlaneContext,
+        private val world: World
 ) {
     private val selectToolContext = editorContext.selectToolContext
 
@@ -66,7 +66,7 @@ class TileObjectPresenter(
 
     private fun provideImage(tileId: Int) = observableValue {
         rezImageProvider.provideImage(
-                resolveShortId("LEVEL1_TILES_ACTION"), tileId
+                "LEVEL1_TILES_ACTION", tileId
         )?.image
     }
 
