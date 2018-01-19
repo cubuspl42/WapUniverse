@@ -26,7 +26,3 @@ class SelectionSurfaceController(
         surface.removeEventHandler(MouseEvent.MOUSE_PRESSED, onMousePressed)
     }
 }
-
-fun attachSelectionSurfaceController(surface: Node, editorContext: EditorContext) {
-    editorContext.selectToolContext.attachController { SelectionSurfaceController(surface, it) }
-}

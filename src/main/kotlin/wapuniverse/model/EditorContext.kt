@@ -5,23 +5,24 @@ import javafx.beans.value.ObservableValue
 import org.fxmisc.easybind.monadic.MonadicObservableValue
 import wapuniverse.geom.Vec2d
 import wapuniverse.model.impl.EditorContextImpl
+import wapuniverse.model.impl.PlaneContext
 import wapuniverse.rez.RezIndex
 import wapuniverse.view.ext.map
 
 interface EditorContext {
     val world: World
 
-    val hoverPositionProperty: Property<Vec2d>
-
     val activeTool: Property<Tool>
 
-    val activeToolContext: ObservableValue<out ToolContext>
+    val activePlane: Property<out Plane>
+
+    val activePlaneContext: ObservableValue<out PlaneContext?>
 }
 
 //fun EditorContext(rezIndex: RezIndex): EditorContext = EditorContextImpl(rezIndex)
 
-val EditorContext.selectToolContext: MonadicObservableValue<SelectToolContext>
+val PlaneContext.selectToolContext: MonadicObservableValue<SelectToolContext>
     get() = activeToolContext.map { it as? SelectToolContext }
 
-val EditorContext.moveToolContext: MonadicObservableValue<MoveToolContext>
+val PlaneContext.moveToolContext: MonadicObservableValue<MoveToolContext>
     get() = activeToolContext.map { it as? MoveToolContext }

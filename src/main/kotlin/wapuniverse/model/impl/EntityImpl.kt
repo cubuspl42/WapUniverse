@@ -1,25 +1,27 @@
 package wapuniverse.model.impl
 
 import javafx.geometry.Bounds
-import org.fxmisc.easybind.EasyBind
 import wapuniverse.geom.Vec2i
 import wapuniverse.model.Entity
 import wapuniverse.view.ext.asObservableBooleanValue
 import wapuniverse.view.ext.setContains
 
 abstract class EntityImpl(
-        editorContext: EditorContextImpl
+        editorContext: EditorContextImpl,
+        plane: PlaneImpl
 ) : Entity {
-    private val world = editorContext.world
+    private val activeToolContext = editorContext.activePlaneContext
+            .flatMap { it!!.activeToolContext }
 
-    private val selectToolContext = EasyBind.monadic(editorContext.activeToolContext)
+    private val selectToolContext = activeToolContext
             .map { it as? SelectToolContextImpl }
 
-    override val isHovered = editorContext.hoveredObjects
-            .map { it!!.contains(this) }
+    override val isHovered = editorContext.activePlaneContext
+            .flatMap { it!!.hoveredObjects }
+            .map { it.contains(this) }
             .asObservableBooleanValue()
 
-    override val isSelected = setContains(world.selectedObjects, this)
+    override val isSelected = setContains(plane.selectedObjects, this)
             .asObservableBooleanValue()
 
     override val isPreselected = selectToolContext

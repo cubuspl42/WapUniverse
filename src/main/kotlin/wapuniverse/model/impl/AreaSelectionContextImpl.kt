@@ -11,7 +11,7 @@ class AreaSelectionContextImpl(
         private val startPoint: Vec2d,
         private val areaSelection: SimpleObjectProperty<AreaSelectionImpl>,
         private val selectToolContext: SelectToolContextImpl,
-        private val world: WorldImpl
+        private val plane: PlaneImpl
 ) : AreaSelectionContext {
     private var closed = false
 
@@ -25,7 +25,7 @@ class AreaSelectionContextImpl(
         areaSelection.set(AreaSelectionImpl().apply {
             boundingBox.bind(selectionBounds)
             preselectedObjects.bind(selectionBounds.map { selectionBoundsVal ->
-                world.objectsIntersecting(selectionBoundsVal)
+                plane.objectsIntersecting(selectionBoundsVal)
             })
         })
     }

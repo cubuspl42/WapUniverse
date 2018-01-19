@@ -1,5 +1,6 @@
 package wapuniverse.view
 
+import javafx.beans.value.ObservableValue
 import javafx.scene.shape.Rectangle
 import wapuniverse.model.EditorContext
 import wapuniverse.model.SelectToolContext
@@ -7,11 +8,11 @@ import wapuniverse.view.ext.position
 
 class WorldBackgroundController(
         backgroundRect: Rectangle,
-        editorContext: EditorContext
+        selectToolContext: ObservableValue<out SelectToolContext?>
 ) {
     init {
         backgroundRect.setOnMousePressed { ev ->
-            (editorContext.activeToolContext.value as? SelectToolContext)?.let { selectToolContext ->
+            selectToolContext.value?.let { selectToolContext ->
                 val areaSelectionContext = selectToolContext.selectObjectsByArea(ev.position)
                 AreaSelectionController(backgroundRect, areaSelectionContext)
             }

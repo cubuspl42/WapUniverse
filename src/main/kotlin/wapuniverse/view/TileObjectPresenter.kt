@@ -14,6 +14,7 @@ import wapuniverse.geom.Rect2i
 import wapuniverse.geom.Vec2i
 import wapuniverse.model.EditorContext
 import wapuniverse.model.TileObject
+import wapuniverse.model.impl.PlaneContext
 import wapuniverse.model.impl.resolveShortId
 import wapuniverse.model.moveToolContext
 import wapuniverse.model.selectToolContext
@@ -28,7 +29,7 @@ private val T = 64
 class TileObjectPresenter(
         private val rezImageProvider: RezImageProvider,
         private val camera: Camera,
-        editorContext: EditorContext
+        editorContext: PlaneContext
 ) {
     private val selectToolContext = editorContext.selectToolContext
 

@@ -6,9 +6,5 @@ import javafx.collections.ObservableSet
 import wapuniverse.geom.Vec2i
 
 interface World {
-    val entities: ObservableList<out Entity>
-
-    val tiles: ObservableMap<Vec2i, Int>
-
-    val selectedObjects: ObservableSet<out Entity>
+    val planes: ObservableList<out Plane>
 }

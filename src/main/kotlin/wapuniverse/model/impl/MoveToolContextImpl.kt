@@ -6,9 +6,9 @@ import wapuniverse.model.MoveToolContext
 import wapuniverse.model.ObjectsDrag
 
 class MoveToolContextImpl(
-        private val world: WorldImpl
+        private val plane: PlaneImpl
 ) : MoveToolContext {
     override val objectsDrag = SimpleObjectProperty<ObjectsDrag>()
 
-    override fun dragSelectedObjects(dragOrigin: Vec2d) = ObjectsDragContextImpl(dragOrigin, objectsDrag, world)
+    override fun dragSelectedObjects(dragOrigin: Vec2d) = ObjectsDragContextImpl(dragOrigin, objectsDrag, plane)
 }

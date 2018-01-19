@@ -14,10 +14,11 @@ import wapuniverse.view.ext.setContains
 
 class WapObjectImpl(
         editorContext: EditorContextImpl,
-        rezIndex: RezIndex
-) : WapObject, EntityImpl(editorContext) {
-    private val selectToolContext = monadic(editorContext.activeToolContext)
-            .map { it as? SelectToolContextImpl }
+        rezIndex: RezIndex,
+        plane: PlaneImpl
+) : WapObject, EntityImpl(editorContext, plane) {
+//    private val selectToolContext = monadic(editorContext.activeToolContext)
+//            .map { it as? SelectToolContextImpl }
 
     override val imageSet = SimpleStringProperty("")
 

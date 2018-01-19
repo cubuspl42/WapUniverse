@@ -11,6 +11,7 @@ import org.fxmisc.easybind.EasyBind.combine
 import wapuniverse.model.EditorContext
 import wapuniverse.model.Entity
 import wapuniverse.model.WapObject
+import wapuniverse.model.impl.PlaneContext
 import wapuniverse.model.impl.resolveShortId
 import wapuniverse.model.moveToolContext
 import wapuniverse.model.selectToolContext
@@ -22,7 +23,7 @@ import wapuniverse.view.util.observableValue
 class WapObjectPresenter(
         private val rezImageProvider: RezImageProvider,
         private val camera: Camera,
-        editorContext: EditorContext
+        editorContext: PlaneContext
 ) {
     private val selectToolContext = editorContext.selectToolContext
 

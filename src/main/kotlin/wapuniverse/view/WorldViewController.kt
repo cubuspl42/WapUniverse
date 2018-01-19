@@ -17,8 +17,8 @@ import org.fxmisc.easybind.EasyBind.listBind
 import wapuniverse.geom.Vec2d
 import wapuniverse.geom.Vec2i
 import wapuniverse.model.AreaSelection
-import wapuniverse.model.EditorContext
 import wapuniverse.model.SelectToolContext
+import wapuniverse.model.impl.PlaneContext
 import wapuniverse.model.selectToolContext
 import wapuniverse.rez.RezImageProvider
 import wapuniverse.view.ext.hoverPositionProperty
@@ -31,10 +31,10 @@ import java.net.URL
 import java.util.ResourceBundle
 
 class WorldViewController(
-        private val editorContext: EditorContext,
+        private val planeContext: PlaneContext,
         private val rezImageProvider: RezImageProvider
 ) : Initializable {
-    private val world = editorContext.world
+    private val plane = planeContext.plane
 
     @FXML
     lateinit var wrapperPane: Pane
@@ -66,9 +66,9 @@ class WorldViewController(
 
     private val camera = Camera()
 
-    private val wapObjectPresenter = WapObjectPresenter(rezImageProvider, camera, editorContext)
+    private val wapObjectPresenter = WapObjectPresenter(rezImageProvider, camera, planeContext)
 
-    private val tileObjectPresenter = TileObjectPresenter(rezImageProvider, camera, editorContext)
+    private val tileObjectPresenter = TileObjectPresenter(rezImageProvider, camera, planeContext)
 
     private val entityPresenter = EntityPresenter(wapObjectPresenter, tileObjectPresenter)
 
@@ -86,37 +86,37 @@ class WorldViewController(
             heightProperty().bind(wrapperPane.heightProperty())
         }
 
-        editorContext.hoverPositionProperty.bind(wrapperPane.hoverPositionProperty().map {
+        planeContext.hoverPositionProperty.bind(wrapperPane.hoverPositionProperty().map {
             it?.let { viewToWorld(it.toVec2d()) }
         })
 
         wrapperPane.addEventFilter(MouseEvent.MOUSE_CLICKED) { ev ->
             if (ev.button == MouseButton.PRIMARY && ev.isStillSincePress) {
-                (editorContext.activeToolContext as? SelectToolContext)?.selectObjectsAt(viewToWorld(ev.position))
+                (planeContext.activeToolContext as? SelectToolContext)?.selectObjectsAt(viewToWorld(ev.position))
             }
         }
 
-        presentTiles(tilesGroup, world.tiles)
+        presentTiles(tilesGroup, plane.tiles)
 
         listBind(
                 objectsGroup.children,
-                world.entities.map { entityPresenter.presentEntity(it) }
+                plane.entities.map { entityPresenter.presentEntity(it) }
         )
 
         listBind(
                 objectsUiGroup.children,
-                world.entities.map { entityPresenter.presentEntityUi(it) }
+                plane.entities.map { entityPresenter.presentEntityUi(it) }
         )
 
         listBind(editorUiGroup.children, singletonObservableList(selectionAreaRectangle))
     }
 
     private fun presentTiles(tilesGroup: Group, tiles: ObservableMap<Vec2i, Int>) {
-        TilesController(tilesGroup, tiles, rezImageProvider)
+        TilesController(tilesGroup, tiles, rezImageProvider, plane)
     }
 
     private fun presentSelectionAreaRectangle(): ObservableValue<Node> {
-        return editorContext.selectToolContext
+        return planeContext.selectToolContext
                 .flatMap<AreaSelection> { it!!.areaSelection as ObservableValue<AreaSelection> }
                 .map {
                     transformedRectangle(it.boundingBox, camera.transform).apply {

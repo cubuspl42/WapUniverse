@@ -10,13 +10,13 @@ import wapuniverse.view.ext.map
 class ObjectsDragContextImpl(
         private val origin: Vec2d,
         private val objectsDragProperty: Property<ObjectsDrag>,
-        private val world: WorldImpl
+        plane: PlaneImpl
 ) : ObjectsDragContext {
     private val destination = SimpleObjectProperty<Vec2d>(origin)
 
     private val delta = destination.map { it - origin }
 
-    private val snapshot = world.selectedObjects.map { Pair(it, it.position.value) }.toMap()
+    private val snapshot = plane.selectedObjects.map { Pair(it, it.position.value) }.toMap()
 
     init {
         objectsDragProperty.value = ObjectsDragImpl(origin, delta)

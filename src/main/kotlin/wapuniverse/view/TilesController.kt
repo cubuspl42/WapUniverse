@@ -2,18 +2,19 @@ package wapuniverse.view
 
 import javafx.collections.MapChangeListener
 import javafx.collections.ObservableMap
-import javafx.scene.CacheHint
 import javafx.scene.Group
 import javafx.scene.Node
 import javafx.scene.image.ImageView
 import wapuniverse.geom.Vec2i
+import wapuniverse.model.Plane
 import wapuniverse.rez.RezImageProvider
 import wapuniverse.view.util.observableValue
 
 class TilesController(
         private val tilesGroup: Group,
         tiles: ObservableMap<Vec2i, Int>,
-        private val rezImageProvider: RezImageProvider
+        private val rezImageProvider: RezImageProvider,
+        private val plane: Plane
 ) {
     private val nodeMap = mutableMapOf<Vec2i, Node>()
 
@@ -36,7 +37,7 @@ class TilesController(
 
     private fun showTile(index: Vec2i, tileId: Int) {
         val image = observableValue {
-            rezImageProvider.provideImage("LEVEL1_TILES_ACTION", tileId)!!.image
+            rezImageProvider.provideImage("LEVEL1_TILES_${plane.imageSet}", tileId)?.image
         }
         val node = if (tileId >= 0) {
             ImageView().apply {

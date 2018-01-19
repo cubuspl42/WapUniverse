@@ -8,26 +8,28 @@ import wapuniverse.geom.Vec2i
 import wapuniverse.model.impl.EditorContextImpl
 import wapuniverse.model.impl.EntityImpl
 import wapuniverse.model.impl.MetaTileGroup
+import wapuniverse.model.impl.PlaneImpl
 import wapuniverse.view.ext.map
 
 private val T = 64
 
 class TileObjectImpl(
-        editorContext: EditorContextImpl
-) : TileObject, EntityImpl(editorContext) {
+        editorContext: EditorContextImpl,
+        private val plane: PlaneImpl
+) : TileObject, EntityImpl(editorContext, plane) {
     private val world = editorContext.world
 
     override val rect = SimpleObjectProperty<Rect2i>(Rect2i(0, 0, 1, 1))
 
     override val tilePosition = rect.map { it.minV }
 
-    override val position = rect.map { it.minV * T}
+    override val position = rect.map { it.minV * T }
 
     override val metaTileGroup = MetaTileGroup().apply {
         tilePosition.bind(this@TileObjectImpl.tilePosition)
         metaTiles.bind(rect.map { ladder(it.size) })
     }.also {
-        world.metaTileLayer.metaTileGroups.add(it)
+        plane.metaTileLayer.metaTileGroups.add(it)
     }
 
     override fun intersects(bounds: Bounds): Boolean {
