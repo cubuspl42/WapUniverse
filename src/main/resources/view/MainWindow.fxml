@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
+<BorderPane fx:id="pane" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.121"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="wapuniverse.view.MainWindowController"
+            stylesheets="/view/MainWindow.css">
+    <top>
+        <VBox>
+            <MenuBar>
+                <Menu text="File">
+                    <MenuItem fx:id="newMenuItem" text="New…"/>
+                    <MenuItem fx:id="openMenuItem" text="Open…"/>
+                    <MenuItem fx:id="saveMenuItem" text="Save"/>
+                </Menu>
+                <Menu text="Edit">
+                    <MenuItem fx:id="deleteMenuItem" text="Delete"/>
+                </Menu>
+            </MenuBar>
+            <HBox styleClass="buttonBar">
+                <Button fx:id="newButton" text="New"/>
+                <Button fx:id="openButton" text="Open"/>
+                <Button fx:id="saveButton" text="Save"/>
+                <Separator orientation="VERTICAL"/>
+                <ToggleButton fx:id="selectToolButton" text="Select"/>
+                <ToggleButton fx:id="moveToolButton" text="Move"/>
+                <Separator orientation="VERTICAL"/>
+                <ComboBox fx:id="activePlaneComboBox"/>
+            </HBox>
+        </VBox>
+    </top>
+    <center>
+        <Text text="WapUniverse"/>
+    </center>
+</BorderPane>

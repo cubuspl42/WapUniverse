@@ -1,0 +1,11 @@
+.buttonBar {
+    -fx-padding: 4px;
+    -fx-spacing: 4px;
+    -fx-border-style: hidden hidden solid hidden;
+    -fx-border-width: 0px 0px 1px 0px;
+    -fx-border-color: #A0A0A0;
+}
+
+ComboBox {
+    -fx-pref-width: 100px;
+}
