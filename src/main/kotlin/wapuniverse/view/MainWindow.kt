@@ -1,5 +1,6 @@
 package wapuniverse.view
 
+import javafx.scene.Parent
 import javafx.scene.Scene
 import javafx.stage.Stage
 import wapuniverse.model.MainWindow
@@ -19,7 +20,7 @@ fun mainWindow(stage: Stage, model: MainWindow) {
     presentAsFileChooser(model.openWorldDialog, { d, p-> d.open(p) }, stage)
 }
 
-fun mainWindowRoot(model: MainWindow) = loadFxml(MAIN_WINDOW_FXML) {
+fun mainWindowRoot(model: MainWindow): Parent = loadFxml(MAIN_WINDOW_FXML) {
     MainWindowController(model)
 }
 
