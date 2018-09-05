@@ -1,0 +1,3 @@
+package wapuniverse.model.util
+
+annotation class UnmodifiableCollection
