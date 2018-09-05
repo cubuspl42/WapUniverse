@@ -1,10 +1,11 @@
 package wapuniverse.model
 
 import javafx.beans.value.ObservableBooleanValue
+import io.github.jwap32.v1.Wwd
 import wapuniverse.util.booleanProperty
 
 class Editor(
-        val baseLevel: BaseLevel
+       private val wwd: Wwd
 ) {
     val saved: ObservableBooleanValue
 
