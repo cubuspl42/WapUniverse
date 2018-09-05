@@ -16,6 +16,7 @@ fun mainWindow(stage: Stage, model: MainWindow) {
     }
 
     presentAsStage(model.newWorldDialog) { newWorldDialog(it) }
+    presentAsFileChooser(model.openWorldDialog, { d, p-> d.open(p) }, stage)
 }
 
 fun mainWindowRoot(model: MainWindow) = loadFxml(MAIN_WINDOW_FXML) {
