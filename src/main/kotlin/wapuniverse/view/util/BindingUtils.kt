@@ -3,7 +3,7 @@ package wapuniverse.view.util
 import javafx.beans.binding.Bindings
 import javafx.scene.control.Button
 import javafx.scene.control.MenuItem
-import wapuniverse.view.Action
+import wapuniverse.model.Action
 
 fun bind(menuItem: MenuItem, action: Action) {
     menuItem.disableProperty().bind(Bindings.not(action.enabled))

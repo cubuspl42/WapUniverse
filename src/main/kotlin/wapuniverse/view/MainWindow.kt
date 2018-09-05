@@ -1,6 +1,5 @@
 package wapuniverse.view
 
-import javafx.scene.Parent
 import javafx.scene.Scene
 import javafx.stage.Stage
 import wapuniverse.model.MainWindow
@@ -15,10 +14,11 @@ fun mainWindow(stage: Stage, model: MainWindow) {
         scene = Scene(mainWindowRoot(model))
         show()
     }
+
+    presentAsStage(model.newWorldDialog) { newWorldDialog(it) }
 }
 
-fun mainWindowRoot(model: MainWindow): Parent {
-    return loadFxml(MAIN_WINDOW_FXML) {
-        MainWindowController(model)
-    }
+fun mainWindowRoot(model: MainWindow) = loadFxml(MAIN_WINDOW_FXML) {
+    MainWindowController(model)
 }
+
