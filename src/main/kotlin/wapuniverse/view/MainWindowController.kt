@@ -81,6 +81,6 @@ class MainWindowController(private val model: MainWindow) : Initializable {
     }
 
     private fun worldView(editor: Editor): Node {
-        return pane(editor.activePlane.map { wapuniverse.view.worldView(it, rezImageProvider) })
+        return pane(editor.planeEditor.map { wapuniverse.view.worldView(it, rezImageProvider) })
     }
 }
