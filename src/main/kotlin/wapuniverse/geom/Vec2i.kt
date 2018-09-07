@@ -1,4 +1,4 @@
-package wapuniverse.model
+package wapuniverse.geom
 
 data class Vec2i(val x: Int = 0, val y: Int = 0) {
     companion object {
