@@ -1,5 +1,6 @@
 package wapuniverse.view.util
 
+import javafx.beans.value.ObservableValue
 import javafx.collections.ObservableList
 import javafx.scene.Group
 import javafx.scene.Node

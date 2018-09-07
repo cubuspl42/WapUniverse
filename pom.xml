@@ -49,6 +49,11 @@
             <artifactId>easybind</artifactId>
             <version>1.0.3</version>
         </dependency>
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>1.9</version>
+        </dependency>
     </dependencies>
 
     <build>

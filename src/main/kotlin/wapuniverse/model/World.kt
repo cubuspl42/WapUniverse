@@ -7,13 +7,15 @@ import javafx.collections.ObservableList
 import wapuniverse.model.util.UnmodifiableCollection
 
 class World(wwd: Wwd) {
+    val imageDir = wwd.header.imageDir
+
     @UnmodifiableCollection
     val planes: ObservableList<Plane>
 
     private val mPlanes: ObservableList<Plane> = createPlanes(wwd)
 
     private fun createPlanes(wwd: Wwd) =
-            observableArrayList<Plane>(wwd.planes.map { Plane(it) })
+            observableArrayList<Plane>(wwd.planes.map { Plane(this, it) })
 
     init {
         planes = unmodifiableObservableList(mPlanes)!!
