@@ -1,17 +1,18 @@
 package wapuniverse.model
 
-import javafx.beans.value.ObservableBooleanValue
 import io.github.jwap32.v1.Wwd
-import javafx.beans.property.Property
+import javafx.beans.value.ObservableBooleanValue
 import javafx.beans.value.ObservableValue
+import wapuniverse.rez.RezIndex
 import wapuniverse.util.booleanProperty
 import wapuniverse.util.objectProperty
 import wapuniverse.view.extensions.map
 
 class Editor(
-       wwd: Wwd
+        wwd: Wwd,
+        private val rezIndex: RezIndex
 ) {
-    val world = World(wwd)
+    val world = World(wwd, this)
 
     val saved: ObservableBooleanValue
 
@@ -30,6 +31,18 @@ class Editor(
     fun save() {
         check(!isSaved())
     }
+
+    internal fun findObjectImageMetadata(shortImageSetId: String, i: Int) =
+            world.prefixMap.entries
+                    .asSequence()
+                    .map { (shortPrefix, imageSetPrefix) ->
+                        val longImageSetId = shortImageSetId
+                                .replaceFirst(shortPrefix, imageSetPrefix)
+                                .replace("\\", "_")
+                        rezIndex.findImageMetadata(longImageSetId, i)
+                    }
+                    .filterNotNull()
+                    .firstOrNull()
 
     private fun createPlaneEditor(): ObservableValue<PlaneEditor?> {
         return activePlane.map { PlaneEditor(it) }

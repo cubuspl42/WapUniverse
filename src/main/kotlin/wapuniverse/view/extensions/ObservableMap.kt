@@ -1,13 +1,13 @@
 package wapuniverse.view.extensions
 
-import javafx.collections.FXCollections
+import javafx.collections.FXCollections.observableArrayList
 import javafx.collections.MapChangeListener
 import javafx.collections.ObservableList
 import javafx.collections.ObservableMap
 
 fun <K, V, R> ObservableMap<K, V>.toObservableList(transform: (K, V) -> R): ObservableList<R> {
     val transformMap = mutableMapOf<K, R>()
-    val list = FXCollections.observableArrayList<R>()!!
+    val list = observableArrayList<R>()!!
 
     fun addValue(key: K, value: V) {
         val value2 = transform(key, value)

@@ -54,13 +54,8 @@ class MainWindowController(private val model: MainWindow) : Initializable {
     private val rezImageProvider: RezImageProvider
 
     init {
-        val classLoader = Thread.currentThread().contextClassLoader
-
-        val yamlRezIndex = loadYamlRezIndex(classLoader.getResourceAsStream(rezIndexPath))
 
         val rezImageLoader = ClassLoaderRezImageLoader(rezImageLoaderPrefix)
-
-        val rezIndex = addImageSizes(yamlRezIndex, rezImageLoader)
 
         rezImageProvider = CachingRezImageProvider(rezIndex, rezImageLoader)
     }

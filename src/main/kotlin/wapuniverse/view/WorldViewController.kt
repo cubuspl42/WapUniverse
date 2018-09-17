@@ -1,15 +1,21 @@
 package wapuniverse.view
 
+import javafx.beans.value.ObservableObjectValue
 import javafx.fxml.FXML
 import javafx.fxml.Initializable
 import javafx.scene.Group
+import javafx.scene.Node
+import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.layout.Pane
+import wapuniverse.geom.Vec2i
 import wapuniverse.model.PlaneEditor
+import wapuniverse.model.WapObject
 import wapuniverse.rez.RezImageProvider
 import wapuniverse.view.extensions.map
 import wapuniverse.view.extensions.toObservableList
 import wapuniverse.view.util.group
+import wapuniverse.view.util.observableValue
 import java.net.URL
 import java.util.ResourceBundle
 
@@ -37,7 +43,7 @@ class WorldViewController(
         planeRoot.run {
             translateXProperty().bind(model.cameraOffset.map { -it.x })
             translateYProperty().bind(model.cameraOffset.map { -it.y })
-            children.add(createTilesGroup())
+            children.addAll(createTilesGroup(), createObjectsGroup())
         }
     }
 
@@ -50,6 +56,38 @@ class WorldViewController(
                 }
             })
 
+    private fun createObjectsGroup() =
+            group(plane.wapObjects.toObservableList { wapObject ->
+                wapObjectImage(wapObject)
+            })
+
+    private fun wapObjectImage(wapObject: WapObject): Node {
+        val s = Vec2i(if (wapObject.mirrored) -1 else 1, if (wapObject.inverted) -1 else 1)
+        return ImageView().apply {
+            x = wapObject.imageDiagonal.a.x.toDouble()
+            y = wapObject.imageDiagonal.a.y.toDouble()
+            scaleX = s.x.toDouble()
+            scaleY = s.y.toDouble()
+            imageProperty().bind(provideObjectImage(wapObject.imageSet, wapObject.i))
+        }
+    }
+
+    private fun provideObjectImage(imageSet: String, i: Int) =
+            provideObjectImage(rezImageProvider, plane.world.imageSet1, imageSet, i)
+
     private fun provideTileImage(tileId: Int) =
             provideTileImage(rezImageProvider, plane.world.imageDir, plane.imageSet, tileId)
+}
+
+fun provideObjectImage(
+        rezImageProvider: RezImageProvider,
+        imageSet1: String,
+        imageSet: String,
+        i: Int
+): ObservableObjectValue<Image?> {
+    val prefix = imageSet1
+            .replace('\\', '_')
+            .removePrefix("_")
+    val imageSetId = imageSet.replace("LEVEL", prefix)
+    return observableValue { rezImageProvider.provideImage(imageSetId, i)?.image }
 }
