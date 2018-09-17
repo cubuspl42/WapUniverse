@@ -1,12 +1,21 @@
 package wapuniverse.model
 
+import io.github.jwap32.v1.loadWwd
 import javafx.beans.value.ObservableValue
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.launch
 import wapuniverse.model.util.dialogProperty
+import wapuniverse.rez.ClassLoaderRezImageLoader
+import wapuniverse.rez.RezIndex
+import wapuniverse.rez.addImageSizes
+import wapuniverse.rez.loadYamlRezIndex
 import wapuniverse.util.optionalProperty
+import java.nio.file.Files
 import java.nio.file.Path
 import kotlinx.coroutines.experimental.javafx.JavaFx as UI
+
+private const val rezIndexPath = "rezIndex.yaml"
+private const val rezImageLoaderPrefix = "CLAW"
 
 class MainWindow {
     val newAction: Action
@@ -21,6 +30,10 @@ class MainWindow {
 
     val editor = optionalProperty<Editor?>()
 
+    val rezIndex: RezIndex
+
+    val rezImageLoader = ClassLoaderRezImageLoader(rezImageLoaderPrefix) // FIXME: Move
+
     private val lock = Lock()
 
     private val job = Job()
@@ -29,14 +42,16 @@ class MainWindow {
 
     private val mOpenWorldDialog = dialogProperty<OpenWorldDialog>()
 
-    private val editorFactory = EditorFactory()
-
     init {
         newAction = action { createNewWorld() }
         openAction = action { openWorld() }
         saveAction = action {}
         newWorldDialog = mNewWorldDialog
         openWorldDialog = mOpenWorldDialog
+
+        val classLoader = Thread.currentThread().contextClassLoader
+        val yamlRezIndex = loadYamlRezIndex(classLoader.getResourceAsStream(rezIndexPath))
+        rezIndex = addImageSizes(yamlRezIndex, rezImageLoader)
     }
 
     private fun action(block: suspend () -> Unit) = Action(lock.isUnlocked) {
@@ -73,10 +88,18 @@ class MainWindow {
     }
 
     internal fun createNewWorld(baseLevel: BaseLevel) {
-        editor.set(editorFactory.createEditor(baseLevel))
+        editor.set(createEditor(baseLevel))
     }
 
     internal fun openWorld(worldPath: Path) {
-        editor.set(editorFactory.createEditor(worldPath))
+        editor.set(createEditor(worldPath))
+    }
+
+    private fun createEditor(worldPath: Path): Editor {
+        val wwd = loadWwd(Files.newInputStream(worldPath))
+        return Editor(wwd, rezIndex)
+    }
+    private fun createEditor(baseLevel: BaseLevel): Editor {
+        TODO()
     }
 }

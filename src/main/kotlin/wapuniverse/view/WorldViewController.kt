@@ -1,15 +1,21 @@
 package wapuniverse.view
 
+import javafx.beans.value.ObservableValue
 import javafx.fxml.FXML
 import javafx.fxml.Initializable
 import javafx.scene.Group
+import javafx.scene.Node
+import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.layout.Pane
+import wapuniverse.geom.Vec2i
 import wapuniverse.model.PlaneEditor
+import wapuniverse.model.WapObject
 import wapuniverse.rez.RezImageProvider
 import wapuniverse.view.extensions.map
 import wapuniverse.view.extensions.toObservableList
 import wapuniverse.view.util.group
+import wapuniverse.view.util.observableValue
 import java.net.URL
 import java.util.ResourceBundle
 
@@ -25,7 +31,6 @@ class WorldViewController(
 
     private val plane = model.plane
 
-
     override fun initialize(location: URL?, resources: ResourceBundle?) {
         wrapperPane.run {
             setOnMousePressed { e ->
@@ -37,7 +42,7 @@ class WorldViewController(
         planeRoot.run {
             translateXProperty().bind(model.cameraOffset.map { -it.x })
             translateYProperty().bind(model.cameraOffset.map { -it.y })
-            children.add(createTilesGroup())
+            children.addAll(createTilesGroup(), createObjectsGroup())
         }
     }
 
@@ -46,10 +51,27 @@ class WorldViewController(
                 ImageView().apply {
                     x = index.x * 64.0
                     y = index.y * 64.0
-                    imageProperty().bind(provideTileImage(tileId))
+                    imageProperty().bind(provideImage(plane.findTileImageMetadata(tileId)?.rezPath))
                 }
             })
 
-    private fun provideTileImage(tileId: Int) =
-            provideTileImage(rezImageProvider, plane.world.imageDir, plane.imageSet, tileId)
+    private fun createObjectsGroup() =
+            group(plane.wapObjects.toObservableList { wapObject ->
+                wapObjectImage(wapObject)
+            })
+
+    private fun wapObjectImage(wapObject: WapObject): Node {
+        val s = Vec2i(if (wapObject.mirrored) -1 else 1, if (wapObject.inverted) -1 else 1)
+        return ImageView().apply {
+            x = wapObject.imageDiagonal.a.x.toDouble()
+            y = wapObject.imageDiagonal.a.y.toDouble()
+            scaleX = s.x.toDouble()
+            scaleY = s.y.toDouble()
+            imageProperty().bind(provideImage(wapObject.imageMetadata?.rezPath))
+        }
+    }
+
+    private fun provideImage(rezPath: String?): ObservableValue<Image?> {
+        return observableValue { rezPath?.let { rezImageProvider.provideImage(it) } }
+    }
 }

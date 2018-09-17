@@ -1,5 +1,7 @@
 package wapuniverse.rez
 
+import javafx.scene.image.Image
+
 interface RezImageProvider {
-    suspend fun provideImage(fullyQualifiedImageSetId: String, i: Int): RezImage?
+    suspend fun provideImage(imageRezPath: String): Image?
 }

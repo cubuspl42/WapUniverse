@@ -13,8 +13,6 @@ import wapuniverse.model.Plane
 import wapuniverse.rez.CachingRezImageProvider
 import wapuniverse.rez.ClassLoaderRezImageLoader
 import wapuniverse.rez.RezImageProvider
-import wapuniverse.rez.addImageSizes
-import wapuniverse.rez.loadYamlRezIndex
 import wapuniverse.view.extensions.bind
 import wapuniverse.view.extensions.map
 import wapuniverse.view.util.bind
@@ -22,9 +20,6 @@ import wapuniverse.view.util.hideOverflow
 import wapuniverse.view.util.pane
 import java.net.URL
 import java.util.ResourceBundle
-
-private const val rezIndexPath = "rezIndex.yaml"
-private const val rezImageLoaderPrefix = "CLAW"
 
 class MainWindowController(private val model: MainWindow) : Initializable {
     @FXML
@@ -54,15 +49,7 @@ class MainWindowController(private val model: MainWindow) : Initializable {
     private val rezImageProvider: RezImageProvider
 
     init {
-        val classLoader = Thread.currentThread().contextClassLoader
-
-        val yamlRezIndex = loadYamlRezIndex(classLoader.getResourceAsStream(rezIndexPath))
-
-        val rezImageLoader = ClassLoaderRezImageLoader(rezImageLoaderPrefix)
-
-        val rezIndex = addImageSizes(yamlRezIndex, rezImageLoader)
-
-        rezImageProvider = CachingRezImageProvider(rezIndex, rezImageLoader)
+        rezImageProvider = CachingRezImageProvider(model.rezImageLoader)
     }
 
     override fun initialize(location: URL?, resources: ResourceBundle?) {
