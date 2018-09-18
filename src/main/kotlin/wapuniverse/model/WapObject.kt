@@ -26,8 +26,7 @@ class WapObject(
 
     private fun calculateImageDiagonal(): EucVec2i {
         val md = imageMetadata ?: return EucVec2i(position, position)
-        val s = Vec2i(if (mirrored) -1 else 1, if (inverted) -1 else 1)
-        val ev = (EucVec2i(Vec2i(), md.size) - md.size / 2 + md.offset).scaled(s)
+        val ev = (EucVec2i(Vec2i(), md.size) - md.size / 2 + md.offset)
         return ev + position
     }
 }
