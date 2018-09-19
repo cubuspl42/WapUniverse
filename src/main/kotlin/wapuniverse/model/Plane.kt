@@ -49,6 +49,11 @@ class Plane(
         return rezIndex.findImageMetadata(imageSetId, tileId)
     }
 
+
+    internal fun findObjectsAt(point: Vec2i): List<WapObject> {
+        return mWapObjects.filter { it.bounds.contains(point.toPoint2D()) }
+    }
+
     private fun createWapObjectsSet(wwdPlane: WwdPlane) =
             observableSet<WapObject>(wwdPlane.objects.map { WapObject(this, it) }.toSet())!!
 }

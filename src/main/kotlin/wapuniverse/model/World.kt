@@ -4,6 +4,7 @@ import io.github.jwap32.v1.Wwd
 import javafx.collections.FXCollections.observableArrayList
 import javafx.collections.FXCollections.unmodifiableObservableList
 import javafx.collections.ObservableList
+import wapuniverse.geom.Vec2i
 import wapuniverse.model.util.UnmodifiableCollection
 import wapuniverse.rez.RezIndex
 
