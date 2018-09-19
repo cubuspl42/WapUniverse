@@ -1,6 +1,8 @@
 package wapuniverse.model
 
 import io.github.jwap32.v1.loadWwd
+import javafx.beans.property.SimpleBooleanProperty
+import javafx.beans.value.ObservableBooleanValue
 import javafx.beans.value.ObservableValue
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.launch
@@ -43,7 +45,8 @@ class MainWindow {
     private val mOpenWorldDialog = dialogProperty<OpenWorldDialog>()
 
     init {
-        newAction = action { createNewWorld() }
+//        newAction = action { createNewWorld() }
+        newAction = Action(SimpleBooleanProperty(false)) {} // FIXME
         openAction = action { openWorld() }
         saveAction = action {}
         newWorldDialog = mNewWorldDialog
