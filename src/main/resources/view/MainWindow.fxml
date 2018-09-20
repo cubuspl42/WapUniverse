@@ -35,6 +35,8 @@
                 <ToggleButton fx:id="selectToolButton" text="Select"/>
                 <ToggleButton fx:id="moveToolButton" text="Move"/>
                 <Separator orientation="VERTICAL"/>
+                <Button fx:id="editButton" text="Edit"/>
+                <Separator orientation="VERTICAL"/>
                 <ComboBox fx:id="activePlaneComboBox"/>
             </HBox>
         </VBox>

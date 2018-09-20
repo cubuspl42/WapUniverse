@@ -1,17 +1,18 @@
 package wapuniverse.view.util
 
-import javafx.beans.binding.Bindings
+import javafx.beans.binding.Bindings.not
+import javafx.beans.binding.BooleanExpression.booleanExpression
 import javafx.scene.control.Button
 import javafx.scene.control.MenuItem
 import wapuniverse.model.Action
 
 fun bind(menuItem: MenuItem, action: Action) {
-    menuItem.disableProperty().bind(Bindings.not(action.enabled))
+    menuItem.disableProperty().bind(not(booleanExpression(action.enabled)))
     menuItem.setOnAction { action.execute() }
 }
 
 fun bind(button: Button, action: Action) {
-    button.disableProperty().bind(Bindings.not(action.enabled))
+    button.disableProperty().bind(not(booleanExpression(action.enabled)))
     button.setOnAction { action.execute() }
 }
 

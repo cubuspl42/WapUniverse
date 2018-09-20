@@ -2,7 +2,6 @@ package wapuniverse.model
 
 import io.github.jwap32.v1.loadWwd
 import javafx.beans.property.SimpleBooleanProperty
-import javafx.beans.value.ObservableBooleanValue
 import javafx.beans.value.ObservableValue
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.launch
@@ -12,6 +11,8 @@ import wapuniverse.rez.RezIndex
 import wapuniverse.rez.addImageSizes
 import wapuniverse.rez.loadYamlRezIndex
 import wapuniverse.util.optionalProperty
+import wapuniverse.view.extensions.flatMap
+import wapuniverse.view.extensions.map
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlinx.coroutines.experimental.javafx.JavaFx as UI
@@ -25,6 +26,8 @@ class MainWindow {
     val openAction: Action
 
     val saveAction: Action
+
+    val editAction: Action
 
     val newWorldDialog: ObservableValue<NewWorldDialog?>
 
@@ -49,6 +52,8 @@ class MainWindow {
         newAction = Action(SimpleBooleanProperty(false)) {} // FIXME
         openAction = action { openWorld() }
         saveAction = action {}
+        editAction = Action(editor.flatMap { it.planeEditor }.map { it.editAction })
+
         newWorldDialog = mNewWorldDialog
         openWorldDialog = mOpenWorldDialog
 
@@ -102,6 +107,7 @@ class MainWindow {
         val wwd = loadWwd(Files.newInputStream(worldPath))
         return Editor(wwd, rezIndex)
     }
+
     private fun createEditor(baseLevel: BaseLevel): Editor {
         TODO()
     }

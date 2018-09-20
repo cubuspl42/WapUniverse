@@ -1,10 +1,11 @@
 package wapuniverse.model
 
-import javafx.beans.value.ObservableBooleanValue
+import javafx.beans.value.ObservableValue
 import wapuniverse.util.booleanProperty
+import wapuniverse.view.extensions.flatMap
 
 class Action(
-        val enabled: ObservableBooleanValue = booleanProperty(true),
+        val enabled: ObservableValue<Boolean> = booleanProperty(true),
         private val block: () -> Unit
 ) {
     fun execute() {
@@ -14,3 +15,9 @@ class Action(
         block()
     }
 }
+
+fun Action(observable: ObservableValue<Action>) =
+        Action(observable.flatMap { it.enabled }) {
+            val action = observable.value ?: throw IllegalStateException()
+            action.execute()
+        }

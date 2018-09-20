@@ -41,6 +41,9 @@ class MainWindowController(private val model: MainWindow) : Initializable {
     lateinit var saveButton: Button
 
     @FXML
+    lateinit var editButton: Button
+
+    @FXML
     lateinit var activePlaneComboBox: ComboBox<Plane>
 
     @FXML
@@ -56,8 +59,9 @@ class MainWindowController(private val model: MainWindow) : Initializable {
         bind(newMenuItem, newButton, model.newAction)
         bind(openMenuItem, openButton, model.openAction)
         bind(saveMenuItem, saveButton, model.saveAction)
+        bind(editButton, model.editAction)
 
-        activePlaneComboBox.bind(
+        activePlaneComboBox.bind<Plane>(
                 model.editor.map { it.world.planes },
                 model.editor.map { it.activePlane }
         ) { it.name }
