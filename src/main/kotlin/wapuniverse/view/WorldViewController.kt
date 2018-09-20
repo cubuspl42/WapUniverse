@@ -11,7 +11,6 @@ import javafx.scene.input.MouseButton
 import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
-import wapuniverse.geom.Vec2d
 import wapuniverse.geom.Vec2i
 import wapuniverse.model.PlaneEditor
 import wapuniverse.model.WapObject
@@ -43,7 +42,7 @@ class WorldViewController(
         wrapperPane.run {
             setOnMouseClicked { e ->
                 if (e.button == MouseButton.PRIMARY) {
-                    model.selectObjects(e.point.toVec2i())
+                    model.selectObjects(model.cameraToWorld(e.point.toVec2i()))
                 }
             }
             setOnMousePressed { e ->
@@ -73,7 +72,7 @@ class WorldViewController(
                 }
             })
 
-    private fun createObjectsUi()  =
+    private fun createObjectsUi() =
             group(plane.wapObjects.toObservableList { wapObject ->
                 wapObjectUi(wapObject)
             })
@@ -87,7 +86,7 @@ class WorldViewController(
     private fun wapObjectUi(wapObject: WapObject): Node {
         val b = wapObject.bounds
         return Rectangle(b.minX, b.minY, b.width, b.height).apply {
-            stroke = Color.RED
+            strokeProperty().bind(wapObjectStrokeColor(wapObject))
             fill = Color.TRANSPARENT
             isMouseTransparent = true
         }
@@ -108,3 +107,8 @@ class WorldViewController(
         return observableValue { rezPath?.let { rezImageProvider.provideImage(it) } }
     }
 }
+
+private fun wapObjectStrokeColor(wapObject: WapObject) =
+        wapObject.isSelected.map {
+            if (it) Color.RED else Color.LIGHTBLUE
+        }

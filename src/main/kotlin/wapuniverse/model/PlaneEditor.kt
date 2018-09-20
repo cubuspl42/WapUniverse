@@ -10,7 +10,11 @@ class PlaneEditor(
 
     var selectedObjects = listOf<WapObject>()
 
+    fun cameraToWorld(point: Vec2i) =
+            cameraOffset.value + point
+
     fun selectObjects(point: Vec2i) {
+        unselectAllObjects()
         val objects = plane.findObjectsAt(point)
         objects.forEach { it.iIsSelected.value = true }
         selectedObjects = objects
