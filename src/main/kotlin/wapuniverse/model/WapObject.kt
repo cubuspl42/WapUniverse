@@ -2,11 +2,13 @@ package wapuniverse.model
 
 import io.github.jwap32.v1.WwdObject
 import javafx.beans.value.ObservableBooleanValue
+import javafx.beans.value.ObservableValue
 import javafx.geometry.BoundingBox
 import javafx.geometry.Bounds
 import wapuniverse.geom.EucVec2i
 import wapuniverse.geom.Vec2i
 import wapuniverse.util.booleanProperty
+import wapuniverse.util.objectProperty
 
 class WapObject(
         val plane: Plane,
@@ -14,7 +16,7 @@ class WapObject(
 ) {
     private val world = plane.world
 
-    val position = Vec2i(wwdObject.x, wwdObject.y)
+    val position: ObservableValue<Vec2i>
 
     val i = wwdObject.i
 
@@ -26,22 +28,32 @@ class WapObject(
 
     val imageMetadata = world.findObjectImageMetadata(imageSet, i)
 
-    val imageDiagonal = calculateImageDiagonal()
+    val imageDiagonal: EucVec2i
 
-    val bounds: Bounds = createBounds()
+    val bounds: Bounds
 
     val isSelected: ObservableBooleanValue
 
     internal val iIsSelected = booleanProperty(false)
 
+    private val mPosition = objectProperty(Vec2i(wwdObject.x, wwdObject.y))
+
     init {
+        position = mPosition
         isSelected = iIsSelected
+        imageDiagonal = calculateImageDiagonal()
+        bounds = createBounds()
+    }
+
+    internal fun setPosition(pos: Vec2i) {
+        mPosition.value = pos
     }
 
     private fun calculateImageDiagonal(): EucVec2i {
-        val md = imageMetadata ?: return EucVec2i(position, position)
+        val p = position.value
+        val md = imageMetadata ?: return EucVec2i(p, p)
         val ev = (EucVec2i(Vec2i(), md.size) - md.size / 2 + md.offset)
-        return ev + position
+        return ev + p
     }
 
     private fun createBounds(): Bounds {

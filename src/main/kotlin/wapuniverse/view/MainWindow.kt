@@ -17,6 +17,7 @@ fun mainWindow(stage: Stage, model: MainWindow) {
     }
 
     presentAsStage(model.newWorldDialog) { newWorldDialog(it) }
+    presentAsStage(model.editObjectDialog) { editObjectDialog(it) }
     presentAsFileChooser(model.openWorldDialog, { d, p-> d.open(p) }, stage)
 }
 

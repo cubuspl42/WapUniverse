@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
+<VBox id="root" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="wapuniverse.view.EditObjectDialogController" stylesheets="/view/EditObjectDialog.css">
+    <GridPane>
+        <columnConstraints>
+            <ColumnConstraints hgrow="ALWAYS" minWidth="80.0" maxWidth="128.0"/>
+            <ColumnConstraints hgrow="ALWAYS" minWidth="128.0"/>
+        </columnConstraints>
+
+        <Text text="X" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <TextField fx:id="xTextField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+        <Text text="Y" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <TextField fx:id="yTextField" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+    </GridPane>
+    <HBox>
+        <Button fx:id="saveButton" text="Save"/>
+    </HBox>
+</VBox>

@@ -3,13 +3,12 @@ package wapuniverse.view.extensions
 import javafx.beans.value.ObservableValue
 import org.fxmisc.easybind.EasyBind
 import org.fxmisc.easybind.Subscription
-import org.fxmisc.easybind.monadic.MonadicBinding
 
-fun <T: Any, R> ObservableValue<T>.map(transform: (T) -> R): ObservableValue<R> =
-        EasyBind.monadic(this).map(transform)!!
+fun <T : Any, R> ObservableValue<T>.map(transform: (T) -> R): ObservableValue<R> =
+        EasyBind.monadic(this).map { transform(it!!) }!!
 
 @JvmName("mapNullable")
-fun <T: Any, R> ObservableValue<T?>.map(transform: (T) -> R): ObservableValue<R> =
+fun <T : Any, R> ObservableValue<T?>.map(transform: (T) -> R): ObservableValue<R> =
         EasyBind.monadic(this).map { transform(it!!) }!!
 
 fun <T : Any, R> ObservableValue<T>.flatMap(transform: (T) -> ObservableValue<R>): ObservableValue<R> =

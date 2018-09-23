@@ -7,7 +7,7 @@ class OptionalProperty<T>(
         private val property: Property<T>
 ) : ObservableValue<T> by property {
     fun set(value: T) {
-        check(property.value == null)
+        check(property.value == null) { "Property is already set" }
         property.value = value
     }
 

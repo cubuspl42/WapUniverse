@@ -5,6 +5,7 @@ import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.value.ObservableValue
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.launch
+import wapuniverse.model.mainwindow.EditorContext
 import wapuniverse.model.util.dialogProperty
 import wapuniverse.rez.ClassLoaderRezImageLoader
 import wapuniverse.rez.RezIndex
@@ -33,6 +34,8 @@ class MainWindow {
 
     val openWorldDialog: ObservableValue<OpenWorldDialog?>
 
+    val editObjectDialog: ObservableValue<EditObjectDialog?>
+
     val editor = optionalProperty<Editor?>()
 
     val rezIndex: RezIndex
@@ -43,6 +46,8 @@ class MainWindow {
 
     private val job = Job()
 
+    private val editorContext = editor.map { EditorContext(it) }
+
     private val mNewWorldDialog = dialogProperty<NewWorldDialog>()
 
     private val mOpenWorldDialog = dialogProperty<OpenWorldDialog>()
@@ -52,10 +57,11 @@ class MainWindow {
         newAction = Action(SimpleBooleanProperty(false)) {} // FIXME
         openAction = action { openWorld() }
         saveAction = action {}
-        editAction = Action(editor.flatMap { it.planeEditor }.map { it.editAction })
+        editAction = Action(editorContext.flatMap { it.planeEditorContext }.map { it.editAction })
 
         newWorldDialog = mNewWorldDialog
         openWorldDialog = mOpenWorldDialog
+        editObjectDialog = editorContext.flatMap { it.planeEditorContext }.flatMap { it.editObjectDialog }
 
         val classLoader = Thread.currentThread().contextClassLoader
         val yamlRezIndex = loadYamlRezIndex(classLoader.getResourceAsStream(rezIndexPath))
