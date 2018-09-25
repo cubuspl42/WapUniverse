@@ -11,10 +11,15 @@ class EditObjectDialog(
 
     val y = SimpleIntegerProperty(editObjectContext.wapObject.position.value.y)
 
-    fun save() {
+    init {
         combine(x, y) { x, y ->
-            editObjectContext.setPosition(Vec2i(x.toInt(), y.toInt()))
+            Vec2i(x.toInt(), y.toInt())
+        }.subscribe { _, oldValue, newValue ->
+            editObjectContext.setPosition(newValue)
         }
+    }
+
+    fun save() {
         close()
     }
 }

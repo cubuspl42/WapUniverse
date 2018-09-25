@@ -7,56 +7,83 @@ import javafx.geometry.BoundingBox
 import javafx.geometry.Bounds
 import wapuniverse.geom.EucVec2i
 import wapuniverse.geom.Vec2i
+import wapuniverse.rez.RezImageMetadata
 import wapuniverse.util.booleanProperty
+import wapuniverse.util.combine
 import wapuniverse.util.objectProperty
+import wapuniverse.view.extensions.map
+
+data class WapObjectData(
+        val id: Int,
+        val name: String,
+        val logic: String,
+        val imageSet: String,
+        val animation: String,
+        val x: Int,
+        val y: Int,
+        val z: Int,
+        val i: Int,
+        val mirrored: Boolean,
+        val inverted: Boolean
+)
 
 class WapObject(
         val plane: Plane,
-        wwdObject: WwdObject
+        wapObjectData: WapObjectData
 ) {
     private val world = plane.world
 
+    val data: ObservableValue<WapObjectData>
+
     val position: ObservableValue<Vec2i>
 
-    val i = wwdObject.i
+    val i: ObservableValue<Int>
 
-    val imageSet = wwdObject.imageSet
+    val imageSet: ObservableValue<String>
 
-    val mirrored = wwdObject.drawFlags.mirror
+    val mirrored: ObservableValue<Boolean>
 
-    val inverted = wwdObject.drawFlags.invert
+    val inverted: ObservableValue<Boolean>
 
-    val imageMetadata = world.findObjectImageMetadata(imageSet, i)
+    val imageMetadata: ObservableValue<RezImageMetadata?>
 
-    val imageDiagonal: EucVec2i
+    val imageDiagonal: ObservableValue<EucVec2i?>
 
-    val bounds: Bounds
+    val bounds: ObservableValue<Bounds?>
 
     val isSelected: ObservableBooleanValue
 
     internal val iIsSelected = booleanProperty(false)
 
-    private val mPosition = objectProperty(Vec2i(wwdObject.x, wwdObject.y))
+    private val mData = objectProperty(wapObjectData)
 
     init {
-        position = mPosition
+        data = mData
+        i = data.map { it.i }
+        imageSet = data.map { it.imageSet }
+        mirrored = data.map { it.mirrored }
+        inverted = data.map { it.inverted }
+        imageMetadata = combine(imageSet, i) { imageSet, i ->
+            world.findObjectImageMetadata(imageSet, i)
+        }
+        position = data.map { Vec2i(it.x, it.y) }
         isSelected = iIsSelected
-        imageDiagonal = calculateImageDiagonal()
-        bounds = createBounds()
+        imageDiagonal = imageMetadata.map { calculateImageDiagonal(it) }
+        bounds = imageDiagonal.map { calculateBounds(it) }
     }
 
     internal fun setPosition(pos: Vec2i) {
-        mPosition.value = pos
+        mData.value = mData.value.copy(x = pos.x, y = pos.y)
     }
 
-    private fun calculateImageDiagonal(): EucVec2i {
+    private fun calculateImageDiagonal(imageMetadata: RezImageMetadata?): EucVec2i {
         val p = position.value
         val md = imageMetadata ?: return EucVec2i(p, p)
         val ev = (EucVec2i(Vec2i(), md.size) - md.size / 2 + md.offset)
         return ev + p
     }
 
-    private fun createBounds(): Bounds {
+    private fun calculateBounds(imageDiagonal: EucVec2i): Bounds {
         val a = imageDiagonal.a
         val b = imageDiagonal.b
         val d = a - b
@@ -68,3 +95,18 @@ class WapObject(
         )
     }
 }
+
+fun wapObject(plane: Plane, wwdObject: WwdObject) =
+        WapObject(plane, WapObjectData(
+                id = wwdObject.id,
+                name = wwdObject.name,
+                logic = wwdObject.logic,
+                imageSet = wwdObject.imageSet,
+                animation = wwdObject.animation,
+                x = wwdObject.x,
+                y = wwdObject.y,
+                z = wwdObject.z,
+                i = wwdObject.i,
+                mirrored = wwdObject.drawFlags.mirror,
+                inverted = wwdObject.drawFlags.invert
+        ))

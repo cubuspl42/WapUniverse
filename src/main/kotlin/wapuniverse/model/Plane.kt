@@ -51,9 +51,9 @@ class Plane(
 
 
     internal fun findObjectsAt(point: Vec2i): List<WapObject> {
-        return mWapObjects.filter { it.bounds.contains(point.toPoint2D()) }
+        return mWapObjects.filter { it.bounds.value?.contains(point.toPoint2D()) ?: false }
     }
 
     private fun createWapObjectsSet(wwdPlane: WwdPlane) =
-            observableSet<WapObject>(wwdPlane.objects.map { WapObject(this, it) }.toSet())!!
+            observableSet<WapObject>(wwdPlane.objects.map { wapObject(this, it) }.toSet())!!
 }

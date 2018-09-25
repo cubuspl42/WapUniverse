@@ -29,7 +29,7 @@ class PlaneEditor(
 
     init {
         editAction = Action(selectedObjects.map { it.isNotEmpty() }) {
-            mEditObjectContext.set(EditObjectContext(selectedObjects.value.first()))
+            mEditObjectContext.replace(EditObjectContext(selectedObjects.value.first()))
         }
 
         editObjectContext = mEditObjectContext

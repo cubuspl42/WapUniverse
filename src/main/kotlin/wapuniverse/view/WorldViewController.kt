@@ -11,10 +11,10 @@ import javafx.scene.input.MouseButton
 import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
-import wapuniverse.geom.Vec2i
 import wapuniverse.model.PlaneEditor
 import wapuniverse.model.WapObject
 import wapuniverse.rez.RezImageProvider
+import wapuniverse.view.extensions.flatMap
 import wapuniverse.view.extensions.map
 import wapuniverse.view.extensions.point
 import wapuniverse.view.extensions.toObservableList
@@ -85,21 +85,27 @@ class WorldViewController(
 
     private fun wapObjectUi(wapObject: WapObject): Node {
         val b = wapObject.bounds
-        return Rectangle(b.minX, b.minY, b.width, b.height).apply {
+        return Rectangle().apply {
             strokeProperty().bind(wapObjectStrokeColor(wapObject))
+            xProperty().bind(b.map { it.minX })
+            yProperty().bind(b.map { it.minY })
+            widthProperty().bind(b.map { it.width })
+            heightProperty().bind(b.map { it.height })
             fill = Color.TRANSPARENT
             isMouseTransparent = true
         }
     }
 
     private fun wapObjectImage(wapObject: WapObject): Node {
-        val s = Vec2i(if (wapObject.mirrored) -1 else 1, if (wapObject.inverted) -1 else 1)
+        val sX = wapObject.mirrored.map { if (it) -1 else 1 }
+        val sY = wapObject.inverted.map { if (it) -1 else 1 }
+        val d = wapObject.imageDiagonal
         return ImageView().apply {
-            x = wapObject.imageDiagonal.a.x.toDouble()
-            y = wapObject.imageDiagonal.a.y.toDouble()
-            scaleX = s.x.toDouble()
-            scaleY = s.y.toDouble()
-            imageProperty().bind(provideImage(wapObject.imageMetadata?.rezPath))
+            xProperty().bind(d.map { it.a.x.toDouble() })
+            yProperty().bind(d.map { it.a.y.toDouble() })
+            scaleXProperty().bind(sX)
+            scaleYProperty().bind(sY)
+            imageProperty().bind(wapObject.imageMetadata.flatMap { provideImage(it.rezPath) })
         }
     }
 
