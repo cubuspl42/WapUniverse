@@ -12,11 +12,14 @@ import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import wapuniverse.model.PlaneEditor
+import wapuniverse.model.SelectToolContext
 import wapuniverse.model.WapObject
 import wapuniverse.rez.RezImageProvider
 import wapuniverse.view.extensions.flatMap
+import wapuniverse.view.extensions.forEach
 import wapuniverse.view.extensions.map
 import wapuniverse.view.extensions.point
+import wapuniverse.view.extensions.subscribe
 import wapuniverse.view.extensions.toObservableList
 import wapuniverse.view.util.group
 import wapuniverse.view.util.observableValue
@@ -24,7 +27,7 @@ import java.net.URL
 import java.util.ResourceBundle
 
 class WorldViewController(
-        private val model: PlaneEditor,
+        private val planeEditor: PlaneEditor,
         private val rezImageProvider: RezImageProvider
 ) : Initializable {
     @FXML
@@ -36,30 +39,29 @@ class WorldViewController(
     @FXML
     lateinit var planeRoot: Group
 
-    private val plane = model.plane
+    private val plane = planeEditor.plane
 
     override fun initialize(location: URL?, resources: ResourceBundle?) {
         wrapperPane.run {
-            setOnMouseClicked { e ->
-                if (e.button == MouseButton.PRIMARY) {
-                    model.selectObjects(model.cameraToWorld(e.point.toVec2i()))
-                }
-            }
             setOnMousePressed { e ->
                 if (e.button == CAMERA_DRAG_MOUSE_BUTTON) {
-                    CameraDragController(model, this, e)
+                    CameraDragController(planeEditor, this, e)
                 }
             }
         }
         uiRoot.run {
-            translateXProperty().bind(model.cameraOffset.map { -it.x })
-            translateYProperty().bind(model.cameraOffset.map { -it.y })
+            translateXProperty().bind(planeEditor.cameraOffset.map { -it.x })
+            translateYProperty().bind(planeEditor.cameraOffset.map { -it.y })
             children.addAll(createObjectsUi())
         }
         planeRoot.run {
-            translateXProperty().bind(model.cameraOffset.map { -it.x })
-            translateYProperty().bind(model.cameraOffset.map { -it.y })
+            translateXProperty().bind(planeEditor.cameraOffset.map { -it.x })
+            translateYProperty().bind(planeEditor.cameraOffset.map { -it.y })
             children.addAll(createTilesGroup(), createObjectsGroup())
+        }
+
+        planeEditor.selectToolContext.forEach {
+            WorldViewSelectToolContextController(wrapperPane, planeEditor, it)
         }
     }
 

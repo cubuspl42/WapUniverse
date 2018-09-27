@@ -5,6 +5,9 @@ import javafx.beans.property.Property
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleObjectProperty
 
-fun <T> objectProperty(value: T? = null): Property<T> = SimpleObjectProperty<T>(value)
+@JvmName("objectPropertyNullable")
+fun <T : Any?> objectProperty(value: T? = null): Property<T?> = SimpleObjectProperty<T?>(value)
+
+fun <T : Any> objectProperty(value: T): Property<T> = SimpleObjectProperty<T>(value)
 
 fun booleanProperty(value: Boolean): BooleanProperty = SimpleBooleanProperty(value)

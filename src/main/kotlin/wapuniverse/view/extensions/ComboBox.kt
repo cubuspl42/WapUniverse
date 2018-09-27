@@ -17,7 +17,7 @@ fun <T> ComboBox<T>.bind(property: Property<T>, enabled: ObservableBooleanValue)
 
 fun <T> ComboBox<T>.bind(
         values: ObservableValue<ObservableList<T>?>,
-        value: ObservableValue<Property<T>?>,
+        value: ObservableValue<Property<T?>?>,
         provideText: (item: T) -> String
 ) {
     listBind(items, values).let { properties[it] = it }

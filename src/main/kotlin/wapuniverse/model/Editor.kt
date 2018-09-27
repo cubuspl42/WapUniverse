@@ -14,6 +14,8 @@ class Editor(
 ) {
     val world = World(wwd, rezIndex)
 
+    val tool = objectProperty(Tool.SELECT)
+
     val saved: ObservableBooleanValue
 
     fun isSaved(): Boolean = saved.value
