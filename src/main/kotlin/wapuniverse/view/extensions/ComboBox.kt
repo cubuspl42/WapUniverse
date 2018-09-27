@@ -7,7 +7,6 @@ import javafx.beans.value.ObservableValue
 import javafx.collections.ObservableList
 import javafx.scene.control.ComboBox
 import javafx.scene.control.ListCell
-import wapuniverse.model.Plane
 import wapuniverse.util.listBind
 
 fun <T> ComboBox<T>.bind(property: Property<T>, enabled: ObservableBooleanValue) {

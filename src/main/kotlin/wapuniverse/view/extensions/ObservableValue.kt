@@ -3,6 +3,7 @@ package wapuniverse.view.extensions
 import javafx.beans.value.ObservableValue
 import org.fxmisc.easybind.EasyBind
 import org.fxmisc.easybind.Subscription
+import wapuniverse.model.util.Disposable
 
 fun <T : Any, R> ObservableValue<T>.map(transform: (T) -> R): ObservableValue<R> =
         EasyBind.monadic(this).map { transform(it!!) }!!
@@ -34,4 +35,12 @@ fun <T : Any> ObservableValue<T>.forEach(function: (T) -> Unit) {
 @JvmName("forEachNullable")
 fun <T : Any> ObservableValue<T?>.forEach(function: (T) -> Unit) {
     EasyBind.subscribe(this) { it?.let(function) }
+}
+
+fun <T : Any, R : Disposable> ObservableValue<T?>.transform(function: (T) -> R): ObservableValue<R> {
+    return this.map { function(it) }.also {
+        it.addListener { _, oldValue, _ ->
+            oldValue?.dispose()
+        }
+    }
 }

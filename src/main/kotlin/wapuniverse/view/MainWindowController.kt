@@ -11,7 +11,6 @@ import wapuniverse.model.Editor
 import wapuniverse.model.MainWindow
 import wapuniverse.model.Plane
 import wapuniverse.rez.CachingRezImageProvider
-import wapuniverse.rez.ClassLoaderRezImageLoader
 import wapuniverse.rez.RezImageProvider
 import wapuniverse.view.extensions.bind
 import wapuniverse.view.extensions.map

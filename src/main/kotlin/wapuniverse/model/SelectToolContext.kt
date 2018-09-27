@@ -2,14 +2,13 @@ package wapuniverse.model
 
 import javafx.beans.value.ObservableValue
 import wapuniverse.geom.Vec2i
-import wapuniverse.model.util.Disposable
 import wapuniverse.util.objectProperty
 import wapuniverse.util.optionalProperty
 import wapuniverse.view.extensions.map
 
 class SelectToolContext(
         private val plane: Plane
-) : Disposable() {
+) : ToolContext() {
     var selectedObjects = objectProperty(listOf<WapObject>()) // FIXME: var
 
     val editAction: Action

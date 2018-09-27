@@ -35,6 +35,6 @@ class Editor(
     }
 
     private fun createPlaneEditor(): ObservableValue<PlaneEditor?> {
-        return activePlane.map { PlaneEditor(it) }
+        return activePlane.map { PlaneEditor(this, it) }
     }
 }
