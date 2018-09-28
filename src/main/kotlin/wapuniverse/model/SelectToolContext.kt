@@ -25,7 +25,12 @@ class SelectToolContext(
         editObjectContext = mEditObjectContext
     }
 
+    override fun uninit() {
+        unselectAllObjects()
+    }
+
     fun selectObjects(point: Vec2i) {
+        check(!isDisposed)
         unselectAllObjects()
         val objects = plane.findObjectsAt(point)
         objects.forEach { it.iIsSelected.value = true }
@@ -34,5 +39,6 @@ class SelectToolContext(
 
     private fun unselectAllObjects() {
         selectedObjects.value.forEach { it.iIsSelected.value = false }
+        selectedObjects.value = emptyList()
     }
 }

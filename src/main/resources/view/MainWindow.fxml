@@ -33,7 +33,7 @@
                 <Button fx:id="saveButton" text="Save"/>
                 <Separator orientation="VERTICAL"/>
                 <ToggleButton fx:id="selectToolButton" text="Select"/>
-                <ToggleButton fx:id="moveToolButton" text="Move"/>
+                <ToggleButton fx:id="pencilToolButton" text="Pencil"/>
                 <Separator orientation="VERTICAL"/>
                 <Button fx:id="editButton" text="Edit"/>
                 <Separator orientation="VERTICAL"/>

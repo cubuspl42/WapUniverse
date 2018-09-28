@@ -9,7 +9,7 @@ fun <T : Any, R> ObservableValue<T>.map(transform: (T) -> R): ObservableValue<R>
         EasyBind.monadic(this).map { transform(it!!) }!!
 
 @JvmName("mapNullable")
-fun <T : Any, R> ObservableValue<T?>.map(transform: (T) -> R): ObservableValue<R> =
+fun <T : Any, R> ObservableValue<T?>.map(transform: (T) -> R): ObservableValue<R?> =
         EasyBind.monadic(this).map { transform(it!!) }!!
 
 fun <T : Any, R> ObservableValue<T>.flatMap(transform: (T) -> ObservableValue<R>): ObservableValue<R> =
@@ -29,7 +29,7 @@ fun <T : Any> ObservableValue<T?>.subscribe(function: (T?) -> Unit): Subscriptio
 }
 
 fun <T : Any> ObservableValue<T>.forEach(function: (T) -> Unit) {
-    EasyBind.subscribe(this) { function(it!!)}
+    EasyBind.subscribe(this) { it?.let(function)}
 }
 
 @JvmName("forEachNullable")
@@ -37,7 +37,16 @@ fun <T : Any> ObservableValue<T?>.forEach(function: (T) -> Unit) {
     EasyBind.subscribe(this) { it?.let(function) }
 }
 
-fun <T : Any, R : Disposable> ObservableValue<T?>.transform(function: (T) -> R): ObservableValue<R> {
+fun <T : Any, R : Disposable> ObservableValue<T>.transform(function: (T) -> R): ObservableValue<R> {
+    return this.map { function(it!!) }.also {
+        it.addListener { _, oldValue, _ ->
+            oldValue?.dispose()
+        }
+    }
+}
+
+@JvmName("transformNullable")
+fun <T : Any, R : Disposable> ObservableValue<T?>.transform(function: (T) -> R): ObservableValue<R?> {
     return this.map { function(it) }.also {
         it.addListener { _, oldValue, _ ->
             oldValue?.dispose()

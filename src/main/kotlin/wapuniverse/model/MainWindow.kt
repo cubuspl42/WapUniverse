@@ -1,6 +1,7 @@
 package wapuniverse.model
 
 import io.github.jwap32.v1.loadWwd
+import javafx.beans.property.Property
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.value.ObservableValue
 import kotlinx.coroutines.experimental.Job
@@ -28,6 +29,8 @@ class MainWindow {
     val saveAction: Action
 
     val editAction: Action
+
+    val tool: ObservableValue<Property<Tool>?>
 
     val newWorldDialog: ObservableValue<NewWorldDialog?>
 
@@ -57,6 +60,8 @@ class MainWindow {
         openAction = action { openWorld() }
         saveAction = action {}
         editAction = Action(selectToolContext.map { it.editAction })
+
+        tool = editor.map { it.tool }
 
         newWorldDialog = mNewWorldDialog
         openWorldDialog = mOpenWorldDialog

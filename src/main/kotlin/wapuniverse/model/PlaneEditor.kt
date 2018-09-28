@@ -16,9 +16,18 @@ class PlaneEditor(
 
     val selectToolContext: ObservableValue<SelectToolContext?>
 
+    val pencilToolContext: ObservableValue<PencilToolContext?>
+
     init {
-        toolContext = editor.tool.transform { SelectToolContext(plane) }
+        toolContext = editor.tool.transform { tool ->
+            when (tool) {
+                Tool.SELECT -> SelectToolContext(plane)
+                Tool.PENCIL -> PencilToolContext(plane)
+            }
+        }
         selectToolContext = toolContext.map { it as? SelectToolContext }
+
+        pencilToolContext = toolContext.map { it as? PencilToolContext }
     }
 
     fun cameraToWorld(point: Vec2i) =

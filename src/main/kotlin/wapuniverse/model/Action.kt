@@ -16,7 +16,7 @@ class Action(
     }
 }
 
-fun Action(observable: ObservableValue<Action>) =
+fun Action(observable: ObservableValue<Action?>) =
         Action(observable.flatMap { it.enabled }) {
             val action = observable.value ?: throw IllegalStateException()
             action.execute()

@@ -13,6 +13,6 @@ fun hideOverflow(pane: Pane) {
     }
 }
 
-fun pane(child: ObservableValue<Node>): Pane = BorderPane().apply {
+fun pane(child: ObservableValue<Node?>): Pane = BorderPane().apply {
     centerProperty().bind(child)
 }
