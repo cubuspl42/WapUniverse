@@ -10,15 +10,19 @@ import javafx.scene.image.ImageView
 import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
+import org.fxmisc.easybind.EasyBind
+import org.fxmisc.easybind.EasyBind.monadic
 import wapuniverse.model.PlaneEditor
 import wapuniverse.model.WapObject
 import wapuniverse.rez.RezImageProvider
 import wapuniverse.view.extensions.flatMap
 import wapuniverse.view.extensions.forEach
 import wapuniverse.view.extensions.map
+import wapuniverse.view.extensions.orElse
 import wapuniverse.view.extensions.toObservableList
 import wapuniverse.view.util.group
 import wapuniverse.view.util.observableValue
+import wapuniverse.view.util.pane
 import java.net.URL
 import java.util.ResourceBundle
 
@@ -37,6 +41,8 @@ class WorldViewController(
 
     private val plane = planeEditor.plane
 
+    private val pencilToolContext = planeEditor.pencilToolContext
+
     override fun initialize(location: URL?, resources: ResourceBundle?) {
         wrapperPane.run {
             setOnMousePressed { e ->
@@ -48,7 +54,7 @@ class WorldViewController(
         uiRoot.run {
             translateXProperty().bind(planeEditor.cameraOffset.map { -it.x })
             translateYProperty().bind(planeEditor.cameraOffset.map { -it.y })
-            children.addAll(createObjectsUi())
+            children.addAll(createPencilToolUi(), createObjectsUi())
         }
         planeRoot.run {
             translateXProperty().bind(planeEditor.cameraOffset.map { -it.x })
@@ -58,6 +64,10 @@ class WorldViewController(
 
         planeEditor.selectToolContext.forEach {
             WorldViewSelectToolContextController(wrapperPane, planeEditor, it)
+        }
+
+        planeEditor.pencilToolContext.forEach {
+            WorldViewPencilToolContextController(planeEditor, wrapperPane, it)
         }
     }
 
@@ -74,6 +84,16 @@ class WorldViewController(
             group(plane.wapObjects.toObservableList { wapObject ->
                 wapObjectUi(wapObject)
             })
+
+    private fun createPencilToolUi() = group(pencilToolContext.map { pencilToolContext1 ->
+        Rectangle(64.0, 64.0).apply {
+            xProperty().bind(pencilToolContext1.cursorOffset.map { it.x * 64.0 })
+            yProperty().bind(pencilToolContext1.cursorOffset.map { it.y * 64.0 })
+            stroke = Color.DARKRED
+            fill = Color.TRANSPARENT
+            isMouseTransparent = true
+        } as Node
+    })
 
     private fun createObjectsGroup() =
             group(plane.wapObjects.toObservableList { wapObject ->

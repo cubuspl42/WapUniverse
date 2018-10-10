@@ -19,7 +19,7 @@ class SelectToolContext(
 
     init {
         editAction = Action(selectedObjects.map { it.isNotEmpty() }) {
-            mEditObjectContext.replace(EditObjectContext(selectedObjects.value.first()))
+            mEditObjectContext.set(EditObjectContext(selectedObjects.value.first()))
         }
 
         editObjectContext = mEditObjectContext

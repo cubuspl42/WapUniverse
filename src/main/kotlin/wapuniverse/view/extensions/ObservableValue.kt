@@ -1,6 +1,7 @@
 package wapuniverse.view.extensions
 
 import javafx.beans.value.ObservableValue
+import javafx.scene.Node
 import org.fxmisc.easybind.EasyBind
 import org.fxmisc.easybind.Subscription
 import wapuniverse.model.util.Disposable
@@ -53,3 +54,6 @@ fun <T : Any, R : Disposable> ObservableValue<T?>.transform(function: (T) -> R):
         }
     }
 }
+
+fun <T> ObservableValue<T>.orElse(value: T) =
+        EasyBind.monadic(this).orElse(value)

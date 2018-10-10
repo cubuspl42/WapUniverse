@@ -1,5 +1,7 @@
 package wapuniverse.model.util
 
+import org.reactfx.EventStream
+
 open class Disposable(
         parent: Disposable? = null
 ) {
@@ -30,6 +32,10 @@ open class Disposable(
     }
 
     protected open fun uninit() {}
+
+    protected fun <T> subscribe(stream: EventStream<T>, function: (T) -> Unit) {
+        stream.subscribe(function).let { addChild(disposable { it.unsubscribe() }) }
+    }
 }
 
 inline fun disposable(crossinline function: () -> Unit): Disposable {
