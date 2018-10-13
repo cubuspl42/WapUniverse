@@ -21,6 +21,10 @@ class Plane(
 
     val imageSet = wwdPlane.imageSets.first()
 
+    val tilesetImageSet = makeTilesetImageSet()
+
+    val tileset = makeTileset()
+
     @UnmodifiableCollection
     val tiles: ObservableMap<Vec2i, Int>
 
@@ -62,6 +66,16 @@ class Plane(
     }
 
     fun getTile(it: Vec2i) = mTiles.getOrDefault(it, -1)!!
+
+    private fun makeTilesetImageSet(): String {
+        val prefix = world.imageDir.replace('\\', '_').removePrefix("_")
+        return "${prefix}_$imageSet"
+    }
+
+    private fun makeTileset(): List<Int>? {
+        val imageSet = rezIndex.imageSets[tilesetImageSet] ?: return null
+        return imageSet.frames.keys.filter { it >= 0 }
+    }
 
     private fun createWapObjectsSet(wwdPlane: WwdPlane) =
             observableSet<WapObject>(wwdPlane.objects.map { wapObject(this, it) }.toSet())!!

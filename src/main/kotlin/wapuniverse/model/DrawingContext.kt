@@ -5,11 +5,10 @@ import org.reactfx.EventStreams.nonNullValuesOf
 import wapuniverse.geom.Vec2i
 import wapuniverse.model.util.Disposable
 
-private const val tileId = 12
-
 class DrawingContext(
         private val plane: Plane,
-        cursorOffset: ObservableValue<Vec2i?>
+        cursorOffset: ObservableValue<Vec2i?>,
+        tileId: Int
 ) : Disposable() {
     private val backup = mutableSetOf<Pair<Vec2i, Int>>()
 
