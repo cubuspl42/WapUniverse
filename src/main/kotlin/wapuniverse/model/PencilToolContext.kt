@@ -8,7 +8,7 @@ import wapuniverse.util.optionalProperty
 private const val defaultTileId = 12
 
 class PencilToolContext(
-        private val plane: Plane
+        val plane: Plane
 ) : ToolContext() {
     val cursorOffset: ObservableValue<Vec2i?>
 

@@ -7,22 +7,19 @@ import javafx.scene.Group
 import javafx.scene.Node
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
+import javafx.scene.layout.BorderPane
 import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
-import org.fxmisc.easybind.EasyBind
-import org.fxmisc.easybind.EasyBind.monadic
 import wapuniverse.model.PlaneEditor
 import wapuniverse.model.WapObject
 import wapuniverse.rez.RezImageProvider
 import wapuniverse.view.extensions.flatMap
 import wapuniverse.view.extensions.forEach
 import wapuniverse.view.extensions.map
-import wapuniverse.view.extensions.orElse
 import wapuniverse.view.extensions.toObservableList
 import wapuniverse.view.util.group
 import wapuniverse.view.util.observableValue
-import wapuniverse.view.util.pane
 import java.net.URL
 import java.util.ResourceBundle
 
@@ -38,6 +35,9 @@ class WorldViewController(
 
     @FXML
     lateinit var planeRoot: Group
+
+    @FXML
+    lateinit var borderPane: BorderPane
 
     private val plane = planeEditor.plane
 
@@ -69,6 +69,10 @@ class WorldViewController(
         planeEditor.pencilToolContext.forEach {
             WorldViewPencilToolContextController(planeEditor, wrapperPane, it)
         }
+
+        borderPane.bottomProperty().bind(planeEditor.pencilToolContext.map {
+            tilePicker(it, rezImageProvider)
+        })
     }
 
     private fun createTilesGroup() =

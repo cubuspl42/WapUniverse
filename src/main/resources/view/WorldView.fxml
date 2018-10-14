@@ -2,8 +2,13 @@
 
 <?import javafx.scene.Group?>
 <?import javafx.scene.layout.Pane?>
-<Pane fx:id="wrapperPane" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.121"
-      xmlns:fx="http://javafx.com/fxml/1" fx:controller="wapuniverse.view.WorldViewController">
-    <Group fx:id="planeRoot"/>
-    <Group fx:id="uiRoot"/>
-</Pane>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.StackPane?>
+<StackPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.121"
+           xmlns:fx="http://javafx.com/fxml/1" fx:controller="wapuniverse.view.WorldViewController">
+    <Pane fx:id="wrapperPane">
+        <Group fx:id="planeRoot"/>
+        <Group fx:id="uiRoot"/>
+    </Pane>
+    <BorderPane fx:id="borderPane" pickOnBounds="false"/>
+</StackPane>
