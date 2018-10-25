@@ -1,4 +1,25 @@
 GridPane {
     -fx-hgap: 4px;
-    -fx-vgap: 4px;
+    -fx-vgap: 2px;
+}
+
+Text {
+    -fx-font-size: 9pt;
+}
+
+TextField {
+    -fx-min-height: 22px;
+    -fx-pref-height: 22px;
+}
+
+Label {
+	-fx-halignment: right;
+}
+
+.locationPane HBox.outer {
+    -fx-spacing: 4px;
+}
+
+.locationPane HBox.inner {
+    -fx-spacing: 4px;
 }
