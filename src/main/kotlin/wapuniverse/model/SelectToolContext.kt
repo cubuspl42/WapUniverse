@@ -2,6 +2,7 @@ package wapuniverse.model
 
 import javafx.beans.value.ObservableValue
 import wapuniverse.geom.Vec2i
+import wapuniverse.model.util.disposableProperty
 import wapuniverse.util.objectProperty
 import wapuniverse.util.optionalProperty
 import wapuniverse.view.extensions.map
@@ -15,7 +16,7 @@ class SelectToolContext(
 
     val editObjectContext: ObservableValue<EditObjectContext?>
 
-    private val mEditObjectContext = optionalProperty<EditObjectContext?>()
+    private val mEditObjectContext = disposableProperty<EditObjectContext?>(null)
 
     init {
         editAction = Action(selectedObjects.map { it.isNotEmpty() }) {

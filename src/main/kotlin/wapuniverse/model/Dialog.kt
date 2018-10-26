@@ -1,9 +1,10 @@
 package wapuniverse.model
 
 import javafx.beans.value.ObservableBooleanValue
+import wapuniverse.model.util.Disposable
 import wapuniverse.util.booleanProperty
 
-open class Dialog {
+open class Dialog : Disposable() {
     val isOpen: ObservableBooleanValue
 
     fun close() {

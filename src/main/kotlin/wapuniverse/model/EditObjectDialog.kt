@@ -69,6 +69,7 @@ class EditObjectDialog(
     }
 
     fun save() {
+        editObjectContext.save()
         close()
     }
 }
