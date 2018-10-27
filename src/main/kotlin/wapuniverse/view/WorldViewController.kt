@@ -80,6 +80,7 @@ class WorldViewController(
                 ImageView().apply {
                     x = index.x * 64.0
                     y = index.y * 64.0
+                    isMouseTransparent = true
                     imageProperty().bind(provideImage(plane.findTileImageMetadata(tileId)?.rezPath))
                 }
             })
