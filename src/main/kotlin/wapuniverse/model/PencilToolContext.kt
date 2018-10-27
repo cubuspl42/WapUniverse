@@ -2,6 +2,7 @@ package wapuniverse.model
 
 import javafx.beans.value.ObservableValue
 import wapuniverse.geom.Vec2i
+import wapuniverse.model.util.disposableProperty
 import wapuniverse.util.objectProperty
 import wapuniverse.util.optionalProperty
 
@@ -20,7 +21,7 @@ class PencilToolContext(
 
     private val mTileId = objectProperty(defaultTileId)
 
-    private val mDrawingContext = optionalProperty<DrawingContext?>()
+    private val mDrawingContext = disposableProperty<DrawingContext?>(null)
 
     init {
         cursorOffset = mCursorOffset
@@ -37,9 +38,7 @@ class PencilToolContext(
     }
 
     fun startDrawing() {
-        mDrawingContext.set(DrawingContext(plane, cursorOffset, tileId.value).apply {
-            addDisposeListener { mDrawingContext.clear() }
-        })
+        mDrawingContext.set(DrawingContext(plane, cursorOffset, tileId.value))
     }
 
     override fun uninit() {

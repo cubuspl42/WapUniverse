@@ -11,6 +11,7 @@ fun <K, V, R> ObservableMap<K, V>.toObservableList(transform: (K, V) -> R): Obse
 
     fun addValue(key: K, value: V) {
         val value2 = transform(key, value)
+        transformMap[key] = value2
         list.add(value2)
     }
 
@@ -19,7 +20,7 @@ fun <K, V, R> ObservableMap<K, V>.toObservableList(transform: (K, V) -> R): Obse
     addListener { change: MapChangeListener.Change<out K, out V> ->
         val key = change.key
         if (change.wasRemoved()) {
-            val value = transformMap[key]
+            val value = transformMap.remove(key)
             list.remove(value)
         }
         if (change.wasAdded()) {
