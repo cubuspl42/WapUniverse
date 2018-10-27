@@ -21,6 +21,8 @@ fun tilePicker(
 
     fun tileImage(tileId: Int) =
             ImageView().apply {
+                fitWidth = 64.0
+                fitHeight = 64.0
                 imageProperty().bind(observableValue {
                     val rezPath = plane.findTileImageMetadata(tileId)?.rezPath ?: return@observableValue null
                     rezImageProvider.provideImage(rezPath)
