@@ -32,7 +32,7 @@ fun tilePicker(
     val listView = ListView<TileId>(observableList(tileset.map(::TileId)))
 
     pencilToolContext.tileId.forEach { tileId ->
-        listView.selectionModel.select(tileId)
+        listView.selectionModel.select(TileId(tileId))
     }
 
     listView.selectionModel.selectedItemProperty().forEach {
