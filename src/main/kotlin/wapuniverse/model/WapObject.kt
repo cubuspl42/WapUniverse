@@ -109,6 +109,36 @@ class WapObject(
                 d.height.toDouble()
         )
     }
+
+    fun toWwdObject(): WwdObject {
+        val data = mData.value
+        return WwdObject(
+                id = data.id,
+                name = data.name,
+                logic = data.logic,
+                imageSet = data.imageSet,
+                animation = data.animation,
+                x = data.x,
+                y = data.y,
+                z = data.z,
+                i = data.i,
+                score = data.score,
+                points = data.points,
+                smarts = data.smarts,
+                powerup = data.powerup,
+                damage = data.damage,
+                health = data.health,
+                speedX = data.speedX,
+                speedY = data.speedY,
+                faceDir = data.faceDir,
+                xMin = data.xMin,
+                xMax = data.xMax,
+                direction = data.direction,
+                yMin = data.yMin,
+                yMax = data.yMax,
+                speed = data.speed
+        )
+    }
 }
 
 fun wapObject(plane: Plane, wwdObject: WwdObject) =

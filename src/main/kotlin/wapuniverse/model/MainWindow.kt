@@ -115,7 +115,7 @@ class MainWindow {
 
     private fun createEditor(worldPath: Path): Editor {
         val wwd = loadWwd(Files.newInputStream(worldPath))
-        return Editor(wwd, rezIndex)
+        return Editor(wwd, rezIndex, worldPath)
     }
 
     private fun createEditor(baseLevel: BaseLevel): Editor {

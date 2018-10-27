@@ -1,16 +1,21 @@
 package wapuniverse.model
 
 import io.github.jwap32.v1.Wwd
+import io.github.jwap32.v1.dumpWwd
 import javafx.beans.value.ObservableBooleanValue
 import javafx.beans.value.ObservableValue
 import wapuniverse.rez.RezIndex
 import wapuniverse.util.booleanProperty
 import wapuniverse.util.objectProperty
 import wapuniverse.view.extensions.map
+import java.nio.file.Files
+import java.nio.file.Files.newOutputStream
+import java.nio.file.Path
 
 class Editor(
         wwd: Wwd,
-        rezIndex: RezIndex
+        rezIndex: RezIndex,
+        val path: Path
 ) {
     val world = World(wwd, rezIndex)
 
@@ -31,7 +36,9 @@ class Editor(
     }
 
     fun save() {
-        check(!isSaved())
+        newOutputStream(path).use {
+            dumpWwd(it, world.toWwd())
+        }
     }
 
     private fun createPlaneEditor(): ObservableValue<PlaneEditor?> {

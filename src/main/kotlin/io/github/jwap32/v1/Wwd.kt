@@ -197,6 +197,11 @@ data class WwdPlane(
         val t = tiles[idx]
         return t
     }
+
+    fun setTile(i: Int, j: Int, t: Int) {
+        val idx = i * tilesWide + j
+        tiles[idx] = t
+    }
 }
 
 class WwdObjectDynamicFlags(var dword: Int = 0) {

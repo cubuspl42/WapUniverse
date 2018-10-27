@@ -14,7 +14,7 @@ import wapuniverse.rez.RezIndex
 
 class Plane(
         val world: World,
-        wwdPlane: WwdPlane,
+        private val wwdPlane: WwdPlane,
         private val rezIndex: RezIndex
 ) {
     val name = wwdPlane.name
@@ -79,4 +79,15 @@ class Plane(
 
     private fun createWapObjectsSet(wwdPlane: WwdPlane) =
             observableSet<WapObject>(wwdPlane.objects.map { wapObject(this, it) }.toSet())!!
+
+    fun toWwdPlane(): WwdPlane {
+        val wwdPlane = wwdPlane.clone()
+        wwdPlane.objects = wapObjects.map { it.toWwdObject() }.toMutableList()
+        for (i in 0 until wwdPlane.tilesHigh) {
+            for (j in 0 until wwdPlane.tilesWide) {
+                wwdPlane.setTile(i, j, mTiles[Vec2i(j, i)] ?: -1)
+            }
+        }
+        return wwdPlane
+    }
 }

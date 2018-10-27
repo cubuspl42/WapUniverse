@@ -9,7 +9,7 @@ import wapuniverse.model.util.UnmodifiableCollection
 import wapuniverse.rez.RezIndex
 
 class World(
-        wwd: Wwd,
+        private val wwd: Wwd,
         private val rezIndex: RezIndex
 ) {
     val imageDir = wwd.header.imageDir
@@ -31,6 +31,12 @@ class World(
 
     init {
         planes = unmodifiableObservableList(mPlanes)!!
+    }
+
+    fun toWwd(): Wwd {
+        val wwd = wwd.clone()
+        wwd.planes = planes.map { it.toWwdPlane() }.toMutableList()
+        return wwd
     }
 
     internal fun findObjectImageMetadata(shortImageSetId: String, i: Int) =
