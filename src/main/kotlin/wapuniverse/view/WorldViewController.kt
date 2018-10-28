@@ -1,6 +1,7 @@
 package wapuniverse.view
 
 import javafx.beans.value.ObservableValue
+import javafx.collections.ObservableList
 import javafx.fxml.FXML
 import javafx.fxml.Initializable
 import javafx.scene.Group
@@ -77,13 +78,15 @@ class WorldViewController(
 
     private fun createTilesGroup() =
             group(plane.tiles.toObservableList { index, tileId ->
-                ImageView().apply {
-                    x = index.x * 64.0
-                    y = index.y * 64.0
-                    isMouseTransparent = true
-                    imageProperty().bind(provideImage(plane.findTileImageMetadata(tileId)?.rezPath))
-                }
-            })
+                if (tileId > 0) {
+                    ImageView().apply {
+                        x = index.x * 64.0
+                        y = index.y * 64.0
+                        isMouseTransparent = true
+                        imageProperty().bind(provideImage(plane.findTileImageMetadata(tileId)?.rezPath))
+                    }
+                } else null
+            }.filtered { it != null } as ObservableList<out Node>)
 
     private fun createObjectsUi() =
             group(plane.wapObjects.toObservableList { wapObject ->

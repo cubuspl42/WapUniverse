@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch4jConfig>
-  <dontWrapJar>false</dontWrapJar>
+  <dontWrapJar>true</dontWrapJar>
   <headerType>gui</headerType>
   <jar>target\WapUniverse-0.5-SNAPSHOT-jar-with-dependencies.jar</jar>
   <outfile>target\dist-launch4j\WapUniverse.exe</outfile>
