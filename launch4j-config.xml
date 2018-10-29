@@ -2,8 +2,8 @@
 <launch4jConfig>
   <dontWrapJar>true</dontWrapJar>
   <headerType>gui</headerType>
-  <jar>target\WapUniverse-0.5-SNAPSHOT-jar-with-dependencies.jar</jar>
-  <outfile>target\dist-launch4j\WapUniverse.exe</outfile>
+  <jar>WapUniverse-0.5-SNAPSHOT-jar-with-dependencies.jar</jar>
+  <outfile>target\WapUniverse.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
   <chdir>.</chdir>
@@ -22,6 +22,8 @@
     <maxVersion></maxVersion>
     <jdkPreference>preferJre</jdkPreference>
     <runtimeBits>64/32</runtimeBits>
+    <initialHeapSize>64</initialHeapSize>
+    <maxHeapSize>1024</maxHeapSize>
     <opt>-XX:+UseG1GC</opt>
   </jre>
 </launch4jConfig>
