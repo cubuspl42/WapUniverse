@@ -22,5 +22,6 @@
     <maxVersion></maxVersion>
     <jdkPreference>preferJre</jdkPreference>
     <runtimeBits>64/32</runtimeBits>
+    <opt>-XX:+UseG1GC</opt>
   </jre>
 </launch4jConfig>
