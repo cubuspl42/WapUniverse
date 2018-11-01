@@ -8,6 +8,7 @@ import wapuniverse.rez.RezIndex
 import wapuniverse.util.booleanProperty
 import wapuniverse.util.objectProperty
 import wapuniverse.view.extensions.map
+import wapuniverse.view.extensions.transform
 import java.nio.file.Files
 import java.nio.file.Files.newOutputStream
 import java.nio.file.Path
@@ -42,6 +43,6 @@ class Editor(
     }
 
     private fun createPlaneEditor(): ObservableValue<PlaneEditor?> {
-        return activePlane.map { PlaneEditor(this, it) }
+        return activePlane.transform { PlaneEditor(this, it) }
     }
 }

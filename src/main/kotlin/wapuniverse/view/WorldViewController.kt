@@ -29,6 +29,9 @@ class WorldViewController(
         private val rezImageProvider: RezImageProvider
 ) : Initializable {
     @FXML
+    lateinit var stackPane: Pane
+
+    @FXML
     lateinit var wrapperPane: Pane
 
     @FXML
@@ -58,9 +61,10 @@ class WorldViewController(
             children.addAll(createPencilToolUi(), createObjectsUi())
         }
         planeRoot.run {
-            translateXProperty().bind(planeEditor.cameraOffset.map { -it.x })
-            translateYProperty().bind(planeEditor.cameraOffset.map { -it.y })
-            children.addAll(createTilesGroup(), createObjectsGroup())
+            children.addAll(planeCanvas(planeEditor, rezImageProvider).apply {
+                widthProperty().bind(stackPane.widthProperty())
+                heightProperty().bind(stackPane.heightProperty())
+            })
         }
 
         planeEditor.selectToolContext.forEach {
@@ -89,9 +93,10 @@ class WorldViewController(
             }.filtered { it != null } as ObservableList<out Node>)
 
     private fun createObjectsUi() =
-            group(plane.wapObjects.toObservableList { wapObject ->
-                wapObjectUi(wapObject)
-            })
+//            group(plane.wapObjects.toObservableList { wapObject ->
+//                wapObjectUi(wapObject)
+//            })
+            Group()
 
     private fun createPencilToolUi() = group(pencilToolContext.map { pencilToolContext1 ->
         Rectangle(64.0, 64.0).apply {

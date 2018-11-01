@@ -7,7 +7,7 @@ class CachingRezImageProvider(
 ) : RezImageProvider {
     private val cache = hashMapOf<String, Image?>()
 
-    override suspend fun provideImage(imageRezPath: String): Image? {
+    override fun provideImage(imageRezPath: String): Image? {
         return cache.getOrPut(imageRezPath) { rezImageLoader.loadImage(imageRezPath) }
     }
 }
