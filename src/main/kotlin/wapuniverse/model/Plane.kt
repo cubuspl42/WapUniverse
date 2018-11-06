@@ -8,6 +8,7 @@ import javafx.collections.FXCollections.unmodifiableObservableSet
 import javafx.collections.ObservableMap
 import javafx.collections.ObservableSet
 import wapuniverse.geom.Vec2i
+import wapuniverse.model.util.ChunkMap
 import wapuniverse.model.util.UnmodifiableCollection
 import wapuniverse.rez.RezImageMetadata
 import wapuniverse.rez.RezIndex
@@ -25,25 +26,21 @@ class Plane(
 
     val tileset = makeTileset()
 
-    @UnmodifiableCollection
-    val tiles: ObservableMap<Vec2i, Int>
+    val tiles = ChunkMap()
 
     @UnmodifiableCollection
     val wapObjects: ObservableSet<WapObject>
-
-    private val mTiles: ObservableMap<Vec2i, Int> = observableHashMap<Vec2i, Int>()
 
     private val size = Vec2i(wwdPlane.tilesWide, wwdPlane.tilesHigh)
 
     private val mWapObjects: ObservableSet<WapObject> = createWapObjectsSet(wwdPlane)
 
     init {
-        tiles = unmodifiableObservableMap(mTiles)
         wapObjects = unmodifiableObservableSet(mWapObjects)
 
         for (i in 0 until wwdPlane.tilesHigh) {
             for (j in 0 until wwdPlane.tilesWide) {
-                mTiles[Vec2i(j, i)] = wwdPlane.getTile(i, j)
+                tiles.setTile(Vec2i(j, i), wwdPlane.getTile(i, j))
             }
         }
     }
@@ -59,13 +56,13 @@ class Plane(
         return mWapObjects.filter { it.bounds.value?.contains(point.toPoint2D()) ?: false }
     }
 
-    internal fun setTile(offset: Vec2i, tileId: Int) {
-        if (offset.x in (0 until size.width) && offset.y in (0 until size.height)) {
-            mTiles[offset] = tileId
+    internal fun setTile(tileOffset: Vec2i, tileId: Int) {
+        if (tileOffset.x in (0 until size.width) && tileOffset.y in (0 until size.height)) {
+            tiles.setTile(tileOffset, tileId)
         }
     }
 
-    fun getTile(it: Vec2i) = mTiles.getOrDefault(it, -1)!!
+    fun getTile(tileOffset: Vec2i) = tiles.getTile(tileOffset)
 
     private fun makeTilesetImageSet(): String {
         val prefix = world.imageDir.replace('\\', '_').removePrefix("_")
@@ -85,7 +82,7 @@ class Plane(
         wwdPlane.objects = wapObjects.map { it.toWwdObject() }.toMutableList()
         for (i in 0 until wwdPlane.tilesHigh) {
             for (j in 0 until wwdPlane.tilesWide) {
-                wwdPlane.setTile(i, j, mTiles[Vec2i(j, i)] ?: -1)
+                wwdPlane.setTile(i, j, tiles.getTile(Vec2i(j, i)))
             }
         }
         return wwdPlane

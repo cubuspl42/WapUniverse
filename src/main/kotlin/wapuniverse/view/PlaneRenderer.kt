@@ -2,8 +2,7 @@ package wapuniverse.view
 
 import javafx.geometry.BoundingBox
 import javafx.scene.canvas.GraphicsContext
-import javafx.scene.transform.Affine
-import javafx.scene.transform.Translate
+import wapuniverse.geom.Vec2i
 import wapuniverse.model.Plane
 import wapuniverse.model.PlaneEditor
 import wapuniverse.rez.RezImageProvider
@@ -24,11 +23,11 @@ class PlaneRenderer(
 
     private fun renderPlaneContent(plane: Plane) {
         val transformedBounds = graphicsContext.transform.inverseTransform(bounds)
-        plane.tiles.forEach { offset, tileId ->
+        plane.tiles.forEach { tileOffset: Vec2i, tileId: Int ->
             val image = plane.findTileImageMetadata(tileId)?.let {
                 rezImageProvider.provideImage(it.rezPath)
             }
-            val tileBounds = BoundingBox(offset.x * 64.0, offset.y * 64.0, 64.0, 64.0)
+            val tileBounds = BoundingBox(tileOffset.x * 64.0, tileOffset.y * 64.0, 64.0, 64.0)
             if (transformedBounds.intersects(tileBounds)) {
                 graphicsContext.drawImage(image, tileBounds.minX, tileBounds.minY)
             }
