@@ -1,7 +1,7 @@
 package wapuniverse.view
 
 import javafx.beans.value.ObservableValue
-import javafx.collections.ObservableList
+import javafx.collections.FXCollections.observableSet
 import javafx.fxml.FXML
 import javafx.fxml.Initializable
 import javafx.scene.Group
@@ -15,6 +15,13 @@ import javafx.scene.shape.Rectangle
 import wapuniverse.model.PlaneEditor
 import wapuniverse.model.WapObject
 import wapuniverse.rez.RezImageProvider
+import wapuniverse.util.map
+import wapuniverse.util.plus
+import wapuniverse.view.canvasscene.CanvasNode
+import wapuniverse.view.canvasscene.CanvasScene
+import wapuniverse.view.canvasscene.PlaneNode
+import wapuniverse.view.canvasscene.TileMapNode
+import wapuniverse.view.canvasscene.WapObjectNode
 import wapuniverse.view.extensions.flatMap
 import wapuniverse.view.extensions.forEach
 import wapuniverse.view.extensions.map
@@ -35,12 +42,6 @@ class WorldViewController(
     lateinit var wrapperPane: Pane
 
     @FXML
-    lateinit var uiRoot: Group
-
-    @FXML
-    lateinit var planeRoot: Group
-
-    @FXML
     lateinit var borderPane: BorderPane
 
     private val plane = planeEditor.plane
@@ -55,17 +56,8 @@ class WorldViewController(
                 }
             }
         }
-        uiRoot.run {
-            translateXProperty().bind(planeEditor.cameraOffset.map { -it.x })
-            translateYProperty().bind(planeEditor.cameraOffset.map { -it.y })
-            children.addAll(createPencilToolUi(), createObjectsUi())
-        }
-        planeRoot.run {
-            children.addAll(planeCanvas(planeEditor, rezImageProvider).apply {
-                widthProperty().bind(stackPane.widthProperty())
-                heightProperty().bind(stackPane.heightProperty())
-            })
-        }
+
+        wrapperPane.children.add(canvasScene())
 
         planeEditor.selectToolContext.forEach {
             WorldViewSelectToolContextController(wrapperPane, planeEditor, it)
@@ -80,11 +72,14 @@ class WorldViewController(
         })
     }
 
-    private fun createObjectsUi() =
-//            group(plane.wapObjects.toObservableList { wapObject ->
-//                wapObjectUi(wapObject)
-//            })
-            Group()
+    private fun canvasScene(): CanvasScene {
+        val tiles = TileMapNode(plane, rezImageProvider) as CanvasNode
+        val wapObjects = plane.wapObjects.map {
+            WapObjectNode(it, rezImageProvider) as CanvasNode
+        }
+        val children = observableSet(tiles) + wapObjects
+        return CanvasScene(planeEditor, PlaneNode(planeEditor, children))
+    }
 
     private fun createPencilToolUi() = group(pencilToolContext.map { pencilToolContext1 ->
         Rectangle(64.0, 64.0).apply {
@@ -100,7 +95,6 @@ class WorldViewController(
             group(plane.wapObjects.toObservableList { wapObject ->
                 wapObjectImage(wapObject)
             })
-
 
     private fun wapObjectUi(wapObject: WapObject): Node {
         val b = wapObject.bounds

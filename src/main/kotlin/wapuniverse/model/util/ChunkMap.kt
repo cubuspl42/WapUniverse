@@ -1,5 +1,7 @@
 package wapuniverse.model.util
 
+import org.reactfx.EventSource
+import org.reactfx.EventStream
 import wapuniverse.geom.Vec2i
 
 private const val chunkSize = 256
@@ -62,7 +64,13 @@ class Chunk(
 }
 
 class ChunkMap {
-    val chunks = hashMapOf<Vec2i, Chunk>()
+    data class Change(val tileOffset: Vec2i)
+
+    private val chunks = hashMapOf<Vec2i, Chunk>()
+
+    private val changesSrc = EventSource<Change>()
+
+    val changes = changesSrc as EventStream<Change>
 
     fun getTile(tileOffset: Vec2i): Int {
         val chunkOffset = calculateChunkOffset(tileOffset)
@@ -75,6 +83,7 @@ class ChunkMap {
         if (!chunkExists(chunkOffset) && tileId == -1) return
         val chunk = getOrPutChunk(chunkOffset)
         chunk.setTile(tileOffset, tileId)
+        changesSrc.push(Change(tileOffset))
     }
 
     internal fun removeChunk(chunkOffset: Vec2i) {

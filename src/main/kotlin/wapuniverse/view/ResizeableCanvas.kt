@@ -3,6 +3,7 @@ package wapuniverse.view
 import javafx.animation.AnimationTimer
 import javafx.scene.canvas.Canvas
 import javafx.scene.canvas.GraphicsContext
+import javafx.scene.paint.Color
 import javafx.scene.transform.Affine
 import wapuniverse.model.util.Disposable
 
