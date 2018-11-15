@@ -17,17 +17,22 @@ import wapuniverse.view.ResizableCanvas
 import wapuniverse.view.extensions.map
 
 class CanvasScene(
-        private val parent: Disposable,
+        parent: Disposable,
         private val root: CanvasNode
 ) : Pane() {
-    private val canvas = ResizableCanvas(parent) { width, height, graphicsContext ->
+    private val canvas = ResizableCanvas { width, height, graphicsContext ->
         root.draw(graphicsContext)
     }
 
+    private val sub = root.invalidations.subscribe {
+        canvas.redraw()
+    }
+
     init {
-        children.add(canvas)
         canvas.widthProperty().bind(widthProperty())
         canvas.heightProperty().bind(heightProperty())
+        children.add(canvas)
+        parent.addDisposeListener { sub.unsubscribe() }
     }
 }
 
@@ -41,7 +46,11 @@ class PlaneNode(
         private val planeEditor: PlaneEditor,
         private val children: ObservableSet<CanvasNode>
 ) : CanvasNode() {
-    override val invalidations = merge(children.map { it.invalidations })!!
+    override val invalidations =
+            merge(
+                    invalidationsOf(planeEditor.cameraOffset),
+                    merge(children.map { it.invalidations })!!
+            )!!
 
     override fun draw(graphicsContext: GraphicsContext) {
         graphicsContext.save()

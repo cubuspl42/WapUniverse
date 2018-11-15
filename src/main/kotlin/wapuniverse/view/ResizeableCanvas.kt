@@ -1,30 +1,18 @@
 package wapuniverse.view
 
-import javafx.animation.AnimationTimer
 import javafx.scene.canvas.Canvas
 import javafx.scene.canvas.GraphicsContext
-import javafx.scene.paint.Color
-import javafx.scene.transform.Affine
-import wapuniverse.model.util.Disposable
 
 class ResizableCanvas(
-        parent: Disposable,
         private val drawFunction: (width: Double, height: Double, graphicsContext: GraphicsContext) -> Unit
 ) : Canvas() {
-    private val timer = object : AnimationTimer() {
-        override fun handle(now: Long) {
-            draw()
-        }
-    }
 
     init {
-        widthProperty().addListener { _ -> draw() }
-        heightProperty().addListener { _ -> draw() }
-        parent.addDisposeListener { timer.stop() }
-        timer.start()
+        widthProperty().addListener { _ -> redraw() }
+        heightProperty().addListener { _ -> redraw() }
     }
 
-    private fun draw() {
+    fun redraw() {
         val gc = graphicsContext2D
         gc.save()
         gc.clearRect(0.0, 0.0, width, height)
