@@ -87,6 +87,7 @@ fun loadPlaneHeader(stream: WwdInputStream): WwdPlane {
     plane.tileHeight = stream.readInt()
     plane.tilesWide = stream.readInt()
     plane.tilesHigh = stream.readInt()
+    plane.tiles = IntArray(plane.tilesWide * plane.tilesHigh) { -1 }
     stream.expectInt(0)
     stream.expectInt(0)
     plane.movementXPercent = stream.readInt()
@@ -109,7 +110,7 @@ fun loadTiles(stream: WwdInputStream, plane: WwdPlane) {
     for (i in 0..plane.tilesHigh - 1) {
         for (j in 0..plane.tilesWide - 1) {
             val t = stream.readInt()
-            plane.tiles.add(t)
+            plane.setTile(i, j, t)
         }
     }
 }

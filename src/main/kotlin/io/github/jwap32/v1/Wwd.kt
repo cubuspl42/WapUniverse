@@ -177,7 +177,7 @@ data class WwdPlane(
         var zCoord: Int = 0,
         var tilesWide: Int = 0,
         var tilesHigh: Int = 0,
-        var tiles: MutableList<Int> = mutableListOf(),
+        var tiles: IntArray = IntArray(tilesWide * tilesHigh) { -1 },
         var imageSets: MutableList<String> = mutableListOf(),
         var objects: MutableList<WwdObject> = mutableListOf()
 ) {
@@ -187,7 +187,7 @@ data class WwdPlane(
 
     fun clone() = copy(
             flags = flags.copy(),
-            tiles = tiles.toMutableList(),
+            tiles = tiles.clone(),
             imageSets = imageSets.toMutableList(),
             objects = objects.map { it.clone() }.toMutableList()
     )
