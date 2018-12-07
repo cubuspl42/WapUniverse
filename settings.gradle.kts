@@ -1,1 +1,1 @@
-include("javafx-application", "application")
+include("wapuniverse-viewmodel", "wapuniverse-javafx")

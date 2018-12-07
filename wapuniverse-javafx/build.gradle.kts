@@ -8,6 +8,6 @@ application {
 }
 
 dependencies {
-    compile(project(":application"))
+    compile(project(":wapuniverse-viewmodel"))
     compile(kotlin("stdlib"))
 }

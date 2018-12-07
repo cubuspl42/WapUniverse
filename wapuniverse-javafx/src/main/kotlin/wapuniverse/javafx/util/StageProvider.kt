@@ -1,4 +1,4 @@
-package wapuniverse.javafx
+package wapuniverse.javafx.util
 
 import javafx.stage.Stage
 

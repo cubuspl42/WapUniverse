@@ -6,6 +6,10 @@
       <module name="io.github.cubuspl42.application.test" target="1.8" />
       <module name="io.github.cubuspl42.javafx-application.main" target="1.8" />
       <module name="io.github.cubuspl42.javafx-application.test" target="1.8" />
+      <module name="io.github.cubuspl42.wapuniverse-javafx.main" target="1.8" />
+      <module name="io.github.cubuspl42.wapuniverse-javafx.test" target="1.8" />
+      <module name="io.github.cubuspl42.wapuniverse-viewmodel.main" target="1.8" />
+      <module name="io.github.cubuspl42.wapuniverse-viewmodel.test" target="1.8" />
       <module name="org.gradle.kotlin.dsl.samples.multiproject.application.main" target="1.8" />
       <module name="org.gradle.kotlin.dsl.samples.multiproject.application.test" target="1.8" />
       <module name="org.gradle.kotlin.dsl.samples.multiproject.javafx-application.main" target="1.8" />

@@ -6,8 +6,9 @@ import javafx.stage.Stage
 
 class MyApplication : Application() {
     override fun start(primaryStage: Stage) {
-        val presenter = JavaFxApplicationPresenter(primaryStage)
-        wapuniverse.application.Application(presenter)
+        val application = wapuniverse.viewmodel.Application()
+        ApplicationPresenter(primaryStage).presentApplication(application)
+        application.start()
     }
 }
 
