@@ -12,7 +12,7 @@ import wapuniverse.javafx.util.StageProvider
 import wapuniverse.viewmodel.Application
 import wapuniverse.viewmodel.RootWindow
 
-private val windowTitle = "WapUniverse"
+private const val windowTitle = "WapUniverse"
 
 class ApplicationPresenter(
         primaryStage: Stage
@@ -45,7 +45,9 @@ private fun rootWindowRoot(
                     MenuItem("Open")
             )
     )
-    val center = Group()
+    val center = Group(
+
+    )
     return BorderPane(
             center,
             menuBar,

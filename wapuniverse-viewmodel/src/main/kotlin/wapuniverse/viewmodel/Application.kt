@@ -13,6 +13,7 @@ class Application {
     }
 
     private fun openNewRootWindow() {
-        onWindowCreatedSrc.emit(RootWindow())
+        onWindowCreatedSrc.emit(RootWindow(
+        ))
     }
 }
