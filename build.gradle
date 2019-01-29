@@ -1,0 +1,30 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+
+group = 'io.github.cubuspl42'
+version = '0.5-SNAPSHOT'
+
+description = """"""
+
+sourceCompatibility = 1.5
+targetCompatibility = 1.5
+
+
+
+repositories {
+        
+     maven { url "http://repo.maven.apache.org/maven2" }
+}
+dependencies {
+    compile group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8', version:'1.2.51'
+    compile group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version:'1.2.51'
+    compile group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version:'0.25.3'
+    compile group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-javafx', version:'0.25.3'
+    compile group: 'org.openjfx', name: 'javafx-controls', version:'11'
+    compile group: 'org.openjfx', name: 'javafx-fxml', version:'11'
+    compile group: 'com.google.guava', name: 'guava', version:'26.0-jre'
+    compile group: 'org.fxmisc.easybind', name: 'easybind', version:'1.0.3'
+    compile group: 'org.yaml', name: 'snakeyaml', version:'1.9'
+    compile group: 'org.reactfx', name: 'reactfx', version:'2.0-M5'
+    testCompile group: 'org.jetbrains.kotlin', name: 'kotlin-test', version:'1.2.51'
+}
