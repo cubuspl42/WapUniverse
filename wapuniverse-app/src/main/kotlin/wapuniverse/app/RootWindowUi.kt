@@ -1,26 +1,40 @@
 package wapuniverse.app
 
+import javafx.beans.value.ObservableValue
 import javafx.scene.Group
 import javafx.scene.Parent
 import javafx.scene.control.Menu
 import javafx.scene.control.MenuBar
 import javafx.scene.control.MenuItem
 import javafx.scene.layout.BorderPane
+import javafx.scene.text.Text
+import wapuniverse.editor.extensions.map
 
 const val rootWindowTitle = "WapUniverse"
 
-fun rootWindowUi(): Parent {
+fun rootWindowUi(rootWindow: RootWindow): Parent {
     val menuBar = MenuBar(
             Menu("File", null,
-                    MenuItem("New"),
+                    menuItem("New", rootWindow::newWorld),
                     MenuItem("Open")
             )
     )
-    val center = Group()
     return BorderPane().apply {
         top = menuBar
-        setCenter(center)
+        centerProperty().bind(rootWindowCenterUi(rootWindow.context))
         prefWidth = 640.0
         prefHeight = 480.0
     }
 }
+
+fun rootWindowCenterUi(context: ObservableValue<RootWindowContext?>) = context.map {
+    when (it) {
+        is EditorContext -> Text(it.editor.world.retail.toString())
+        else -> Group()
+    }
+}
+
+private inline fun menuItem(text: String, crossinline callback: () -> Unit) =
+        MenuItem(text).apply {
+            setOnAction { callback() }
+        }

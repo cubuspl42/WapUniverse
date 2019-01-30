@@ -1,3 +1,3 @@
 package wapuniverse.editor
 
-class Editor
+class Editor(val world: World)
