@@ -5,9 +5,11 @@ import javafx.beans.value.ObservableValue
 import javafx.scene.Scene
 import javafx.stage.Stage
 import wapuniverse.editor.World
+import wapuniverse.rez.RezImageCache
 
 class RootWindow(
-        stage: Stage
+        stage: Stage,
+        private val rezImageCache: RezImageCache
 ) {
     private val contextVar = SimpleObjectProperty<RootWindowContext>()
 
@@ -27,6 +29,9 @@ class RootWindow(
     }
 
     private fun enterEditorContext(newWorldParams: NewWorldParams) {
-        contextVar.value = EditorContext(World(newWorldParams.retail))
+        contextVar.value = EditorContext(
+                World(newWorldParams.retail),
+                rezImageCache
+        )
     }
 }

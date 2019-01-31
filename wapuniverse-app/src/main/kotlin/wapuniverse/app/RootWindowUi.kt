@@ -29,7 +29,7 @@ fun rootWindowUi(rootWindow: RootWindow): Parent {
 
 fun rootWindowCenterUi(context: ObservableValue<RootWindowContext?>) = context.map {
     when (it) {
-        is EditorContext -> Text(it.editor.world.retail.toString())
+        is EditorContext -> editorMainViewUi(it)
         else -> Group()
     }
 }
