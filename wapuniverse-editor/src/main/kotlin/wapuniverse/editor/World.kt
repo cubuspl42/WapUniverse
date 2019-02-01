@@ -9,4 +9,12 @@ class World(
     private val planesMut = observableArrayList<Plane>()
 
     val planes = unmodifiableObservableList(planesMut)
+
+    init {
+        planesMut.addAll(
+                Plane("Back"),
+                Plane("Action"),
+                Plane("Front")
+        )
+    }
 }
