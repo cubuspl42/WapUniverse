@@ -1,18 +1,23 @@
-package wapuniverse.app.worldPreview
+package wapuniverse.app.world_preview
 
 import javafx.beans.value.ObservableValue
 import javafx.collections.ObservableList
+import javafx.geometry.BoundingBox
+import javafx.scene.Group
 import javafx.scene.Node
 import javafx.scene.image.ImageView
+import javafx.scene.input.MouseEvent
 import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import javafx.scene.text.Text
 import wapuniverse.app.EditorContext
 import wapuniverse.editor.ActivePlaneContext
+import wapuniverse.editor.AreaSelectionContext
 import wapuniverse.editor.WapObject
-import wapuniverse.editor.extensions.map
-import wapuniverse.editor.extensions.subscribe
+import wapuniverse.editor.extensions.*
+import wapuniverse.extensions.group
+import wapuniverse.extensions.listBind
 import wapuniverse.extensions.map
 import wapuniverse.rez.RezImageCache
 
@@ -21,13 +26,32 @@ class WorldPreviewPresenter(
 ) {
     fun root(editorContext: EditorContext): Pane {
         val activePlaneContext = editorContext.editor.activePlaneContext
-        return pane(activePlaneContext.map { plane(it) }).apply {
+
+        val worldPreviewPane = pane(activePlaneContext.map { plane(it) }).apply {
             clip = fullClip(this)
         }
+
+        activePlaneContext.forEach { ActivePlaneController(it, worldPreviewPane) }
+
+        return worldPreviewPane
     }
 
-    private fun plane(activePlaneContext: ActivePlaneContext) =
-            doubleGroup(activePlaneContext.plane.objects.map { wapObject(it) })
+    private fun plane(activePlaneContext: ActivePlaneContext) = Group(
+            doubleGroup(activePlaneContext.plane.objects.map { wapObject(it) }),
+            group(activePlaneContext.areaSelectionContext.map { areaSelectionRect(it) })
+    )
+
+    private fun areaSelectionRect(areaSelectionContext: AreaSelectionContext): Node {
+        val area = areaSelectionContext.area
+        return Rectangle().apply {
+            xProperty().bind(area.map { it.minX })
+            yProperty().bind(area.map { it.minY })
+            widthProperty().bind(area.map { it.width })
+            heightProperty().bind(area.map { it.height })
+            fill = Color.RED
+            opacity = 0.5
+        }
+    }
 
     private fun wapObject(wapObject: WapObject): DoubleNode {
         val rezImage = rezImageCache.getImage(wapObject.imageSet, -1)!!
@@ -52,17 +76,6 @@ class WorldPreviewPresenter(
 private fun pane(child: ObservableValue<Node?>) = Pane().apply {
     properties[child] = child
     listBind(this.children, child)
-}
-
-private fun <E : Any> listBind(list: ObservableList<E?>, child: ObservableValue<E?>) {
-    list.setOneNullable(child.value)
-    child.subscribe {
-        list.setOneNullable(it)
-    }
-}
-
-private fun <E> ObservableList<E>.setOneNullable(value: E) {
-    value?.let { setAll(it) } ?: clear()
 }
 
 private fun fullClip(pane: Pane) = Rectangle().apply {

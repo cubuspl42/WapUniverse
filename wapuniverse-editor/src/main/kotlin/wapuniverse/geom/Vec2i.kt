@@ -1,6 +1,7 @@
 package wapuniverse.geom
 
 import javafx.geometry.Point2D
+import kotlin.math.absoluteValue
 
 data class Vec2i(val x: Int = 0, val y: Int = 0) {
     companion object {

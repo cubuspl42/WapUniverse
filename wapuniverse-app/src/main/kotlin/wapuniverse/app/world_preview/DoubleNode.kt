@@ -1,4 +1,4 @@
-package wapuniverse.app.worldPreview
+package wapuniverse.app.world_preview
 
 import javafx.collections.ObservableList
 import javafx.scene.Group
