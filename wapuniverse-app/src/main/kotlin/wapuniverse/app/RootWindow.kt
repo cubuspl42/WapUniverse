@@ -4,6 +4,7 @@ import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.value.ObservableValue
 import javafx.scene.Scene
 import javafx.stage.Stage
+import wapuniverse.app.worldPreview.WorldPreviewPresenter
 import wapuniverse.editor.World
 import wapuniverse.editor.extensions.flatMap
 import wapuniverse.editor.extensions.flatMapOl

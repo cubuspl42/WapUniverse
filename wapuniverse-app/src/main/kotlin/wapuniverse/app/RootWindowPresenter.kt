@@ -1,15 +1,12 @@
 package wapuniverse.app
 
 import javafx.beans.property.Property
-import javafx.beans.value.ObservableValue
 import javafx.collections.ObservableList
-import javafx.scene.Group
-import javafx.scene.Parent
 import javafx.scene.control.*
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
-import javafx.scene.text.Text
+import wapuniverse.app.worldPreview.WorldPreviewPresenter
 import wapuniverse.editor.extensions.map
 
 private const val rootWindowTitle = "WapUniverse"
