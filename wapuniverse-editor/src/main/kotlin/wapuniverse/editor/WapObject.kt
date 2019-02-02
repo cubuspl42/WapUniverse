@@ -1,5 +1,8 @@
 package wapuniverse.editor
 
-class WapObject {
+import wapuniverse.geom.Vec2i
 
-}
+class WapObject(
+        val position: Vec2i,
+        val imageSet: String
+)

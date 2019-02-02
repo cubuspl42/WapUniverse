@@ -49,7 +49,7 @@ fun <T> ObservableValue<T>.orElse(value: T) =
 fun <T: Any, R> ObservableValue<T>.flatMapOl(transform: (T) -> ObservableList<R>): ObservableList<R> {
     val list = observableArrayList<R>()
     this.value?.let { list.addAll(transform(it)) }
-    subscribe(this) {value ->
+    subscribe(this) { value ->
         value?.let { list.setAll(transform(it)) } ?: list.clear()
     }
     return list

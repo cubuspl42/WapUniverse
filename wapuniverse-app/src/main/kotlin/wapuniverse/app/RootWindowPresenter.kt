@@ -12,10 +12,14 @@ import javafx.scene.layout.VBox
 import javafx.scene.text.Text
 import wapuniverse.editor.extensions.map
 
-const val rootWindowTitle = "WapUniverse"
+private const val rootWindowTitle = "WapUniverse"
 
-fun rootWindowUi(rootWindow: RootWindow): Parent {
-    return BorderPane().apply {
+class RootWindowPresenter(
+        private val worldPreviewPresenter: WorldPreviewPresenter
+) {
+    fun title() = rootWindowTitle
+
+    fun root(rootWindow: RootWindow) = BorderPane().apply {
         top = VBox(
                 MenuBar(
                         Menu("File", null,
@@ -27,7 +31,9 @@ fun rootWindowUi(rootWindow: RootWindow): Parent {
                     it.name
                 })
         )
-        centerProperty().bind(rootWindow.context.map { editorMainViewUi(it) } )
+        centerProperty().bind(rootWindow.context.map {
+            worldPreviewPresenter.root(it)
+        })
         prefWidth = 640.0
         prefHeight = 480.0
     }

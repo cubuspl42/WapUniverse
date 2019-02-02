@@ -8,7 +8,7 @@ class World(
 ) {
     private val planesMut = observableArrayList<Plane>()
 
-    val planes = unmodifiableObservableList(planesMut)
+    val planes = unmodifiableObservableList(planesMut)!!
 
     init {
         planesMut.addAll(

@@ -13,6 +13,10 @@ class RootWindow(
         stage: Stage,
         private val rezImageCache: RezImageCache
 ) {
+    private val worldPreviewPresenter = WorldPreviewPresenter(rezImageCache)
+
+    private val rootWindowPresenter = RootWindowPresenter(worldPreviewPresenter)
+
     private val contextVar = SimpleObjectProperty<EditorContext>()
 
     val context = contextVar as ObservableValue<EditorContext>
@@ -23,8 +27,8 @@ class RootWindow(
 
     init {
         stage.apply {
-            title = rootWindowTitle
-            scene = Scene(rootWindowUi(this@RootWindow))
+            title = rootWindowPresenter.title()
+            scene = Scene(rootWindowPresenter.root(this@RootWindow))
             show()
         }
     }

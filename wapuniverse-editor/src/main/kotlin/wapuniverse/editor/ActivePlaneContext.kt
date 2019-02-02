@@ -1,5 +1,3 @@
 package wapuniverse.editor
 
-class ActivePlaneContext(plane: Plane) {
-
-}
+class ActivePlaneContext(val plane: Plane)
