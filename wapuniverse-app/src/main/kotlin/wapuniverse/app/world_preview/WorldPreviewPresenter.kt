@@ -1,12 +1,9 @@
 package wapuniverse.app.world_preview
 
 import javafx.beans.value.ObservableValue
-import javafx.collections.ObservableList
-import javafx.geometry.BoundingBox
 import javafx.scene.Group
 import javafx.scene.Node
 import javafx.scene.image.ImageView
-import javafx.scene.input.MouseEvent
 import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
@@ -40,10 +37,19 @@ class WorldPreviewPresenter(
 
     private fun plane(activePlaneContext: ActivePlaneContext) = Group(
             doubleGroup(activePlaneContext.plane.objects.map { wapObject(it) }),
-            group(activePlaneContext.areaSelectionContext.map { areaSelectionRect(it) })
+            group(activePlaneContext.areaSelectionContext.map { areaSelectionRect(it) }),
+            inputHandler(activePlaneContext)
     ).apply {
         translateXProperty().bind(activePlaneContext.cameraPosition.map { -it.x })
         translateYProperty().bind(activePlaneContext.cameraPosition.map { -it.y })
+    }
+
+    private fun inputHandler(activePlaneContext: ActivePlaneContext): Node? {
+        val a = 262144.0
+        return Rectangle(0.0, 0.0, a, a).apply {
+            InputHandlerController(activePlaneContext, this)
+            fill = Color.TRANSPARENT
+        }
     }
 
     private fun areaSelectionRect(areaSelectionContext: AreaSelectionContext): Node {
@@ -78,12 +84,25 @@ class WorldPreviewPresenter(
     }
 }
 
-private fun pane(child: ObservableValue<Node?>) = Pane().apply {
+class InputHandlerController(
+        activePlaneContext: ActivePlaneContext,
+        node: Node
+) : Controller(activePlaneContext, { node.scene }) {
+    init {
+        subscribe(dragGesturesOf(node)) { dragGesture ->
+            val position = dragGesture.position.map { it.toVec2i() }
+            val areaSelectionContext = activePlaneContext.selectByArea(position)
+            dragGesture.onEnded.subscribe { areaSelectionContext.commit() }
+        }
+    }
+}
+
+fun pane(child: ObservableValue<Node?>) = Pane().apply {
     properties[child] = child
     listBind(this.children, child)
 }
 
-private fun fullClip(pane: Pane) = Rectangle().apply {
+fun fullClip(pane: Pane) = Rectangle().apply {
     widthProperty().bind(pane.widthProperty())
     heightProperty().bind(pane.heightProperty())
 }
