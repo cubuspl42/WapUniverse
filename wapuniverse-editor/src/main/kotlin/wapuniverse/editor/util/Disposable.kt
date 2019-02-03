@@ -11,7 +11,8 @@ open class Disposable(
 
     val onDisposed = onDisposedSrc as EventStream<Unit>
 
-    private var isDisposed = false
+    protected var isDisposed = false
+        private set
 
     init {
         parent?.onDisposed?.subscribe { disposeInt() }

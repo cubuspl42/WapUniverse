@@ -29,6 +29,8 @@ class WorldPreviewPresenter(
 
         val worldPreviewPane = pane(activePlaneContext.map { plane(it) }).apply {
             clip = fullClip(this)
+        }.apply {
+            setOnMouseClicked { requestFocus() }
         }
 
         activePlaneContext.forEach { ActivePlaneController(it, worldPreviewPane) }
@@ -39,7 +41,10 @@ class WorldPreviewPresenter(
     private fun plane(activePlaneContext: ActivePlaneContext) = Group(
             doubleGroup(activePlaneContext.plane.objects.map { wapObject(it) }),
             group(activePlaneContext.areaSelectionContext.map { areaSelectionRect(it) })
-    )
+    ).apply {
+        translateXProperty().bind(activePlaneContext.cameraPosition.map { -it.x })
+        translateYProperty().bind(activePlaneContext.cameraPosition.map { -it.y })
+    }
 
     private fun areaSelectionRect(areaSelectionContext: AreaSelectionContext): Node {
         val area = areaSelectionContext.area
