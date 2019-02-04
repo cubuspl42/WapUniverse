@@ -9,19 +9,18 @@ fun buildRezImageCache(rezIndex: RezIndex) =
         RezImageCache(rezIndex.imageSets.mapValues { (_, imageSet) ->
             RezImageSet(
                     imageSet.sprites.mapValues { (_, metadata) ->
-                        RezImage(
-                                loadRezImage(metadata.path), Vec2i(metadata.offset[0], metadata.offset[1])
-                        )
+                        loadRezImage(metadata)
                     },
                     imageSet.frames
             )
         })
 
-fun loadRezImage(imageRezPath: String): Image? {
-    val realPath = realizePath(imageRezPath)
+fun loadRezImage(image: RezIndex.Image): RezImage {
+    val realPath = realizePath(image.path)
     val classLoader = Thread.currentThread().contextClassLoader
     val stream = classLoader.getResourceAsStream(realPath)
-    return stream?.let { Image(it) }
+    val img = stream?.let { Image(it) }
+    return RezImage(img, Vec2i(image.offset[0], image.offset[1]))
 }
 
 private fun realizePath(imageRezPath: String): String =

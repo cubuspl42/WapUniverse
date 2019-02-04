@@ -19,12 +19,11 @@ class World(
         )
     }
 
-    internal fun supplyMetadata(imageSetId: String): ImageMetadata {
-        val fqImageSetId = expandImageSetId(imageSetId)
-        return imageMetadataSupplier.supplyMetadata(fqImageSetId)
+    internal fun expandImageSetId(imageSetId: String): String {
+        return imageSetId.replace("LEVEL", "LEVEL1_IMAGES")
     }
 
-    private fun expandImageSetId(imageSetId: String): String {
-        return imageSetId.replace("LEVEL", "LEVEL1_IMAGES")
+    internal fun supplyMetadata(fqImageSetId: String, i: Int): ImageMetadata? {
+        return imageMetadataSupplier.supplyMetadata(fqImageSetId, i)
     }
 }

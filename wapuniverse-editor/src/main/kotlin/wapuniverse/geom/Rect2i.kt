@@ -12,11 +12,33 @@ data class Rect2i(val position: Vec2i, val size: Size2i) {
         fun fromCenter(center: Vec2i, size: Size2i) = Rect2i(center - (size.toVec2i() / 2), size)
     }
 
-    fun intersects(boundingBox: Rect2i): Boolean {
-        TODO()
-    }
+    val minX: Int
+        get() = position.x
+
+    val maxX: Int
+        get() = position.x + size.width
+
+    val minY: Int
+        get() = position.y
+
+    val maxY: Int
+        get() = position.y + size.width
+
+    val xRange: IntRange
+        get() = minX until maxX
+
+    val yRange: IntRange
+        get() = minY until maxY
 
     operator fun plus(v: Vec2i): Rect2i {
         return Rect2i(position + v, size)
     }
+
+    fun collides(rect: Rect2i): Boolean {
+        return xRange.intersects(rect.xRange) && yRange.intersects(rect.yRange)
+    }
+}
+
+private fun IntRange.intersects(other: IntRange): Boolean {
+    return !(other.endInclusive < start || other.start > endInclusive)
 }

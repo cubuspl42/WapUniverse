@@ -7,6 +7,7 @@ import org.reactfx.value.Val
 import wapuniverse.editor.extensions.subscribe
 import wapuniverse.editor.util.Disposable
 import wapuniverse.geom.EucVec2i
+import wapuniverse.geom.Rect2i
 import wapuniverse.geom.Vec2i
 import kotlin.math.min
 
@@ -19,13 +20,7 @@ class AreaSelectionContext(
     private val startPosition = position.value
 
     val area = position.map {
-        val ev = EucVec2i(startPosition, it)
-        BoundingBox(
-                min(ev.a.x, ev.b.x).toDouble(),
-                min(ev.a.y, ev.b.y).toDouble(),
-                ev.delta().width.toDouble(),
-                ev.delta().height.toDouble()
-        )
+        Rect2i.fromDiagonal(startPosition, it)
     }
 
     private val objectsInArea = area.map {

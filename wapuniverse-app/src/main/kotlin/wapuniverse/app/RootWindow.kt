@@ -41,7 +41,7 @@ class RootWindow(
 
     private fun enterEditorContext(newWorldParams: NewWorldParams) {
         contextVar.value = EditorContext(
-                World(newWorldParams.retail),
+                World(newWorldParams.retail, ImageMetadataSupplierImpl(rezImageCache)),
                 rezImageCache
         )
     }

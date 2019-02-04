@@ -15,15 +15,13 @@ class Plane(
 
     init {
         objectsMut.addAll(
-                WapObject(this, Vec2i(0, 0), "LEVEL1_IMAGES_OFFICER"),
-                WapObject(this, Vec2i(128, 128), "LEVEL1_IMAGES_SOLDIER"),
-                WapObject(this, Vec2i(256, 256), "LEVEL1_IMAGES_SOLDIER")
+                WapObject(this, Vec2i(0, 0), "LEVEL_OFFICER"),
+                WapObject(this, Vec2i(128, 128), "LEVEL_SOLDIER"),
+                WapObject(this, Vec2i(256, 256), "LEVEL_SOLDIER")
         )
     }
 
     internal fun findObjects(area: Rect2i): Set<WapObject> {
-        val boundingBoxes = objects.map { it.boundingBox }
-
-        return objects.filter { area.collides(it.boundingBox) }.toSet()
+        return objects.filter { it.boundingBox.value.collides(area)}.toSet()
     }
 }

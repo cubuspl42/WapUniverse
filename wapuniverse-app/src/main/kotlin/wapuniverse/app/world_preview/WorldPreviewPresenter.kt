@@ -8,14 +8,18 @@ import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import javafx.scene.text.Text
+import org.reactfx.value.Val
 import wapuniverse.app.EditorContext
 import wapuniverse.editor.ActivePlaneContext
 import wapuniverse.editor.AreaSelectionContext
 import wapuniverse.editor.WapObject
-import wapuniverse.editor.extensions.*
+import wapuniverse.editor.extensions.forEach
+import wapuniverse.editor.extensions.map
 import wapuniverse.extensions.group
 import wapuniverse.extensions.listBind
 import wapuniverse.extensions.map
+import wapuniverse.geom.Rect2i
+import wapuniverse.geom.Vec2i
 import wapuniverse.rez.RezImageCache
 
 class WorldPreviewPresenter(
@@ -55,39 +59,50 @@ class WorldPreviewPresenter(
     private fun areaSelectionRect(areaSelectionContext: AreaSelectionContext): Node {
         val area = areaSelectionContext.area
         return Rectangle().apply {
-            xProperty().bind(area.map { it.minX })
-            yProperty().bind(area.map { it.minY })
-            widthProperty().bind(area.map { it.width })
-            heightProperty().bind(area.map { it.height })
+            bind(area)
             fill = Color.RED
             opacity = 0.5
         }
     }
 
     private fun wapObject(wapObject: WapObject): DoubleNode {
-        val rezImage = rezImageCache.getImage(wapObject.imageSet, -1)!!
-        val image = rezImage.image!!
-        val x = wapObject.positionInit.x.toDouble()
-        val y = wapObject.positionInit.y.toDouble()
-        val w = image.width
-        val h = image.height
-        val bb = wapObject.boundingBox
+        val rezImage = wapObject.fqImageSetId.map { rezImageCache.getImage(it, -1) }
+        val image = rezImage.map { it?.image }
+        val boundingBox = wapObject.boundingBox
         return DoubleNode(
-                ImageView(rezImage.image).apply {
-                    this.x = x
-                    this.y = y
+                ImageView().apply {
+                    imageProperty().bind(image)
+                    bindPosition(boundingBox.map { it.position })
                 },
                 Group(
-                        Rectangle(x, y, w, h).apply {
+                        Rectangle(boundingBox).apply {
                             fill = Color.TRANSPARENT
                             strokeProperty().bind(wapObject.isHighlighted.map {
                                 if (it) Color.RED else Color.ORANGE
                             })
-                        },
-                        Rectangle(bb.minX, bb.minY, bb.width, bb.height)
+                        }
                 )
         )
     }
+}
+
+fun Rectangle(rect: Val<Rect2i>) = Rectangle().apply {
+    xProperty().bind(rect.map { it.position.x })
+    yProperty().bind(rect.map { it.position.y })
+    widthProperty().bind(rect.map { it.size.width })
+    heightProperty().bind(rect.map { it.size.height })
+}
+
+private fun ImageView.bindPosition(position: Val<Vec2i>) {
+    xProperty().bind(position.map { it.x })
+    yProperty().bind(position.map { it.y })
+}
+
+private fun Rectangle.bind(rect: Val<Rect2i>) {
+    xProperty().bind(rect.map { it.position.x })
+    yProperty().bind(rect.map { it.position.y })
+    widthProperty().bind(rect.map { it.size.width })
+    heightProperty().bind(rect.map { it.size.height })
 }
 
 class InputHandlerController(

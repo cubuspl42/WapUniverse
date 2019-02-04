@@ -8,7 +8,7 @@ import wapuniverse.geom.Vec2i
 
 class WapObject(
         val plane: Plane,
-        val positionInit: Vec2i,
+        positionInit: Vec2i,
         imageSetInit: String
 ) {
     private val world = plane.world
@@ -20,6 +20,10 @@ class WapObject(
     private val imageSetVar = newSimpleVar(imageSetInit)
 
     val imageSet = imageSetVar as Val<String>
+
+    val fqImageSetId = imageSet.map { world.expandImageSetId(it) }
+
+    val imageMetadata = fqImageSetId.map { world.supplyMetadata(it, -1) }
 
     private val isHighlightedVar = newSimpleVar(false)
 
@@ -33,13 +37,12 @@ class WapObject(
         isHighlightedVar.value = false
     }
 
-    val boundingBoxLocal = imageSet.map {
-        val metadata = world.supplyMetadata(it)
-        Rect2i.fromCenter(metadata.offset, metadata.size)
+    val boundingBoxLocal = imageMetadata.map {
+        Rect2i.fromCenter(it!!.offset, it.size)
     }
 
     val boundingBox = combine(position, boundingBoxLocal) { positionNow, boundingBoxLocalNow ->
-        boundingBoxLocalNow + positionNow
+        boundingBoxLocalNow!! + positionNow!!
     }
 }
 
