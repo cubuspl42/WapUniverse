@@ -71,15 +71,21 @@ class WorldPreviewPresenter(
         val y = wapObject.position.y.toDouble()
         val w = image.width
         val h = image.height
+        val bb = wapObject.boundingBox
         return DoubleNode(
                 ImageView(rezImage.image).apply {
                     this.x = x
                     this.y = y
                 },
-                Rectangle(x, y, w, h).apply {
-                    fill = Color.TRANSPARENT
-                    stroke = Color.RED
-                }
+                Group(
+                        Rectangle(x, y, w, h).apply {
+                            fill = Color.TRANSPARENT
+                            strokeProperty().bind(wapObject.isHighlighted.map {
+                                if (it) Color.RED else Color.ORANGE
+                            })
+                        },
+                        Rectangle(bb.minX, bb.minY, bb.width, bb.height)
+                )
         )
     }
 }

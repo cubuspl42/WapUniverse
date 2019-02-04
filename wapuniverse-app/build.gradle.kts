@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     application
     kotlin("jvm")
@@ -10,4 +12,8 @@ application {
 dependencies {
     compile(project(":wapuniverse-editor"))
     compile(kotlin("stdlib"))
+}
+
+tasks.withType<KotlinCompile> {
+    kotlinOptions.jvmTarget = "1.8"
 }

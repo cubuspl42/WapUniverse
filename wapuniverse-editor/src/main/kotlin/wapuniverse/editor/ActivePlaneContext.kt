@@ -2,6 +2,7 @@ package wapuniverse.editor
 
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.value.ObservableValue
+import org.reactfx.value.Val
 import wapuniverse.editor.util.Disposable
 import wapuniverse.editor.util.disposeOldValues
 import wapuniverse.geom.Vec2i
@@ -17,6 +18,10 @@ class ActivePlaneContext(val plane: Plane) : Disposable() {
 
     val cameraPosition = cameraPositionVar as ObservableValue<Vec2i>
 
+    private val areaSelectionContextVar = contextProperty<AreaSelectionContext>()
+
+    val areaSelectionContext = areaSelectionContextVar as ObservableValue<AreaSelectionContext?>
+
     fun moveCamera(direction: CameraMovementDirection) {
         val delta = when (direction) {
             CameraMovementDirection.LEFT -> Vec2i(-cameraDelta, 0)
@@ -27,11 +32,7 @@ class ActivePlaneContext(val plane: Plane) : Disposable() {
         cameraPositionVar.value += delta
     }
 
-    private val areaSelectionContextVar = contextProperty<AreaSelectionContext>()
-
-    val areaSelectionContext = areaSelectionContextVar as ObservableValue<AreaSelectionContext?>
-
-    fun selectByArea(position: ObservableValue<Vec2i>) =
+    fun selectByArea(position: Val<Vec2i>) =
             areaSelectionContextVar.enter(AreaSelectionContext(this, position))
 }
 
