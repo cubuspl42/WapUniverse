@@ -22,7 +22,7 @@ data class Rect2i(val position: Vec2i, val size: Size2i) {
         get() = position.y
 
     val maxY: Int
-        get() = position.y + size.width
+        get() = position.y + size.height
 
     val xRange: IntRange
         get() = minX until maxX
