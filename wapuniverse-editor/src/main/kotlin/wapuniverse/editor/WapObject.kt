@@ -1,14 +1,26 @@
 package wapuniverse.editor
 
-import javafx.geometry.BoundingBox
 import org.reactfx.value.Val
+import org.reactfx.value.Val.combine
 import org.reactfx.value.Var.newSimpleVar
+import wapuniverse.geom.Rect2i
 import wapuniverse.geom.Vec2i
 
 class WapObject(
-        val position: Vec2i,
-        val imageSet: String
+        val plane: Plane,
+        val positionInit: Vec2i,
+        imageSetInit: String
 ) {
+    private val world = plane.world
+
+    private val positionVar = newSimpleVar(positionInit)
+
+    val position = positionVar as Val<Vec2i>
+
+    private val imageSetVar = newSimpleVar(imageSetInit)
+
+    val imageSet = imageSetVar as Val<String>
+
     private val isHighlightedVar = newSimpleVar(false)
 
     val isHighlighted = isHighlightedVar as Val<Boolean>
@@ -21,12 +33,13 @@ class WapObject(
         isHighlightedVar.value = false
     }
 
-    val size = Vec2i(64, 64)
+    val boundingBoxLocal = imageSet.map {
+        val metadata = world.supplyMetadata(it)
+        Rect2i.fromCenter(metadata.offset, metadata.size)
+    }
 
-    val boundingBox = BoundingBox(
-            position.x.toDouble(),
-            position.y.toDouble(),
-            size.width.toDouble(),
-            size.height.toDouble()
-    )
+    val boundingBox = combine(position, boundingBoxLocal) { positionNow, boundingBoxLocalNow ->
+        boundingBoxLocalNow + positionNow
+    }
 }
+

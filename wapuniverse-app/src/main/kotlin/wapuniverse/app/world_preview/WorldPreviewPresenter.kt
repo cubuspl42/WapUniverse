@@ -67,8 +67,8 @@ class WorldPreviewPresenter(
     private fun wapObject(wapObject: WapObject): DoubleNode {
         val rezImage = rezImageCache.getImage(wapObject.imageSet, -1)!!
         val image = rezImage.image!!
-        val x = wapObject.position.x.toDouble()
-        val y = wapObject.position.y.toDouble()
+        val x = wapObject.positionInit.x.toDouble()
+        val y = wapObject.positionInit.y.toDouble()
         val w = image.width
         val h = image.height
         val bb = wapObject.boundingBox
