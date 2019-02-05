@@ -29,30 +29,29 @@ class WorldPreviewPresenter(
     fun root(editorContext: EditorContext): Pane {
         val activePlaneContext = editorContext.editor.activePlaneContext
 
-        val worldPreviewPane = pane(activePlaneContext.map { plane(it) }).apply {
+        val previewPane = Pane().apply {
             clip = fullClip(this)
         }.apply {
             setOnMouseClicked { requestFocus() }
+            listBind(children, activePlaneContext.map { plane(it, this) })
         }
 
-        activePlaneContext.forEach { ActivePlaneController(it, worldPreviewPane) }
+        activePlaneContext.forEach { ActivePlaneController(it, previewPane) }
 
-        return worldPreviewPane
+        return previewPane
     }
 
-    private fun plane(activePlaneContext: ActivePlaneContext) = Group(
-            tiles(activePlaneContext.plane),
-            doubleGroup(activePlaneContext.plane.objects.map { wapObject(it) }),
-            group(activePlaneContext.areaSelectionContext.map { areaSelectionRect(it) }),
-            inputHandler(activePlaneContext)
-    ).apply {
-        translateXProperty().bind(activePlaneContext.cameraPosition.map { -it.x })
-        translateYProperty().bind(activePlaneContext.cameraPosition.map { -it.y })
-    }
-
-    private fun tiles(plane: Plane): TilesCanvas {
-        return TilesCanvas(plane, rezImageCache)
-    }
+    private fun plane(activePlaneContext: ActivePlaneContext, previewPane: Pane): Node? = Group(
+            TilesCanvas(activePlaneContext, rezImageCache, previewPane),
+            Group(
+                    doubleGroup(activePlaneContext.plane.objects.map { wapObject(it) }),
+                    group(activePlaneContext.areaSelectionContext.map { areaSelectionRect(it) }),
+                    inputHandler(activePlaneContext)
+            ).apply {
+                translateXProperty().bind(activePlaneContext.cameraPosition.map { -it.x })
+                translateYProperty().bind(activePlaneContext.cameraPosition.map { -it.y })
+            }
+    )
 
     private fun inputHandler(activePlaneContext: ActivePlaneContext): Node? {
         val a = 262144.0
