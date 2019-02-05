@@ -3,7 +3,7 @@ package wapuniverse.editor.util
 interface Matrix<T> {
     fun get(i: Int, j: Int): T
 
-    fun forEach(function: (Int, Int, T) -> Unit) {
+    fun forEach(function: (i: Int, j: Int, value: T) -> Unit) {
         for (i in 0 until rowCount) {
             for (j in 0 until columnCount) {
                 function(i, j, get(i, j))

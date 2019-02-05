@@ -1,5 +1,6 @@
 package wapuniverse.editor
 
+import io.github.jwap32.v1.WwdPlane
 import javafx.collections.FXCollections.observableArrayList
 import javafx.collections.FXCollections.unmodifiableObservableList
 import wapuniverse.editor.util.observableIntMatrix
@@ -10,9 +11,11 @@ val emptyTile = -1
 
 class Plane(
         val world: World,
-        val name: String
+        wwdPlane: WwdPlane
 ) {
-    val tiles = observableIntMatrix(128, 128) { emptyTile }
+    val name = wwdPlane.name
+
+    val tiles = observableIntMatrix(wwdPlane.tilesHigh, wwdPlane.tilesWide) { emptyTile }
 
     val fqTilesetId: String = "LEVEL1_TILES_ACTION"
 
@@ -21,13 +24,17 @@ class Plane(
     val objects = unmodifiableObservableList(objectsMut)!!
 
     init {
-        objectsMut.addAll(
-                WapObject(this, Vec2i(0, 0), "LEVEL_OFFICER"),
-                WapObject(this, Vec2i(128, 128), "LEVEL_SOLDIER"),
-                WapObject(this, Vec2i(256, 256), "LEVEL_SOLDIER")
-        )
+        wwdPlane.objects.forEach { wwdObject ->
+            objectsMut.add(WapObject(
+                    this,
+                    Vec2i(wwdObject.x, wwdObject.y),
+                    wwdObject.imageSet
+            ))
+        }
 
-        tiles.set(0, 0, 12)
+        tiles.forEach { i, j, _ ->
+            tiles.set(i, j, wwdPlane.getTile(i, j))
+        }
     }
 
     fun getTileMetadata(tileId: Int): ImageMetadata? {
@@ -35,6 +42,6 @@ class Plane(
     }
 
     internal fun findObjects(area: Rect2i): Set<WapObject> {
-        return objects.filter { it.boundingBox.value.collides(area) }.toSet()
+        return objects.filter { it.boundingBox.value?.collides(area) == true }.toSet()
     }
 }

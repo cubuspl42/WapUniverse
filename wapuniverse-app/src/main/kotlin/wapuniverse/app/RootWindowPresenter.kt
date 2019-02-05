@@ -21,7 +21,7 @@ class RootWindowPresenter(
                 MenuBar(
                         Menu("File", null,
                                 menuItem("New", rootWindow::newWorld),
-                                MenuItem("Open")
+                                menuItem("Open", rootWindow::openWorld)
                         )
                 ),
                 HBox(comboBox(rootWindow.planes, rootWindow.activePlane) {

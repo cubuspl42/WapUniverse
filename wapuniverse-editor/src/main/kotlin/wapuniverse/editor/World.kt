@@ -1,10 +1,11 @@
 package wapuniverse.editor
 
+import io.github.jwap32.v1.Wwd
 import javafx.collections.FXCollections.observableArrayList
 import javafx.collections.FXCollections.unmodifiableObservableList
 
 class World(
-        val retail: Retail,
+        wwd: Wwd,
         private val imageMetadataSupplier: ImageMetadataSupplier
 ) {
     private val planesMut = observableArrayList<Plane>()
@@ -12,11 +13,9 @@ class World(
     val planes = unmodifiableObservableList(planesMut)!!
 
     init {
-        planesMut.addAll(
-                Plane(this, "Back"),
-                Plane(this, "Action"),
-                Plane(this, "Front")
-        )
+        wwd.planes.forEach { wwdPlane ->
+            planesMut.add(Plane(this, wwdPlane))
+        }
     }
 
     internal fun expandImageSetId(imageSetId: String): String {
