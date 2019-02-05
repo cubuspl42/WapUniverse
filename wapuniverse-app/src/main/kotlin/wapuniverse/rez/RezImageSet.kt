@@ -9,4 +9,7 @@ data class RezImageSet(
             return images[frameName]!!
         }
     }
+
+    fun getAllImages() =
+            frames.mapValues { images[it.value] }
 }

@@ -12,6 +12,7 @@ import org.reactfx.value.Val
 import wapuniverse.app.EditorContext
 import wapuniverse.editor.ActivePlaneContext
 import wapuniverse.editor.AreaSelectionContext
+import wapuniverse.editor.Plane
 import wapuniverse.editor.WapObject
 import wapuniverse.editor.extensions.forEach
 import wapuniverse.editor.extensions.map
@@ -40,12 +41,17 @@ class WorldPreviewPresenter(
     }
 
     private fun plane(activePlaneContext: ActivePlaneContext) = Group(
+            tiles(activePlaneContext.plane),
             doubleGroup(activePlaneContext.plane.objects.map { wapObject(it) }),
             group(activePlaneContext.areaSelectionContext.map { areaSelectionRect(it) }),
             inputHandler(activePlaneContext)
     ).apply {
         translateXProperty().bind(activePlaneContext.cameraPosition.map { -it.x })
         translateYProperty().bind(activePlaneContext.cameraPosition.map { -it.y })
+    }
+
+    private fun tiles(plane: Plane): TilesCanvas {
+        return TilesCanvas(plane, rezImageCache)
     }
 
     private fun inputHandler(activePlaneContext: ActivePlaneContext): Node? {
