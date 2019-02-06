@@ -5,6 +5,7 @@ import javafx.beans.value.ObservableValue
 import org.reactfx.value.Val
 import wapuniverse.editor.util.Disposable
 import wapuniverse.editor.util.disposeOldValues
+import wapuniverse.geom.Vec2d
 import wapuniverse.geom.Vec2i
 
 enum class CameraMovementDirection {
@@ -14,9 +15,9 @@ enum class CameraMovementDirection {
 private val cameraDelta = 64
 
 class ActivePlaneContext(val plane: Plane) : Disposable() {
-    private val cameraPositionVar = SimpleObjectProperty<Vec2i>(Vec2i())
+    private val cameraPositionVar = SimpleObjectProperty(Vec2d())
 
-    val cameraPosition = cameraPositionVar as ObservableValue<Vec2i>
+    val cameraPosition = cameraPositionVar as ObservableValue<Vec2d>
 
     private val areaSelectionContextVar = contextProperty<AreaSelectionContext>()
 
@@ -29,6 +30,10 @@ class ActivePlaneContext(val plane: Plane) : Disposable() {
             CameraMovementDirection.DOWN -> Vec2i(0, cameraDelta)
             CameraMovementDirection.RIGHT -> Vec2i(cameraDelta, 0)
         }
+        scrollCamera(delta.toVec2d())
+    }
+
+    fun scrollCamera(delta: Vec2d) {
         cameraPositionVar.value += delta
     }
 

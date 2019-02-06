@@ -1,12 +1,18 @@
 package wapuniverse.app.world_preview
 
+import javafx.event.EventType
 import javafx.scene.Scene
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyCodeCombination
+import javafx.scene.input.MouseEvent
+import javafx.scene.input.ScrollEvent
 import javafx.scene.layout.Pane
+import org.reactfx.EventStreams.eventsOf
 import wapuniverse.editor.ActivePlaneContext
 import wapuniverse.editor.CameraMovementDirection
 import wapuniverse.editor.util.Disposable
+import wapuniverse.geom.Vec2d
+import wapuniverse.geom.Vec2i
 
 class ActivePlaneController(
         activePlaneContext: ActivePlaneContext,
@@ -28,6 +34,10 @@ class ActivePlaneController(
 
         accelerator(KeyCodeCombination(KeyCode.RIGHT)) {
             activePlaneContext.moveCamera(CameraMovementDirection.RIGHT)
+        }
+
+        subscribe(eventsOf(worldPreviewPane, ScrollEvent.SCROLL)) {
+            activePlaneContext.scrollCamera(-Vec2d(it.deltaX, it.deltaY))
         }
     }
 }

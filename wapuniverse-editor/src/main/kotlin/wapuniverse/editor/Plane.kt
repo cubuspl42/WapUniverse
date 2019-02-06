@@ -17,7 +17,9 @@ class Plane(
 
     val tiles = observableIntMatrix(wwdPlane.tilesHigh, wwdPlane.tilesWide) { emptyTile }
 
-    val fqTilesetId: String = "LEVEL1_TILES_ACTION"
+    private val imageSet = wwdPlane.imageSets.first()
+
+    val fqImageSetId: String = makeFqImageSetId(world.imageDir, imageSet)
 
     private val objectsMut = observableArrayList<WapObject>()
 
@@ -44,4 +46,9 @@ class Plane(
     internal fun findObjects(area: Rect2i): Set<WapObject> {
         return objects.filter { it.boundingBox.value?.collides(area) == true }.toSet()
     }
+}
+
+private fun makeFqImageSetId(imageDir: String, imageSet: String): String {
+    val normalizedImageDir = imageDir.replace('\\', '_').removePrefix("_")
+    return "${normalizedImageDir}_$imageSet"
 }

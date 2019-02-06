@@ -21,7 +21,7 @@ class TilesCanvas(
     private val cameraPosition = activePlaneContext.cameraPosition
 
     private val tilesImages = rezImageCache
-            .imageSets[plane.fqTilesetId]
+            .imageSets[plane.fqImageSetId]
             ?.getAllImages()
             ?.mapValues { it.value?.image }
 
@@ -40,7 +40,7 @@ class TilesCanvas(
     private fun draw() {
         graphicsContext2D.save()
         graphicsContext2D.clearRect(0.0, 0.0, width, height)
-        val t = -cameraPosition.value.toVec2d()
+        val t = -cameraPosition.value
         graphicsContext2D.translate(t.x, t.y)
         drawTiles()
         graphicsContext2D.restore()

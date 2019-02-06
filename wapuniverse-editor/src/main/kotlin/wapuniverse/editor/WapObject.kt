@@ -23,7 +23,7 @@ class WapObject(
 
     val fqImageSetId = imageSet.map { world.expandImageSetId(it) }
 
-    val imageMetadata = fqImageSetId.map { world.supplyMetadata(it, -1) }
+    val imageMetadata = fqImageSetId.map { world.supplyMetadata(it!!, -1) }
 
     private val isHighlightedVar = newSimpleVar(false)
 
