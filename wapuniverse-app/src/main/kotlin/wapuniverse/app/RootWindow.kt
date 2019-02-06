@@ -83,5 +83,5 @@ private fun retrieveWorldPath(parent: Stage): Path? {
 
     val file = fileChooser.showOpenDialog(parent)
 
-    return file.toPath()
+    return file?.toPath()
 }

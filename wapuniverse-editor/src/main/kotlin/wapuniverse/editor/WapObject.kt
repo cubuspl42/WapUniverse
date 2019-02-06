@@ -1,5 +1,6 @@
 package wapuniverse.editor
 
+import io.github.jwap32.v1.WwdObject
 import org.reactfx.value.Val
 import org.reactfx.value.Val.combine
 import org.reactfx.value.Var.newSimpleVar
@@ -8,22 +9,23 @@ import wapuniverse.geom.Vec2i
 
 class WapObject(
         val plane: Plane,
-        positionInit: Vec2i,
-        imageSetInit: String
+        wwdObject: WwdObject
 ) {
     private val world = plane.world
 
-    private val positionVar = newSimpleVar(positionInit)
+    private val positionVar = newSimpleVar(Vec2i(wwdObject.x, wwdObject.y))
 
     val position = positionVar as Val<Vec2i>
 
-    private val imageSetVar = newSimpleVar(imageSetInit)
+    val i = wwdObject.i
+
+    private val imageSetVar = newSimpleVar(wwdObject.imageSet)
 
     val imageSet = imageSetVar as Val<String>
 
     val fqImageSetId = imageSet.map { world.expandImageSetId(it) }
 
-    val imageMetadata = fqImageSetId.map { world.supplyMetadata(it!!, -1) }
+    val imageMetadata = fqImageSetId.map { world.supplyMetadata(it!!, i) }
 
     private val isHighlightedVar = newSimpleVar(false)
 

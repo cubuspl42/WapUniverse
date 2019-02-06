@@ -29,8 +29,7 @@ class Plane(
         wwdPlane.objects.forEach { wwdObject ->
             objectsMut.add(WapObject(
                     this,
-                    Vec2i(wwdObject.x, wwdObject.y),
-                    wwdObject.imageSet
+                    wwdObject
             ))
         }
 
