@@ -28,10 +28,14 @@ class AreaSelectionContext(
     }
 
     fun commit() {
+        check(!isDisposed)
+        objectsInArea.value?.let { plane.selectObjects(it) }
         dispose()
     }
 
     init {
+        plane.unselectAllObjects()
+
         objectsInArea.observe(this, this::unhighlightObjects, this::highlightObjects)
 
         onDisposed.subscribe {

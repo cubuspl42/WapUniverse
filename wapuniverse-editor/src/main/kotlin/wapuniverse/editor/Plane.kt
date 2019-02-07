@@ -5,7 +5,6 @@ import javafx.collections.FXCollections.observableArrayList
 import javafx.collections.FXCollections.unmodifiableObservableList
 import wapuniverse.editor.util.observableIntMatrix
 import wapuniverse.geom.Rect2i
-import wapuniverse.geom.Vec2i
 
 val emptyTile = -1
 
@@ -24,6 +23,8 @@ class Plane(
     private val objectsMut = observableArrayList<WapObject>()
 
     val objects = unmodifiableObservableList(objectsMut)!!
+
+    private var selectedObjects = setOf<WapObject>()
 
     init {
         wwdPlane.objects.forEach { wwdObject ->
@@ -44,6 +45,16 @@ class Plane(
 
     internal fun findObjects(area: Rect2i): Set<WapObject> {
         return objects.filter { it.boundingBox.value?.collides(area) == true }.toSet()
+    }
+
+    internal fun selectObjects(objects: Set<WapObject>) {
+        selectedObjects = objects
+        objects.forEach { it.select() }
+    }
+
+    fun unselectAllObjects() {
+        selectedObjects.forEach { it.unselect() }
+        selectedObjects = emptySet()
     }
 }
 

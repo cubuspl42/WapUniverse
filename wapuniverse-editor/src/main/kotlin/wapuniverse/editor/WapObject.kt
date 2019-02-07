@@ -31,12 +31,24 @@ class WapObject(
 
     val isHighlighted = isHighlightedVar as Val<Boolean>
 
+    private val isSelectedVar = newSimpleVar(false)
+
+    val isSelected = isSelectedVar as Val<Boolean>
+
     fun highlight() {
         isHighlightedVar.value = true
     }
 
     fun unhighlight() {
         isHighlightedVar.value = false
+    }
+
+    fun select() {
+        isSelectedVar.value = true
+    }
+
+    fun unselect() {
+        isSelectedVar.value = false
     }
 
     val boundingBoxLocal = imageMetadata.map {

@@ -12,7 +12,6 @@ import org.reactfx.value.Val
 import wapuniverse.app.EditorContext
 import wapuniverse.editor.ActivePlaneContext
 import wapuniverse.editor.AreaSelectionContext
-import wapuniverse.editor.Plane
 import wapuniverse.editor.WapObject
 import wapuniverse.editor.extensions.forEach
 import wapuniverse.editor.extensions.map
@@ -82,14 +81,20 @@ class WorldPreviewPresenter(
                 Group(
                         Rectangle(boundingBox).apply {
                             fill = Color.TRANSPARENT
-                            strokeProperty().bind(wapObject.isHighlighted.map {
-                                if (it) Color.RED else Color.ORANGE
-                            })
+                            strokeProperty().bind(wapObjectStrokeColor(wapObject))
                         }
                 )
         )
     }
 }
+
+private fun wapObjectStrokeColor(wapObject: WapObject) =
+        Val.combine(
+                wapObject.isHighlighted,
+                wapObject.isSelected
+        ) { isHighlightedNow, isSelectedNow ->
+            if (isHighlightedNow || isSelectedNow) Color.RED else Color.LIGHTBLUE
+        }
 
 fun Rectangle(rect: Val<Rect2i>) = Rectangle().apply {
     xProperty().bind(rect.map { it.position.x })
@@ -113,13 +118,21 @@ private fun Rectangle.bind(rect: Val<Rect2i>) {
 class InputHandlerController(
         activePlaneContext: ActivePlaneContext,
         node: Node
-) : Controller(activePlaneContext, { node.scene }) {
+) : Controller(activePlaneContext, node) {
     init {
         subscribe(dragGesturesOf(node)) { dragGesture ->
             val position = dragGesture.position.map { it.toVec2i() }
-            val areaSelectionContext = activePlaneContext.selectByArea(position)
-            dragGesture.onEnded.subscribe { areaSelectionContext.commit() }
+            DragGestureController(activePlaneContext.selectByArea(position), dragGesture)
         }
+    }
+}
+
+class DragGestureController(
+        areaSelectionContext: AreaSelectionContext,
+        dragGesture: DragGesture
+) : Controller(areaSelectionContext) {
+    init {
+        subscribe(dragGesture.onEnded) { areaSelectionContext.commit() }
     }
 }
 

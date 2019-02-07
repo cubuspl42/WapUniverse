@@ -1,10 +1,8 @@
 package wapuniverse.app.world_preview
 
-import javafx.event.EventType
-import javafx.scene.Scene
+import javafx.scene.Node
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyCodeCombination
-import javafx.scene.input.MouseEvent
 import javafx.scene.input.ScrollEvent
 import javafx.scene.layout.Pane
 import org.reactfx.EventStreams.eventsOf
@@ -12,12 +10,11 @@ import wapuniverse.editor.ActivePlaneContext
 import wapuniverse.editor.CameraMovementDirection
 import wapuniverse.editor.util.Disposable
 import wapuniverse.geom.Vec2d
-import wapuniverse.geom.Vec2i
 
 class ActivePlaneController(
         activePlaneContext: ActivePlaneContext,
         worldPreviewPane: Pane
-) : Controller(activePlaneContext, { worldPreviewPane.scene }) {
+) : Controller(activePlaneContext, worldPreviewPane) {
     init {
 
         accelerator(KeyCodeCombination(KeyCode.LEFT)) {
@@ -42,14 +39,15 @@ class ActivePlaneController(
     }
 }
 
-abstract class Controller(
+open class Controller(
         parent: Disposable,
-        private val getScene: () -> Scene
+        private val node: Node? = null
 ) : Disposable(parent) {
     protected fun accelerator(kc: KeyCodeCombination, function: () -> Unit) {
-        val scene = getScene()
         check(!isDisposed)
-        scene.accelerators[kc] = Runnable(function)
-        onDisposed.subscribe { scene.accelerators.remove(kc) }
+        node?.scene?.let { scene ->
+            scene.accelerators[kc] = Runnable(function)
+            onDisposed.subscribe { scene.accelerators.remove(kc) }
+        }
     }
 }
