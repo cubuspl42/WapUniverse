@@ -1,15 +1,10 @@
 package wapuniverse.editor
 
-import javafx.geometry.BoundingBox
 import org.reactfx.Change
-import org.reactfx.EventStream
 import org.reactfx.value.Val
-import wapuniverse.editor.extensions.subscribe
 import wapuniverse.editor.util.Disposable
-import wapuniverse.geom.EucVec2i
 import wapuniverse.geom.Rect2i
 import wapuniverse.geom.Vec2i
-import kotlin.math.min
 
 class AreaSelectionContext(
         activePlaneContext: ActivePlaneContext,

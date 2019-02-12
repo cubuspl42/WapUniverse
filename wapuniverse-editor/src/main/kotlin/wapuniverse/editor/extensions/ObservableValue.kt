@@ -57,7 +57,7 @@ fun <T : Any, R> ObservableValue<T>.flatMapOl(transform: (T) -> ObservableList<R
 }
 
 @JvmName("flatMapProperty")
-fun <T : Any, R> ObservableValue<T>.flatMap(transform: (T) -> Property<R>): Property<R> {
+fun <T : Any, R> ObservableValue<T>.flatMapProp(transform: (T) -> Property<R>): Property<R> {
     val propertyVal = this.map(transform)
     val observableValue = propertyVal.flatMapOv { it }
     return object : Property<R>, ObservableValue<R> by observableValue {

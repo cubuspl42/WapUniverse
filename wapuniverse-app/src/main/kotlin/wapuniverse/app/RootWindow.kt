@@ -8,7 +8,7 @@ import javafx.stage.FileChooser
 import javafx.stage.Stage
 import wapuniverse.app.world_preview.WorldPreviewPresenter
 import wapuniverse.editor.World
-import wapuniverse.editor.extensions.flatMap
+import wapuniverse.editor.extensions.flatMapProp
 import wapuniverse.editor.extensions.flatMapOl
 import wapuniverse.rez.RezImageCache
 import java.io.InputStream
@@ -31,7 +31,7 @@ class RootWindow(
 
     val planes = context.flatMapOl { it.editor.world.planes }
 
-    val activePlane = context.flatMap { it.editor.activePlane }
+    val activePlane = context.flatMapProp { it.editor.activePlane }
 
     init {
         stage.apply {
@@ -64,7 +64,7 @@ class RootWindow(
     }
 
     private fun enterEditorContext(world: World) {
-        contextVar.value = EditorContext(world, rezImageCache)
+        contextVar.value = EditorContext(this, world, rezImageCache)
     }
 
     private fun enterEditorContext(newWorldParams: NewWorldParams) {

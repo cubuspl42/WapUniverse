@@ -16,7 +16,6 @@ class ActivePlaneController(
         worldPreviewPane: Pane
 ) : Controller(activePlaneContext, worldPreviewPane) {
     init {
-
         accelerator(KeyCodeCombination(KeyCode.LEFT)) {
             activePlaneContext.moveCamera(CameraMovementDirection.LEFT)
         }
@@ -31,6 +30,10 @@ class ActivePlaneController(
 
         accelerator(KeyCodeCombination(KeyCode.RIGHT)) {
             activePlaneContext.moveCamera(CameraMovementDirection.RIGHT)
+        }
+
+        accelerator(KeyCodeCombination(KeyCode.E)) {
+            activePlaneContext.editObject()
         }
 
         subscribe(eventsOf(worldPreviewPane, ScrollEvent.SCROLL)) {

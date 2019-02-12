@@ -39,6 +39,16 @@ class ActivePlaneContext(val plane: Plane) : Disposable() {
 
     fun selectByArea(position: Val<Vec2i>) =
             areaSelectionContextVar.enter(AreaSelectionContext(this, position))
+
+    private val editObjectContextVar = contextProperty<EditObjectContext>()
+
+    val editObjectContext = editObjectContextVar as ObservableValue<EditObjectContext?>
+
+    fun editObject(): EditObjectContext? {
+        val wapObject = plane.selectedObjects.firstOrNull() ?: return null
+        return editObjectContextVar.enter(EditObjectContext(wapObject))
+    }
+
 }
 
 class ContextProperty<T : Disposable>(

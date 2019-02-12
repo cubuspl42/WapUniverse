@@ -24,7 +24,10 @@ class Plane(
 
     val objects = unmodifiableObservableList(objectsMut)!!
 
-    private var selectedObjects = setOf<WapObject>()
+    private var selectedObjectsVar = setOf<WapObject>()
+
+    val selectedObjects: Set<WapObject>
+        get() = selectedObjectsVar
 
     init {
         wwdPlane.objects.forEach { wwdObject ->
@@ -48,13 +51,13 @@ class Plane(
     }
 
     internal fun selectObjects(objects: Set<WapObject>) {
-        selectedObjects = objects
+        selectedObjectsVar = objects
         objects.forEach { it.select() }
     }
 
     fun unselectAllObjects() {
-        selectedObjects.forEach { it.unselect() }
-        selectedObjects = emptySet()
+        selectedObjectsVar.forEach { it.unselect() }
+        selectedObjectsVar = emptySet()
     }
 }
 
