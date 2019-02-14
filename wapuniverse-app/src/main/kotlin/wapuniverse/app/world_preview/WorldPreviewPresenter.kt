@@ -13,7 +13,9 @@ import org.reactfx.value.Val
 import wapuniverse.app.EditorContext
 import wapuniverse.editor.ActivePlaneContext
 import wapuniverse.editor.AreaSelectionContext
+import wapuniverse.editor.ObjectModeContext
 import wapuniverse.editor.WapObject
+import wapuniverse.editor.extensions.flatMap
 import wapuniverse.editor.extensions.forEach
 import wapuniverse.editor.extensions.map
 import wapuniverse.extensions.group
@@ -29,6 +31,8 @@ class WorldPreviewPresenter(
     fun root(editorContext: EditorContext): Pane {
         val activePlaneContext = editorContext.editor.activePlaneContext
 
+        val objectModeContext = activePlaneContext.flatMap { it.objectModeContext }
+
         val previewPane = Pane().apply {
             bindChild(activePlaneContext.map { plane(it, this) })
             clip = fullClip(this)
@@ -37,27 +41,37 @@ class WorldPreviewPresenter(
 
         activePlaneContext.forEach { ActivePlaneController(it, previewPane) }
 
+        objectModeContext.forEach { ObjectModeController(it, previewPane) }
+
         return previewPane
     }
 
-    private fun plane(activePlaneContext: ActivePlaneContext, previewPane: Pane): Node? = Group(
-            TilesCanvas(activePlaneContext, rezImageCache, previewPane),
-            Group(
-                    doubleGroup(activePlaneContext.plane.objects.map { wapObject(it) }),
-                    group(activePlaneContext.areaSelectionContext.map { areaSelectionRect(it!!) }),
-                    inputHandler(activePlaneContext)
-            ).apply {
-                translateXProperty().bind(activePlaneContext.cameraPosition.map { -it.x })
-                translateYProperty().bind(activePlaneContext.cameraPosition.map { -it.y })
-            }
-    )
+    private fun plane(activePlaneContext: ActivePlaneContext, previewPane: Pane): Node? {
+        val objectModeContext = activePlaneContext.objectModeContext
+        return Group(
+                TilesCanvas(activePlaneContext, rezImageCache, previewPane),
+                Group(
+                        doubleGroup(activePlaneContext.plane.objects.map { wapObject(it) }),
+                        areaSelectionGroup(objectModeContext.flatMap { it!!.areaSelectionContext }),
+                        inputHandler(objectModeContext)
+                ).apply {
+                    translateXProperty().bind(activePlaneContext.cameraPosition.map { -it.x })
+                    translateYProperty().bind(activePlaneContext.cameraPosition.map { -it.y })
+                }
+        )
+    }
 
-    private fun inputHandler(activePlaneContext: ActivePlaneContext): Node? {
+    private fun areaSelectionGroup(areaSelectionContext: Val<AreaSelectionContext?>) =
+            group(areaSelectionContext.map { areaSelectionRect(it!!) })
+
+    private fun inputHandler(objectModeContext: Val<ObjectModeContext?>): Node? {
         val a = 262144.0
-        return Rectangle(0.0, 0.0, a, a).apply {
-            InputHandlerController(activePlaneContext, this)
-            fill = Color.TRANSPARENT
-        }
+        return group(objectModeContext.map {
+            Rectangle(0.0, 0.0, a, a).apply {
+                InputHandlerController(it!!, this)
+                fill = Color.TRANSPARENT
+            } as Node?
+        })
     }
 
     private fun areaSelectionRect(areaSelectionContext: AreaSelectionContext): Node {
@@ -118,13 +132,13 @@ private fun Rectangle.bind(rect: Val<Rect2i>) {
 }
 
 class InputHandlerController(
-        activePlaneContext: ActivePlaneContext,
+        objectModeContext: ObjectModeContext,
         node: Node
-) : Controller(activePlaneContext, node) {
+) : Controller(objectModeContext, node) {
     init {
         subscribe(dragGesturesOf(node)) { dragGesture ->
             val position = dragGesture.position.map { it.toVec2i() }
-            DragGestureController(activePlaneContext.selectByArea(position), dragGesture)
+            DragGestureController(objectModeContext.selectByArea(position), dragGesture)
         }
     }
 }

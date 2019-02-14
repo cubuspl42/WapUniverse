@@ -15,6 +15,7 @@ class EditorContext(
 
     init {
         editor.activePlaneContext
+                .flatMap { it.objectModeContext }
                 .flatMap { it.editObjectContext }
                 .forEach { EditObjectDialog(it) }
     }

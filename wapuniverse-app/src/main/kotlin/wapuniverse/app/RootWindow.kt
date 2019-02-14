@@ -31,9 +31,13 @@ class RootWindow(
 
     val context = contextVar as Val<EditorContext>
 
+    val editor = context.map { it.editor }
+
     val planes = context.flatMapOl { it.editor.world.planes }
 
     private val activePlaneContext = context.flatMap { it.editor.activePlaneContext }!!
+
+    private val objectModeContext = activePlaneContext.flatMap { it.objectModeContext }
 
     val activePlane = context.flatMapProp { it.editor.activePlane }
 
@@ -48,11 +52,14 @@ class RootWindow(
         enterEditorContext(world)
     }
 
-    val editObject: Val<Callback> = activePlaneContext.map { it::editObject }
 
-    val insertObject: Val<Callback> = activePlaneContext.map { it::insertObject }
+    val switchModes = editor.map { { it!!.switchMode() } }
 
-    val deleteObject: Val<Callback> = activePlaneContext.map { it::deleteObject }
+    val editObject: Val<Callback> = objectModeContext.map { { it!!.editObject() } }
+
+    val insertObject: Val<Callback> = objectModeContext.map { { it!!.insertObject() } }
+
+    val deleteObject: Val<Callback> = objectModeContext.map { { it!!.deleteObject() } }
 
     init {
         stage.apply {

@@ -27,7 +27,7 @@ class RootWindowPresenter(
                         )
                 ),
                 HBox(
-
+                        button("Mode", rootWindow.switchModes),
                         button("Edit", rootWindow.editObject),
                         button("Insert object", rootWindow.insertObject),
                         button("Delete object", rootWindow.deleteObject),

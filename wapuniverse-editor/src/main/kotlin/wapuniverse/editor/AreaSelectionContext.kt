@@ -7,10 +7,10 @@ import wapuniverse.geom.Rect2i
 import wapuniverse.geom.Vec2i
 
 class AreaSelectionContext(
-        activePlaneContext: ActivePlaneContext,
+        objectModeContext: ObjectModeContext,
         position: Val<Vec2i>
-) : Disposable(activePlaneContext) {
-    private val plane = activePlaneContext.plane
+) : Disposable(objectModeContext) {
+    private val plane = objectModeContext.plane
 
     private val startPosition = position.value
 

@@ -12,6 +12,7 @@ import wapuniverse.geom.Rect2i
 import wapuniverse.geom.Size2i
 import wapuniverse.geom.Vec2d
 import wapuniverse.geom.Vec2i
+import java.lang.IllegalStateException
 
 enum class CameraMovementDirection {
     LEFT, UP, DOWN, RIGHT
@@ -19,7 +20,7 @@ enum class CameraMovementDirection {
 
 private val cameraDelta = 64
 
-class ActivePlaneContext(val plane: Plane) : Disposable() {
+class ActivePlaneContext(private val editor: Editor, val plane: Plane) : Disposable() {
     private val cameraPositionVar = SimpleObjectProperty(Vec2d())
 
     val cameraPosition = cameraPositionVar as ObservableValue<Vec2d>
@@ -27,10 +28,6 @@ class ActivePlaneContext(val plane: Plane) : Disposable() {
     val cameraSize = newSimpleVar(Size2i())!!
 
     val cameraRect = Val.combine(cameraPosition.map { it.toVec2i() }, cameraSize, ::Rect2i)
-
-    private val areaSelectionContextVar = contextProperty<AreaSelectionContext>()
-
-    val areaSelectionContext = areaSelectionContextVar as Val<AreaSelectionContext?>
 
     fun moveCamera(direction: CameraMovementDirection) {
         val delta = when (direction) {
@@ -46,43 +43,15 @@ class ActivePlaneContext(val plane: Plane) : Disposable() {
         cameraPositionVar.value += delta
     }
 
-    fun selectByArea(position: Val<Vec2i>) =
-            areaSelectionContextVar.enter(AreaSelectionContext(this, position))
+    val modeContext = editor.mode.map {
+        when(it) {
+            Mode.OBJECT -> ObjectModeContext(this, plane)
+            Mode.TILE -> TileModeContext(plane)
+            else -> throw IllegalStateException()
+        }
+    }!!
 
-    private val editObjectContextVar = contextProperty<EditObjectContext>()
+    val objectModeContext = modeContext.map { it as? ObjectModeContext }!!
 
-    val editObjectContext = editObjectContextVar as ObservableValue<EditObjectContext?>
-
-    fun editObject() {
-        val wapObject = plane.selectedObjects.firstOrNull() ?: return
-        editObjectContextVar.enter(EditObjectContext(wapObject))
-    }
-
-    fun insertObject() {
-        check(!isDisposed)
-        plane.insertObject(cameraRect.value.center())
-    }
-
-    fun deleteObject() {
-        check(!isDisposed)
-        plane.removeSelectedObjects()
-    }
+    val tileModeContext = modeContext.map { it as? TileModeContext }!!
 }
-
-class ContextProperty<T : Disposable>(
-        private val property: Var<T?>
-) : Val<T?> by property {
-    fun enter(context: T): T {
-        disposeOldValues()
-        property.value = context
-        context.onDisposed.subscribe { property.value = null }
-        return context
-    }
-
-    fun reset() {
-        property.value = null
-    }
-}
-
-fun <T : Disposable> contextProperty() =
-        ContextProperty<T>(newSimpleVar(null))
