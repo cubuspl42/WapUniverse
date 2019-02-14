@@ -1,10 +1,10 @@
 package wapuniverse.extensions
 
-import javafx.beans.value.ObservableValue
 import javafx.collections.ObservableList
 import javafx.scene.Group
 import javafx.scene.Node
 import org.fxmisc.easybind.EasyBind
+import org.reactfx.value.Val
 
 fun group(children: ObservableList<out Node>) = Group().apply {
     properties[children] = children
@@ -12,7 +12,7 @@ fun group(children: ObservableList<out Node>) = Group().apply {
 }
 
 
-fun group(child: ObservableValue<Node?>) = Group().apply {
+fun group(child: Val<Node?>) = Group().apply {
     properties[child] = child
     listBind(this.children, child)
 }

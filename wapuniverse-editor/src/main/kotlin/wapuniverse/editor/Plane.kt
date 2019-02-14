@@ -74,6 +74,12 @@ class Plane(
                 WapObjectStringAttrKey.IMAGE_SET to "GAME_TREASURE_COINS"
         )))
     }
+
+    internal fun removeSelectedObjects() {
+//        objectsMut.removeAll(selectedObjects)
+        selectedObjects.forEach { objectsMut.remove(it) }
+        unselectAllObjects()
+    }
 }
 
 private fun makeFqImageSetId(imageDir: String, imageSet: String): String {

@@ -15,6 +15,8 @@ import java.io.InputStream
 import java.nio.file.Files
 import java.nio.file.Path
 
+typealias Callback = () -> Unit
+
 class RootWindow(
         private val stage: Stage,
         private val rezImageCache: RezImageCache
@@ -46,7 +48,9 @@ class RootWindow(
         enterEditorContext(world)
     }
 
-    val insertObject: Val<() -> Unit> = activePlaneContext.map { it::insertObject }
+    val insertObject: Val<Callback> = activePlaneContext.map { it::insertObject }
+
+    val deleteObject: Val<Callback> = activePlaneContext.map { it::deleteObject }
 
     init {
         stage.apply {

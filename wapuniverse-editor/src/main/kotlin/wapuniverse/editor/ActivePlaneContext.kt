@@ -3,6 +3,7 @@ package wapuniverse.editor
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.value.ObservableValue
 import org.reactfx.value.Val
+import org.reactfx.value.Var
 import org.reactfx.value.Var.newSimpleVar
 import wapuniverse.editor.extensions.map
 import wapuniverse.editor.util.Disposable
@@ -29,7 +30,7 @@ class ActivePlaneContext(val plane: Plane) : Disposable() {
 
     private val areaSelectionContextVar = contextProperty<AreaSelectionContext>()
 
-    val areaSelectionContext = areaSelectionContextVar as ObservableValue<AreaSelectionContext?>
+    val areaSelectionContext = areaSelectionContextVar as Val<AreaSelectionContext?>
 
     fun moveCamera(direction: CameraMovementDirection) {
         val delta = when (direction) {
@@ -61,11 +62,16 @@ class ActivePlaneContext(val plane: Plane) : Disposable() {
         check(!isDisposed)
         plane.insertObject(cameraRect.value.center())
     }
+
+    fun deleteObject() {
+        check(!isDisposed)
+        plane.removeSelectedObjects()
+    }
 }
 
 class ContextProperty<T : Disposable>(
-        private val property: SimpleObjectProperty<T?>
-) : ObservableValue<T?> by property {
+        private val property: Var<T?>
+) : Val<T?> by property {
     fun enter(context: T): T {
         disposeOldValues()
         property.value = context
@@ -79,4 +85,4 @@ class ContextProperty<T : Disposable>(
 }
 
 fun <T : Disposable> contextProperty() =
-        ContextProperty<T>(SimpleObjectProperty())
+        ContextProperty<T>(newSimpleVar(null))

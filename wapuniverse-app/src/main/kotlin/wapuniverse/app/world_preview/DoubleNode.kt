@@ -3,8 +3,8 @@ package wapuniverse.app.world_preview
 import javafx.collections.ObservableList
 import javafx.scene.Group
 import javafx.scene.Node
+import net.corda.client.jfx.utils.map
 import wapuniverse.extensions.group
-import wapuniverse.extensions.map
 
 class DoubleNode(
         val backNode: Node,

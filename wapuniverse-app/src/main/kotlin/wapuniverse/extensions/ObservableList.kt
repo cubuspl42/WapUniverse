@@ -5,9 +5,9 @@ import javafx.collections.ObservableList
 import org.fxmisc.easybind.EasyBind
 import wapuniverse.editor.extensions.subscribe
 
-fun <E, R> ObservableList<E>.map(function: (E) -> R): ObservableList<R> {
-    return EasyBind.map(this) { function(it)!! }
-}
+//fun <E, R> ObservableList<E>.map(function: (E) -> R): ObservableList<R> {
+//    return EasyBind.map(this) { function(it)!! }
+//}
 
 fun <E : Any> listBind(list: ObservableList<E?>, child: ObservableValue<E?>) {
     list.setOneNullable(child.value)

@@ -8,6 +8,7 @@ import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import javafx.scene.text.Text
+import net.corda.client.jfx.utils.map
 import org.reactfx.value.Val
 import wapuniverse.app.EditorContext
 import wapuniverse.editor.ActivePlaneContext
@@ -17,7 +18,6 @@ import wapuniverse.editor.extensions.forEach
 import wapuniverse.editor.extensions.map
 import wapuniverse.extensions.group
 import wapuniverse.extensions.listBind
-import wapuniverse.extensions.map
 import wapuniverse.geom.Rect2i
 import wapuniverse.geom.Vec2i
 import wapuniverse.rez.RezImageCache
@@ -44,7 +44,7 @@ class WorldPreviewPresenter(
             TilesCanvas(activePlaneContext, rezImageCache, previewPane),
             Group(
                     doubleGroup(activePlaneContext.plane.objects.map { wapObject(it) }),
-                    group(activePlaneContext.areaSelectionContext.map { areaSelectionRect(it) }),
+                    group(activePlaneContext.areaSelectionContext.map { areaSelectionRect(it!!) }),
                     inputHandler(activePlaneContext)
             ).apply {
                 translateXProperty().bind(activePlaneContext.cameraPosition.map { -it.x })
