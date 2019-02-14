@@ -3,45 +3,33 @@ package wapuniverse.app
 import editObjectDialogUi
 import javafx.scene.Scene
 import javafx.stage.Stage
-import org.reactfx.value.Var
-import org.reactfx.value.Var.newSimpleVar
-import wapuniverse.editor.*
+import wapuniverse.editor.EditObjectContext
+import wapuniverse.editor.WapObjectIntAttrKey
+import wapuniverse.editor.WapObjectStringAttrKey
 
 class EditObjectDialog(
         private val editObjectContext: EditObjectContext
 ) {
-    private val wapObject = editObjectContext.wapObject
-
-    private inner class FieldVar<T : Any>(private val attrKey: WapObjectAttrKey<T>) {
-        val variable = newSimpleVar(wapObject.getAttr(attrKey).value)!!
-
-        fun sync() {
-            editObjectContext.setAttr(attrKey, variable.value)
-        }
+    private val window = Stage().apply {
+        title = "Edit Object"
+        scene = Scene(editObjectDialogUi(this@EditObjectDialog))
+        setOnCloseRequest { editObjectContext.abort() }
+        show()
     }
 
-    private val fieldVars = WapObjectAttrKey.allKeys.map {
-        when (it) {
-            is WapObjectIntAttrKey -> it to fieldVar(it)
-            is WapObjectStringAttrKey -> it to fieldVar(it)
-        }
-    }.toMap()
+    fun getVar(attrKey: WapObjectIntAttrKey) = editObjectContext.editAttr(attrKey)
 
-    private fun <T : Any> fieldVar(attrKey: WapObjectAttrKey<T>) =
-            FieldVar(attrKey)
-
-    fun <T : Any> getFieldVar(it: WapObjectAttrKey<T>): Var<T> =
-            uncheckedCast(fieldVars.getValue(it).variable)
+    fun getVar(attrKey: WapObjectStringAttrKey) = editObjectContext.editAttr(attrKey)
 
     init {
-        Stage().apply {
-            title = "Edit Object"
-            scene = Scene(editObjectDialogUi(this@EditObjectDialog))
-            show()
-        }
+        editObjectContext.onDisposed.subscribe { window.close() }
     }
 
-    fun save() {
+    fun cancel() {
+        editObjectContext.abort()
+    }
+
+    fun submit() {
         editObjectContext.commit()
     }
 }

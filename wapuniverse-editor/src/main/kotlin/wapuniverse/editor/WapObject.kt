@@ -2,8 +2,7 @@ package wapuniverse.editor
 
 import io.github.jwap32.v1.WwdObject
 import javafx.beans.binding.Bindings
-import javafx.collections.FXCollections.observableHashMap
-import javafx.collections.FXCollections.unmodifiableObservableMap
+import javafx.collections.FXCollections.*
 import javafx.collections.ObservableMap
 import org.reactfx.value.Val
 import org.reactfx.value.Val.combine
@@ -17,26 +16,24 @@ class WapObject(
         val plane: Plane,
         wwdObject: WwdObject
 ) {
-    data class ExportedAttrs(val attributes: Map<WapObjectAttrKey<*>, Any>)
+    data class ExportedAttrs(
+            val intAttrs: Map<WapObjectAttrKey<Int>, Int>,
+            val strAttrs: Map<WapObjectAttrKey<String>, String>
+    )
 
     private val world = plane.world
 
-    private val attributes = observableHashMap<WapObjectAttrKey<*>, Any>()
+    internal val intAttrs = attrMap(IntKey.values().map { it as WapObjectAttrKey<Int> }, 0)
 
-    fun <T : Any> getAttr(attrKey: WapObjectAttrKey<T>) =
-            attributes.valAt(attrKey).map { uncheckedCast<Any, T>(it) }!!
+    internal val strAttrs = attrMap(StrKey.values().map { it as WapObjectAttrKey<String> }, "")
 
-    internal fun <T> setAttr(attrKey: WapObjectAttrKey<T>, value: T) {
-        attributes[attrKey] = value
-    }
-
-    internal fun exportAttrs() = ExportedAttrs(attributes.toMap())
+    internal fun exportAttrs() = ExportedAttrs(intAttrs.toMap(), strAttrs.toMap())
 
     internal fun importAttrs(exportedAttrs: ExportedAttrs) {
-        attributes.clear()
-        exportedAttrs.attributes.forEach { k, v ->
-            attributes[k] = v
-        }
+        intAttrs.clear()
+        intAttrs.putAll(exportedAttrs.intAttrs)
+        strAttrs.clear()
+        strAttrs.putAll(exportedAttrs.strAttrs)
     }
 
 //    val intAttributes = AttributeMap<Int>()
@@ -47,13 +44,17 @@ class WapObject(
 
 //    val position = positionVar as Val<Vec2i>
 
-    val position = combine(getAttr(IntKey.x), getAttr(IntKey.y), ::Vec2i)!!
+    val x = intAttrs.valAt(IntKey.X)
+
+    val y = intAttrs.valAt(IntKey.Y)
+
+    val position = combine(x, y, ::Vec2i)!!
 
     val i = wwdObject.i
 
 //    private val imageSetVar = newSimpleVar(wwdObject.imageSet)
 
-    val imageSet = getAttr(StrKey.imageSet)
+    val imageSet = strAttrs.valAt(StrKey.IMAGE_SET)
 
     val fqImageSetId = imageSet.map { world.expandImageSetId(it) }
 
@@ -92,14 +93,17 @@ class WapObject(
     }
 
     init {
-        setAttr(IntKey.x, wwdObject.x)
-        setAttr(IntKey.y, wwdObject.y)
-        setAttr(IntKey.i, wwdObject.i)
-        setAttr(StrKey.imageSet, wwdObject.imageSet)
+        intAttrs[IntKey.X] = wwdObject.x
+        intAttrs[IntKey.Y] = wwdObject.y
+        intAttrs[IntKey.I] = wwdObject.i
+        strAttrs[StrKey.IMAGE_SET] = wwdObject.imageSet
     }
 }
 
-private fun <K, V> ObservableMap<K, V>.valAt(key: K): Val<V> {
+private fun <K, V> attrMap(keys: Iterable<WapObjectAttrKey<K>>, defaultValue: V): ObservableMap<WapObjectAttrKey<K>, V> =
+        observableMap(keys.map { it to defaultValue }.toMap().toMutableMap())
+
+fun <K, V> ObservableMap<K, V>.valAt(key: K): Val<V> {
     return Val.wrap(Bindings.valueAt(this, key))
 }
 

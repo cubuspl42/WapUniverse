@@ -48,7 +48,6 @@ class ActivePlaneContext(val plane: Plane) : Disposable() {
         val wapObject = plane.selectedObjects.firstOrNull() ?: return null
         return editObjectContextVar.enter(EditObjectContext(wapObject))
     }
-
 }
 
 class ContextProperty<T : Disposable>(

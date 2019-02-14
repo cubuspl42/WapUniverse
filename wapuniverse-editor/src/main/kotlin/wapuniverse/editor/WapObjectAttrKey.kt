@@ -1,65 +1,42 @@
 package wapuniverse.editor
 
-sealed class WapObjectAttrKey<T> {
+interface WapObjectAttrKey<T> {
     companion object {
-        private val allKeysMut = mutableListOf<WapObjectAttrKey<*>>()
-
-        val allKeys: List<WapObjectAttrKey<*>>
-            get() = allKeysMut
-    }
-    init {
-        allKeysMut.add(this)
+        val allKeys = (
+                WapObjectIntAttrKey.values().map { it as WapObjectAttrKey<*> } +
+                        WapObjectStringAttrKey.values().map { it as WapObjectAttrKey<*> }
+                ).toList()
     }
 }
 
-sealed class WapObjectIntAttrKey : WapObjectAttrKey<Int>() {
-    object x : WapObjectIntAttrKey()
-
-    object y : WapObjectIntAttrKey()
-
-    object z : WapObjectIntAttrKey()
-
-    object i : WapObjectIntAttrKey()
-
-    object score : WapObjectIntAttrKey()
-
-    object points : WapObjectIntAttrKey()
-
-    object smarts : WapObjectIntAttrKey()
-
-    object powerup : WapObjectIntAttrKey()
-
-    object damage : WapObjectIntAttrKey()
-
-    object health : WapObjectIntAttrKey()
-
-    object speedX : WapObjectIntAttrKey()
-
-    object speedY : WapObjectIntAttrKey()
-
-    object faceDir : WapObjectIntAttrKey()
-
-    object xMin : WapObjectIntAttrKey()
-
-    object xMax : WapObjectIntAttrKey()
-
-    object direction : WapObjectIntAttrKey()
-
-    object yMin : WapObjectIntAttrKey()
-
-    object yMax : WapObjectIntAttrKey()
-
-    object speed : WapObjectIntAttrKey()
+enum class WapObjectIntAttrKey : WapObjectAttrKey<Int> {
+    X,
+    Y,
+    Z,
+    I,
+    SCORE,
+    POINTS,
+    SMARTS,
+    POWERUP,
+    DAMAGE,
+    HEALTH,
+    SPEED_X,
+    SPEED_Y,
+    FACEDIR,
+    X_MIN,
+    X_MAX,
+    DIRECTION,
+    Y_MIN,
+    Y_MAX,
+    SPEED,
 }
 
-sealed class WapObjectStringAttrKey : WapObjectAttrKey<String>() {
-    object id : WapObjectStringAttrKey()
-
-    object name : WapObjectStringAttrKey()
-
-    object logic : WapObjectStringAttrKey()
-
-    object imageSet : WapObjectStringAttrKey()
-
-    object animation : WapObjectStringAttrKey()
+enum class WapObjectStringAttrKey : WapObjectAttrKey<String> {
+    ID,
+    NAME,
+    LOGIC,
+    IMAGE_SET,
+    ANIMATION,
 }
+
+
