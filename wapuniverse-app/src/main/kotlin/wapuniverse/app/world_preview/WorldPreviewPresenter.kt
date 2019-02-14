@@ -17,10 +17,11 @@ import wapuniverse.editor.WapObject
 import wapuniverse.editor.extensions.forEach
 import wapuniverse.editor.extensions.map
 import wapuniverse.extensions.group
-import wapuniverse.extensions.listBind
 import wapuniverse.geom.Rect2i
 import wapuniverse.geom.Vec2i
 import wapuniverse.rez.RezImageCache
+import wapuniverse.util.bindChild
+import wapuniverse.util.fullClip
 
 class WorldPreviewPresenter(
         private val rezImageCache: RezImageCache
@@ -29,10 +30,9 @@ class WorldPreviewPresenter(
         val activePlaneContext = editorContext.editor.activePlaneContext
 
         val previewPane = Pane().apply {
+            bindChild(activePlaneContext.map { plane(it, this) })
             clip = fullClip(this)
-        }.apply {
             setOnMouseClicked { requestFocus() }
-            listBind(children, activePlaneContext.map { plane(it, this) })
         }
 
         activePlaneContext.forEach { ActivePlaneController(it, previewPane) }
@@ -70,7 +70,7 @@ class WorldPreviewPresenter(
     }
 
     private fun wapObject(wapObject: WapObject): DoubleNode {
-        val rezImage = Val.combine(wapObject.fqImageSetId, wapObject.i) { fqImageSetIdNow, iNow->
+        val rezImage = Val.combine(wapObject.fqImageSetId, wapObject.i) { fqImageSetIdNow, iNow ->
             rezImageCache.getImage(fqImageSetIdNow!!, iNow)
         }
         val image = rezImage.map { it!!.image }
@@ -136,16 +136,6 @@ class DragGestureController(
     init {
         subscribe(dragGesture.onEnded) { areaSelectionContext.commit() }
     }
-}
-
-fun pane(child: ObservableValue<Node?>) = Pane().apply {
-    properties[child] = child
-    listBind(this.children, child)
-}
-
-fun fullClip(pane: Pane) = Rectangle().apply {
-    widthProperty().bind(pane.widthProperty())
-    heightProperty().bind(pane.heightProperty())
 }
 
 private fun text(textValue: ObservableValue<String>) = Text().apply {
