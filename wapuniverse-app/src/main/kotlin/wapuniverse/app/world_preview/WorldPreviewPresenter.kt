@@ -70,7 +70,9 @@ class WorldPreviewPresenter(
     }
 
     private fun wapObject(wapObject: WapObject): DoubleNode {
-        val rezImage = wapObject.fqImageSetId.map { rezImageCache.getImage(it!!, wapObject.i) }
+        val rezImage = Val.combine(wapObject.fqImageSetId, wapObject.i) { fqImageSetIdNow, iNow->
+            rezImageCache.getImage(fqImageSetIdNow!!, iNow)
+        }
         val image = rezImage.map { it!!.image }
         val boundingBox = wapObject.boundingBox
         return DoubleNode(

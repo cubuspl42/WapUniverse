@@ -2,12 +2,14 @@ package wapuniverse.app
 
 import javafx.beans.property.Property
 import javafx.collections.ObservableList
+import javafx.event.ActionEvent
+import javafx.event.EventHandler
 import javafx.scene.control.*
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
+import org.reactfx.value.Val
 import wapuniverse.app.world_preview.WorldPreviewPresenter
-import wapuniverse.editor.extensions.map
 
 private const val rootWindowTitle = "WapUniverse"
 
@@ -24,9 +26,10 @@ class RootWindowPresenter(
                                 menuItem("Open", rootWindow::openWorld)
                         )
                 ),
-                HBox(comboBox(rootWindow.planes, rootWindow.activePlane) {
-                    it.name
-                })
+                HBox(
+                        button("Insert object", rootWindow.insertObject),
+                        comboBox(rootWindow.planes, rootWindow.activePlane) { it.name }
+                )
         )
         centerProperty().bind(rootWindow.context.map {
             worldPreviewPresenter.root(it)
@@ -58,4 +61,9 @@ private fun <T> comboBox(
 private inline fun menuItem(text: String, crossinline callback: () -> Unit) =
         MenuItem(text).apply {
             setOnAction { callback() }
+        }
+
+private fun button(text: String, callback: Val<() -> Unit>) =
+        Button(text).apply {
+            onActionProperty().bind(callback.map { f -> EventHandler<ActionEvent> { f() } })
         }

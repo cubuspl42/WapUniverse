@@ -6,9 +6,12 @@ import javafx.scene.input.KeyCodeCombination
 import javafx.scene.input.ScrollEvent
 import javafx.scene.layout.Pane
 import org.reactfx.EventStreams.eventsOf
+import org.reactfx.value.Val
 import wapuniverse.editor.ActivePlaneContext
 import wapuniverse.editor.CameraMovementDirection
+import wapuniverse.editor.extensions.map
 import wapuniverse.editor.util.Disposable
+import wapuniverse.geom.Size2i
 import wapuniverse.geom.Vec2d
 
 class ActivePlaneController(
@@ -16,6 +19,12 @@ class ActivePlaneController(
         worldPreviewPane: Pane
 ) : Controller(activePlaneContext, worldPreviewPane) {
     init {
+        activePlaneContext.cameraSize.bind(Val.combine(
+                worldPreviewPane.widthProperty().map { it.toInt() },
+                worldPreviewPane.heightProperty().map { it.toInt() },
+                ::Size2i
+        ))
+
         accelerator(KeyCodeCombination(KeyCode.LEFT)) {
             activePlaneContext.moveCamera(CameraMovementDirection.LEFT)
         }

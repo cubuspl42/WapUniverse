@@ -3,8 +3,12 @@ package wapuniverse.editor
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.value.ObservableValue
 import org.reactfx.value.Val
+import org.reactfx.value.Var.newSimpleVar
+import wapuniverse.editor.extensions.map
 import wapuniverse.editor.util.Disposable
 import wapuniverse.editor.util.disposeOldValues
+import wapuniverse.geom.Rect2i
+import wapuniverse.geom.Size2i
 import wapuniverse.geom.Vec2d
 import wapuniverse.geom.Vec2i
 
@@ -18,6 +22,10 @@ class ActivePlaneContext(val plane: Plane) : Disposable() {
     private val cameraPositionVar = SimpleObjectProperty(Vec2d())
 
     val cameraPosition = cameraPositionVar as ObservableValue<Vec2d>
+
+    val cameraSize = newSimpleVar(Size2i())!!
+
+    val cameraRect = Val.combine(cameraPosition.map { it.toVec2i() }, cameraSize, ::Rect2i)
 
     private val areaSelectionContextVar = contextProperty<AreaSelectionContext>()
 
@@ -47,6 +55,11 @@ class ActivePlaneContext(val plane: Plane) : Disposable() {
     fun editObject(): EditObjectContext? {
         val wapObject = plane.selectedObjects.firstOrNull() ?: return null
         return editObjectContextVar.enter(EditObjectContext(wapObject))
+    }
+
+    fun insertObject() {
+        check(!isDisposed)
+        plane.insertObject(cameraRect.value.center())
     }
 }
 

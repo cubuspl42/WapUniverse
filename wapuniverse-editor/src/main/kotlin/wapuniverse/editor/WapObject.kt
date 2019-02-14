@@ -1,6 +1,5 @@
 package wapuniverse.editor
 
-import io.github.jwap32.v1.WwdObject
 import javafx.beans.binding.Bindings
 import javafx.collections.FXCollections.*
 import javafx.collections.ObservableMap
@@ -12,9 +11,10 @@ import wapuniverse.geom.Vec2i
 import wapuniverse.editor.WapObjectIntAttrKey as IntKey
 import wapuniverse.editor.WapObjectStringAttrKey as StrKey
 
-class WapObject(
+class WapObject internal constructor(
         val plane: Plane,
-        wwdObject: WwdObject
+        intAttrsInit: Iterable<Pair<IntKey, Int>>,
+        strAttrsInit: Iterable<Pair<StrKey, String>>
 ) {
     data class ExportedAttrs(
             val intAttrs: Map<WapObjectAttrKey<Int>, Int>,
@@ -36,29 +36,21 @@ class WapObject(
         strAttrs.putAll(exportedAttrs.strAttrs)
     }
 
-//    val intAttributes = AttributeMap<Int>()
-//
-//    val stringAttributes = AttributeMap<String>()
-
-//    private val positionVar = newSimpleVar(Vec2i(wwdObject.x, wwdObject.y))
-
-//    val position = positionVar as Val<Vec2i>
-
     val x = intAttrs.valAt(IntKey.X)
 
     val y = intAttrs.valAt(IntKey.Y)
 
     val position = combine(x, y, ::Vec2i)!!
 
-    val i = wwdObject.i
-
-//    private val imageSetVar = newSimpleVar(wwdObject.imageSet)
+    val i = intAttrs.valAt(IntKey.I)
 
     val imageSet = strAttrs.valAt(StrKey.IMAGE_SET)
 
     val fqImageSetId = imageSet.map { world.expandImageSetId(it) }
 
-    val imageMetadata = fqImageSetId.map { world.supplyMetadata(it!!, i) }
+    val imageMetadata = Val.combine(fqImageSetId, i) { fqImageSetIdNow, iNow ->
+        world.supplyMetadata(fqImageSetIdNow!!, iNow)
+    }
 
     private val isHighlightedVar = newSimpleVar(false)
 
@@ -93,10 +85,8 @@ class WapObject(
     }
 
     init {
-        intAttrs[IntKey.X] = wwdObject.x
-        intAttrs[IntKey.Y] = wwdObject.y
-        intAttrs[IntKey.I] = wwdObject.i
-        strAttrs[StrKey.IMAGE_SET] = wwdObject.imageSet
+        intAttrsInit.forEach { this.intAttrs[it.first] = it.second }
+        strAttrsInit.forEach { this.strAttrs[it.first] = it.second }
     }
 }
 

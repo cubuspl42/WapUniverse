@@ -5,6 +5,7 @@ import javafx.collections.FXCollections.observableArrayList
 import javafx.collections.FXCollections.unmodifiableObservableList
 import wapuniverse.editor.util.observableIntMatrix
 import wapuniverse.geom.Rect2i
+import wapuniverse.geom.Vec2i
 
 val emptyTile = -1
 
@@ -33,7 +34,11 @@ class Plane(
         wwdPlane.objects.forEach { wwdObject ->
             objectsMut.add(WapObject(
                     this,
-                    wwdObject
+                    listOf(
+                            WapObjectIntAttrKey.X to wwdObject.x,
+                            WapObjectIntAttrKey.Y to wwdObject.y,
+                            WapObjectIntAttrKey.I to wwdObject.i
+                    ), listOf(WapObjectStringAttrKey.IMAGE_SET to wwdObject.imageSet)
             ))
         }
 
@@ -58,6 +63,16 @@ class Plane(
     fun unselectAllObjects() {
         selectedObjectsVar.forEach { it.unselect() }
         selectedObjectsVar = emptySet()
+    }
+
+    internal fun insertObject(position: Vec2i) {
+        objectsMut.add(WapObject(this, listOf(
+                WapObjectIntAttrKey.X to position.x,
+                WapObjectIntAttrKey.Y to position.y,
+                WapObjectIntAttrKey.I to -1
+        ), listOf(
+                WapObjectStringAttrKey.IMAGE_SET to "GAME_TREASURE_COINS"
+        )))
     }
 }
 

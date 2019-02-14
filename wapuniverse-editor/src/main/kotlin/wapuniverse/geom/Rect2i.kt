@@ -37,6 +37,8 @@ data class Rect2i(val position: Vec2i, val size: Size2i) {
     fun collides(rect: Rect2i): Boolean {
         return xRange.intersects(rect.xRange) && yRange.intersects(rect.yRange)
     }
+
+    fun center() = position + size / 2
 }
 
 private fun IntRange.intersects(other: IntRange): Boolean {

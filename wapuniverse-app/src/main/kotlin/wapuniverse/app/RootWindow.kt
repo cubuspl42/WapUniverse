@@ -1,15 +1,15 @@
 package wapuniverse.app
 
 import io.github.jwap32.v1.loadWwd
-import javafx.beans.property.SimpleObjectProperty
-import javafx.beans.value.ObservableValue
 import javafx.scene.Scene
 import javafx.stage.FileChooser
 import javafx.stage.Stage
+import org.reactfx.value.Val
+import org.reactfx.value.Var.newSimpleVar
 import wapuniverse.app.world_preview.WorldPreviewPresenter
 import wapuniverse.editor.World
-import wapuniverse.editor.extensions.flatMapProp
 import wapuniverse.editor.extensions.flatMapOl
+import wapuniverse.editor.extensions.flatMapProp
 import wapuniverse.rez.RezImageCache
 import java.io.InputStream
 import java.nio.file.Files
@@ -25,21 +25,15 @@ class RootWindow(
 
     private val imageMetadataSupplier = ImageMetadataSupplierImpl(rezImageCache)
 
-    private val contextVar = SimpleObjectProperty<EditorContext>()
+    private val contextVar = newSimpleVar<EditorContext>(null)
 
-    val context = contextVar as ObservableValue<EditorContext>
+    val context = contextVar as Val<EditorContext>
 
     val planes = context.flatMapOl { it.editor.world.planes }
 
-    val activePlane = context.flatMapProp { it.editor.activePlane }
+    private val activePlaneContext = context.flatMap { it.editor.activePlaneContext }!!
 
-    init {
-        stage.apply {
-            title = rootWindowPresenter.title()
-            scene = Scene(rootWindowPresenter.root(this@RootWindow))
-            show()
-        }
-    }
+    val activePlane = context.flatMapProp { it.editor.activePlane }
 
     fun newWorld() {
         val params = NewWorldDialog().showAndWait() ?: return
@@ -50,6 +44,16 @@ class RootWindow(
         val path = retrieveWorldPath(stage) ?: return
         val world = loadWorld(path)
         enterEditorContext(world)
+    }
+
+    val insertObject: Val<() -> Unit> = activePlaneContext.map { it::insertObject }
+
+    init {
+        stage.apply {
+            title = rootWindowPresenter.title()
+            scene = Scene(rootWindowPresenter.root(this@RootWindow))
+            show()
+        }
     }
 
     private fun loadWorld(path: Path): World {
