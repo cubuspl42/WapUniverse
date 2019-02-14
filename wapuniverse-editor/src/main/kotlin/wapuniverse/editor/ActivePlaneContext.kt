@@ -53,9 +53,9 @@ class ActivePlaneContext(val plane: Plane) : Disposable() {
 
     val editObjectContext = editObjectContextVar as ObservableValue<EditObjectContext?>
 
-    fun editObject(): EditObjectContext? {
-        val wapObject = plane.selectedObjects.firstOrNull() ?: return null
-        return editObjectContextVar.enter(EditObjectContext(wapObject))
+    fun editObject() {
+        val wapObject = plane.selectedObjects.firstOrNull() ?: return
+        editObjectContextVar.enter(EditObjectContext(wapObject))
     }
 
     fun insertObject() {

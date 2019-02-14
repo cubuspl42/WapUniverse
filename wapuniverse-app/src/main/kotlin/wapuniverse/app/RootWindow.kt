@@ -48,6 +48,8 @@ class RootWindow(
         enterEditorContext(world)
     }
 
+    val editObject: Val<Callback> = activePlaneContext.map { it::editObject }
+
     val insertObject: Val<Callback> = activePlaneContext.map { it::insertObject }
 
     val deleteObject: Val<Callback> = activePlaneContext.map { it::deleteObject }

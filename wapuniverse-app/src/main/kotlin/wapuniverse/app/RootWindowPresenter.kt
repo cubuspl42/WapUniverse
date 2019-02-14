@@ -27,6 +27,8 @@ class RootWindowPresenter(
                         )
                 ),
                 HBox(
+
+                        button("Edit", rootWindow.editObject),
                         button("Insert object", rootWindow.insertObject),
                         button("Delete object", rootWindow.deleteObject),
                         comboBox(rootWindow.planes, rootWindow.activePlane) { it.name }
