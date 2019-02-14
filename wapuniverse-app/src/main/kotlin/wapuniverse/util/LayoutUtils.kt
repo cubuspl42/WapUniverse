@@ -22,8 +22,12 @@ fun twoColumnGrid(rows: List<Pair<Node, Node>>) = GridPane().apply {
     }
 }
 
+fun twoColumnGrid(vararg rows: Pair<Node, Node>, column0PercentWidth: Double, column1PercentWidth: Double) =
+        twoColumnGrid(rows.asIterable(), column0PercentWidth, column1PercentWidth)
+
 fun twoColumnGrid(
-        vararg rows: Pair<Node, Node>,
+        rows: Iterable<Pair<Node, Node>>,
+
         column0PercentWidth: Double,
         column1PercentWidth: Double
 ) = GridPane().apply {
