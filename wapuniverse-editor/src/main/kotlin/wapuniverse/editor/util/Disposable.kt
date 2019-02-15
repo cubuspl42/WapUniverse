@@ -3,6 +3,7 @@ package wapuniverse.editor.util
 import javafx.beans.value.ObservableValue
 import org.reactfx.EventSource
 import org.reactfx.EventStream
+import org.reactfx.value.Val
 
 open class Disposable(
         parent: Disposable? = null
@@ -34,5 +35,13 @@ open class Disposable(
 fun ObservableValue<out Disposable?>.disposeOldValues() {
     addListener { observable, oldValue, newValue ->
         oldValue?.disposeInt()
+    }
+}
+
+fun <T : Any, R : Disposable> Val<T>.transform(function: (T) -> R): Val<R> {
+    return this.map { function(it!!) }.also {
+        it.addListener { _, oldValue, _ ->
+            oldValue?.disposeInt()
+        }
     }
 }

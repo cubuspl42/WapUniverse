@@ -8,6 +8,7 @@ import org.reactfx.value.Var.newSimpleVar
 import wapuniverse.editor.extensions.map
 import wapuniverse.editor.util.Disposable
 import wapuniverse.editor.util.disposeOldValues
+import wapuniverse.editor.util.transform
 import wapuniverse.geom.Rect2i
 import wapuniverse.geom.Size2i
 import wapuniverse.geom.Vec2d
@@ -43,13 +44,12 @@ class ActivePlaneContext(private val editor: Editor, val plane: Plane) : Disposa
         cameraPositionVar.value += delta
     }
 
-    val modeContext = editor.mode.map {
-        when(it) {
+    val modeContext = editor.mode.transform {
+        when (it) {
             Mode.OBJECT -> ObjectModeContext(this, plane)
             Mode.TILE -> TileModeContext(plane)
-            else -> throw IllegalStateException()
         }
-    }!!
+    }
 
     val objectModeContext = modeContext.map { it as? ObjectModeContext }!!
 

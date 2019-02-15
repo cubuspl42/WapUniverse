@@ -49,8 +49,8 @@ private fun <T> changesOf(observable: Observable<(T) -> Unit>): EventStream<T> {
     return object : EventStreamBase<T>() {
         override fun observeInputs(): Subscription {
             val observer = { it: T -> emit(it) }
-            addObserver(observer)
-            return Subscription { removeObserver(observer) }
+            observable.addObserver(observer)
+            return Subscription { observable.removeObserver(observer) }
         }
     }
 }

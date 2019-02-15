@@ -9,11 +9,12 @@ import wapuniverse.rez.RezImageCache
 
 const val tileLength = 64
 
-class TilesCanvas(
-        private val activePlaneContext: ActivePlaneContext,
+class TilesCanvasController(
+        activePlaneContext: ActivePlaneContext,
         rezImageCache: RezImageCache,
+        private val canvas: Canvas,
         previewPane: Pane
-) : Canvas() {
+) : Controller(activePlaneContext) {
     private val plane = activePlaneContext.plane
 
     private val tiles = plane.tiles
@@ -26,24 +27,26 @@ class TilesCanvas(
             ?.mapValues { it.value?.image }
 
     init {
-        widthProperty().bind(previewPane.widthProperty())
-        heightProperty().bind(previewPane.heightProperty())
+        canvas.widthProperty().bind(previewPane.widthProperty())
+        canvas.heightProperty().bind(previewPane.heightProperty())
         draw()
 
-        tiles.changes()
+        val stream = tiles.changes()
                 .or(changesOf(cameraPosition))
                 .or(changesOf(previewPane.widthProperty()))
                 .or(changesOf(previewPane.heightProperty()))
-                .subscribe { draw() } // FIXME: leak (plane / activePlaneContext)
+        subscribe(stream) { draw() }
     }
 
     private fun draw() {
-        graphicsContext2D.save()
-        graphicsContext2D.clearRect(0.0, 0.0, width, height)
-        val t = -cameraPosition.value
-        graphicsContext2D.translate(t.x, t.y)
-        drawTiles()
-        graphicsContext2D.restore()
+        canvas.graphicsContext2D.run {
+            save()
+            clearRect(0.0, 0.0, canvas.width, canvas.height)
+            val t = -cameraPosition.value
+            translate(t.x, t.y)
+            drawTiles()
+            restore()
+        }
     }
 
     private fun drawTiles() {
@@ -52,7 +55,7 @@ class TilesCanvas(
                 tilesImages?.get(tileId)?.let { image ->
                     val x = j * tileLength.toDouble()
                     val y = i * tileLength.toDouble()
-                    graphicsContext2D.drawImage(image, x, y)
+                    canvas.graphicsContext2D.drawImage(image, x, y)
                 }
             }
         }

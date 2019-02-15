@@ -3,6 +3,7 @@ package wapuniverse.app.world_preview
 import javafx.beans.value.ObservableValue
 import javafx.scene.Group
 import javafx.scene.Node
+import javafx.scene.canvas.Canvas
 import javafx.scene.image.ImageView
 import javafx.scene.input.MouseButton
 import javafx.scene.input.MouseEvent
@@ -31,8 +32,8 @@ class WorldPreviewPresenter(
 ) {
     fun root(editorContext: EditorContext): Pane {
         val activePlaneContext = editorContext.editor.activePlaneContext
-
         val objectModeContext = activePlaneContext.flatMap { it.objectModeContext }
+        val tileModeContext = activePlaneContext.flatMap { it.tileModeContext }
 
         val previewPane = Pane().apply {
             bindChild(activePlaneContext.map { plane(it, this) })
@@ -41,8 +42,8 @@ class WorldPreviewPresenter(
         }
 
         activePlaneContext.forEach { ActivePlaneController(it, previewPane) }
-
         objectModeContext.forEach { ObjectModeController(it, previewPane) }
+        tileModeContext.forEach { TileModeController(it, previewPane) }
 
         return previewPane
     }
@@ -50,7 +51,9 @@ class WorldPreviewPresenter(
     private fun plane(activePlaneContext: ActivePlaneContext, previewPane: Pane): Node? {
         val objectModeContext = activePlaneContext.objectModeContext
         return Group(
-                TilesCanvas(activePlaneContext, rezImageCache, previewPane),
+                Canvas().apply {
+                    TilesCanvasController(activePlaneContext, rezImageCache, this, previewPane)
+                },
                 Group(
                         doubleGroup(activePlaneContext.plane.objects.map { wapObject(it) }),
                         modeUserInterface(activePlaneContext.modeContext),
