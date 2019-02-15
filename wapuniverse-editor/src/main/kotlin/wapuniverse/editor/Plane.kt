@@ -43,7 +43,7 @@ class Plane(
         }
 
         tiles.forEach { i, j, _ ->
-            tiles.set(i, j, wwdPlane.getTile(i, j))
+            tiles.put(i, j, wwdPlane.getTile(i, j))
         }
     }
 
@@ -79,6 +79,10 @@ class Plane(
 //        objectsMut.removeAll(selectedObjects)
         selectedObjects.forEach { objectsMut.remove(it) }
         unselectAllObjects()
+    }
+
+    internal fun putTile(offset: Vec2i, tileId: Int) {
+        tiles.put(offset.y, offset.x, tileId)
     }
 }
 

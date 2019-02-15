@@ -4,6 +4,8 @@ import javafx.beans.value.ObservableValue
 import javafx.scene.Group
 import javafx.scene.Node
 import javafx.scene.image.ImageView
+import javafx.scene.input.MouseButton
+import javafx.scene.input.MouseEvent
 import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
@@ -11,15 +13,14 @@ import javafx.scene.text.Text
 import net.corda.client.jfx.utils.map
 import org.reactfx.value.Val
 import wapuniverse.app.EditorContext
-import wapuniverse.editor.ActivePlaneContext
-import wapuniverse.editor.AreaSelectionContext
-import wapuniverse.editor.ObjectModeContext
-import wapuniverse.editor.WapObject
+import wapuniverse.editor.*
 import wapuniverse.editor.extensions.flatMap
 import wapuniverse.editor.extensions.forEach
 import wapuniverse.editor.extensions.map
 import wapuniverse.extensions.group
 import wapuniverse.geom.Rect2i
+import wapuniverse.geom.Size2i
+import wapuniverse.geom.Vec2d
 import wapuniverse.geom.Vec2i
 import wapuniverse.rez.RezImageCache
 import wapuniverse.util.bindChild
@@ -52,8 +53,9 @@ class WorldPreviewPresenter(
                 TilesCanvas(activePlaneContext, rezImageCache, previewPane),
                 Group(
                         doubleGroup(activePlaneContext.plane.objects.map { wapObject(it) }),
+                        modeUserInterface(activePlaneContext.modeContext),
                         areaSelectionGroup(objectModeContext.flatMap { it!!.areaSelectionContext }),
-                        inputHandler(objectModeContext)
+                        inputHandler(activePlaneContext)
                 ).apply {
                     translateXProperty().bind(activePlaneContext.cameraPosition.map { -it.x })
                     translateYProperty().bind(activePlaneContext.cameraPosition.map { -it.y })
@@ -61,17 +63,50 @@ class WorldPreviewPresenter(
         )
     }
 
+    private fun modeUserInterface(modeContext: Val<ModeContext>): Node {
+        return group(modeContext.map {
+            when (it) {
+                is ObjectModeContext -> areaSelectionGroup(it.areaSelectionContext)
+                is TileModeContext -> tileCursor(it)
+                else -> throw RuntimeException()
+            }
+        })
+    }
+
+    private fun tileCursor(context: TileModeContext) =
+            Rectangle(context.tileCursor.map(::tileRect))
+                    .apply {
+                        stroke = Color.DARKGRAY
+                        strokeWidth = 4.0
+                        opacity = 0.7
+                        fill = Color.TRANSPARENT
+                    }
+
     private fun areaSelectionGroup(areaSelectionContext: Val<AreaSelectionContext?>) =
             group(areaSelectionContext.map { areaSelectionRect(it!!) })
 
-    private fun inputHandler(objectModeContext: Val<ObjectModeContext?>): Node? {
-        val a = 262144.0
-        return group(objectModeContext.map {
-            Rectangle(0.0, 0.0, a, a).apply {
-                InputHandlerController(it!!, this)
-                fill = Color.TRANSPARENT
-            } as Node?
-        })
+    private fun inputHandler(activePlaneContext: ActivePlaneContext) =
+            group(activePlaneContext.modeContext.map {
+                when (it) {
+                    is ObjectModeContext -> objectModeInputHandler(it)
+                    is TileModeContext -> tileModeInputHandler(it)
+                    else -> throw RuntimeException()
+                }
+            })
+
+    private fun objectModeInputHandler(context: ObjectModeContext) = inputRectangle {
+        dragGesturesOf(this).subscribe { dragGesture ->
+            val position = dragGesture.position.map { it.toVec2i() }
+            DragGestureController(context.selectByArea(position), dragGesture)
+        }
+    }
+
+    private fun tileModeInputHandler(context: TileModeContext) = inputRectangle {
+        setOnMouseClicked { e ->
+            if (e.button == MouseButton.PRIMARY) {
+                context.tileCursor.value = positionToTileOffset(e.position)
+            }
+        }
     }
 
     private fun areaSelectionRect(areaSelectionContext: AreaSelectionContext): Node {
@@ -104,6 +139,23 @@ class WorldPreviewPresenter(
     }
 }
 
+private fun tileRect(offset: Vec2i) =
+        Rect2i(offset * tileLength, Size2i(tileLength, tileLength))
+
+val MouseEvent.position: Vec2d
+    get() = Vec2d(x, y)
+
+private fun positionToTileOffset(position: Vec2d) =
+        position.toVec2i() / tileLength
+
+private fun inputRectangle(controller: Node.() -> Unit): Node {
+    val a = 262144.0
+    return Rectangle(0.0, 0.0, a, a).apply {
+        controller(this)
+        fill = Color.TRANSPARENT
+    }
+}
+
 private fun wapObjectStrokeColor(wapObject: WapObject) =
         Val.combine(
                 wapObject.isHighlighted,
@@ -129,18 +181,6 @@ private fun Rectangle.bind(rect: Val<Rect2i>) {
     yProperty().bind(rect.map { it.position.y })
     widthProperty().bind(rect.map { it.size.width })
     heightProperty().bind(rect.map { it.size.height })
-}
-
-class InputHandlerController(
-        objectModeContext: ObjectModeContext,
-        node: Node
-) : Controller(objectModeContext, node) {
-    init {
-        subscribe(dragGesturesOf(node)) { dragGesture ->
-            val position = dragGesture.position.map { it.toVec2i() }
-            DragGestureController(objectModeContext.selectByArea(position), dragGesture)
-        }
-    }
 }
 
 class DragGestureController(

@@ -1,5 +1,15 @@
 package wapuniverse.editor
 
-class TileModeContext(val plane: Plane) : ModeContext() {
+import org.reactfx.value.Var.newSimpleVar
+import wapuniverse.geom.Vec2i
 
+class TileModeContext(val plane: Plane) : ModeContext() {
+    val tileCursor = newSimpleVar(Vec2i(0, 0))
+
+    val tileId = newSimpleVar(0)
+
+    fun insertTile() {
+        check(!isDisposed)
+        plane.putTile(tileCursor.value, tileId.value)
+    }
 }

@@ -18,7 +18,7 @@ class ObservableMatrix<T>(
 
     private val observers = mutableListOf<Observer>()
 
-    override fun set(i: Int, j: Int, value: T) {
+    fun put(i: Int, j: Int, value: T) {
         matrix.set(i, j, value)
         emitChange(Change(i, j))
     }
