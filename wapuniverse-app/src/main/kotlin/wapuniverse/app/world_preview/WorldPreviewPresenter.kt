@@ -7,13 +7,15 @@ import javafx.scene.canvas.Canvas
 import javafx.scene.image.ImageView
 import javafx.scene.input.MouseButton
 import javafx.scene.input.MouseEvent
+import javafx.scene.layout.BorderPane
 import javafx.scene.layout.Pane
+import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import javafx.scene.text.Text
-import net.corda.client.jfx.utils.map
 import org.reactfx.value.Val
 import wapuniverse.app.EditorContext
+import wapuniverse.app.tilePicker
 import wapuniverse.editor.*
 import wapuniverse.editor.extensions.flatMap
 import wapuniverse.editor.extensions.forEach
@@ -45,7 +47,13 @@ class WorldPreviewPresenter(
         objectModeContext.forEach { ObjectModeController(it, previewPane) }
         tileModeContext.forEach { TileModeController(it, previewPane) }
 
-        return previewPane
+        return StackPane(
+                previewPane,
+                BorderPane().apply {
+                    bottomProperty().bind(tileModeContext.map { tilePicker(it!!, rezImageCache) })
+                    isPickOnBounds = false
+                }
+        )
     }
 
     private fun plane(activePlaneContext: ActivePlaneContext, previewPane: Pane): Node? {

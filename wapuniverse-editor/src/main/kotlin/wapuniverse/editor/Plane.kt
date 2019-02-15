@@ -11,6 +11,7 @@ val emptyTile = -1
 
 class Plane(
         val world: World,
+        tileSetMetadataSupplier: TileSetMetadataSupplier,
         wwdPlane: WwdPlane
 ) {
     val name = wwdPlane.name
@@ -19,7 +20,9 @@ class Plane(
 
     private val imageSet = wwdPlane.imageSets.first()
 
-    val fqImageSetId: String = makeFqImageSetId(world.imageDir, imageSet)
+    val fqImageSetId: String = makeFqImageSetId(world.imageDir, imageSet) // TODO: Val
+
+    val tileSet = tileSetMetadataSupplier.listTiles(fqImageSetId)
 
     private val objectsMut = observableArrayList<WapObject>()
 

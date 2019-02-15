@@ -7,6 +7,7 @@ import javafx.stage.Stage
 import org.reactfx.value.Val
 import org.reactfx.value.Var.newSimpleVar
 import wapuniverse.app.world_preview.WorldPreviewPresenter
+import wapuniverse.editor.TileSetMetadataSupplier
 import wapuniverse.editor.World
 import wapuniverse.editor.extensions.flatMapOl
 import wapuniverse.editor.extensions.flatMapProp
@@ -26,6 +27,8 @@ class RootWindow(
     private val rootWindowPresenter = RootWindowPresenter(worldPreviewPresenter)
 
     private val imageMetadataSupplier = ImageMetadataSupplierImpl(rezImageCache)
+
+    private val tileSetMetadataSupplier = TileSetMetadataSupplierImpl(rezImageCache)
 
     private val contextVar = newSimpleVar<EditorContext>(null)
 
@@ -52,7 +55,6 @@ class RootWindow(
         enterEditorContext(world)
     }
 
-
     val switchModes = editor.map { { it!!.switchMode() } }
 
     val editObject: Val<Callback> = objectModeContext.map { { it!!.editObject() } }
@@ -77,7 +79,7 @@ class RootWindow(
 
     private fun loadWorld(inputStream: InputStream): World {
         val wwd = loadWwd(inputStream)
-        return World(wwd, imageMetadataSupplier)
+        return World(wwd, imageMetadataSupplier, tileSetMetadataSupplier)
     }
 
     private fun enterEditorContext(world: World) {

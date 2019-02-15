@@ -6,7 +6,8 @@ import javafx.collections.FXCollections.unmodifiableObservableList
 
 class World(
         wwd: Wwd,
-        private val imageMetadataSupplier: ImageMetadataSupplier
+        private val imageMetadataSupplier: ImageMetadataSupplier,
+        private val tileSetMetadataSupplier: TileSetMetadataSupplier
 ) {
     internal val imageDir = wwd.header.imageDir
 
@@ -23,7 +24,7 @@ class World(
 
     init {
         wwd.planes.forEach { wwdPlane ->
-            planesMut.add(Plane(this, wwdPlane))
+            planesMut.add(Plane(this, tileSetMetadataSupplier, wwdPlane))
         }
     }
 
