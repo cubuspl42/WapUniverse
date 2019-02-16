@@ -1,7 +1,8 @@
 package wapuniverse.editor
 
+import io.github.jwap32.v1.WwdObject
 import javafx.beans.binding.Bindings
-import javafx.collections.FXCollections.*
+import javafx.collections.FXCollections.observableMap
 import javafx.collections.ObservableMap
 import org.reactfx.value.Val
 import org.reactfx.value.Val.combine
@@ -78,6 +79,64 @@ class WapObject internal constructor(
         isSelectedVar.value = false
     }
 
+    internal fun toWwdObject(): WwdObject { // TODO
+        return WwdObject(
+//                id = intAttrs[IntKey.ID],
+                x = intAttrs[IntKey.X] ?: 0,
+                y = intAttrs[IntKey.Y] ?: 0,
+                z = intAttrs[IntKey.Z] ?: 0,
+                i = intAttrs[IntKey.I] ?: 0,
+//        addFlags:  = WwdObjectAddFlags(), /* WAP_OBJECT_ADD_FLAG_ flags */
+//        dynamicFlags: WwdObjectDynamicFlags = WwdObjectDynamicFlags(), /* WAP_OBJECT_DYNAMIC_FLAG_ flags */
+//        drawFlags: WwdObjectDrawFlags = WwdObjectDrawFlags(), /* WAP_OBJECT_DRAW_FLAG_ flags */
+//        userFlags: WwdObjectUserFlags = WwdObjectUserFlags(), /* WAP_OBJECT_USER_FLAG_ flags */
+                score = intAttrs[IntKey.SCORE] ?: 0,
+                points = intAttrs[IntKey.POINTS] ?: 0,
+                powerup = intAttrs[IntKey.POWERUP] ?: 0,
+                damage = intAttrs[IntKey.DAMAGE] ?: 0,
+                smarts = intAttrs[IntKey.SMARTS] ?: 0,
+                health = intAttrs[IntKey.HEALTH] ?: 0,
+//        moveRect = WwdRect(),
+//        hitRect = WwdRect(),
+//        attackRect = WwdRect(),
+//        clipRect = WwdRect(),
+//        userRect1 = WwdRect(),
+//        userRect2 = WwdRect(),
+                // userValue1 = intAttrs[IntKey.X] ?: 0,
+                // userValue2 = intAttrs[IntKey.X] ?: 0,
+                // userValue3 = intAttrs[IntKey.X] ?: 0,
+                // userValue4 = intAttrs[IntKey.X] ?: 0,
+                // userValue5 = intAttrs[IntKey.X] ?: 0,
+                // userValue6 = intAttrs[IntKey.X] ?: 0,
+                // userValue7 = intAttrs[IntKey.X] ?: 0,
+                // userValue8 = intAttrs[IntKey.X] ?: 0,
+                xMin = intAttrs[IntKey.X_MIN] ?: 0,
+                yMin = intAttrs[IntKey.Y_MIN] ?: 0,
+                xMax = intAttrs[IntKey.X_MAX] ?: 0,
+                yMax = intAttrs[IntKey.Y_MAX] ?: 0,
+                speedX = intAttrs[IntKey.SPEED_X] ?: 0,
+                speedY = intAttrs[IntKey.SPEED_Y] ?: 0,
+//                xTweak = intAttrs[IntKey.X_TWEAK] ?: 0,
+//                yTweak = intAttrs[IntKey.Y_TWEAK] ?: 0,
+//                counter = intAttrs[IntKey.COUNTER] ?: 0,
+                speed = intAttrs[IntKey.SPEED] ?: 0,
+//                width = intAttrs[IntKey.WIDTH] ?: 0,
+//                height = intAttrs[IntKey.HEIGHT] ?: 0,
+                direction = intAttrs[IntKey.DIRECTION] ?: 0,
+                faceDir = intAttrs[IntKey.FACEDIR] ?: 0,
+//                timeDelay = intAttrs[IntKey.TIME_DELAY] ?: 0,
+//                frameDelay = intAttrs[IntKey.FRAME_DELAY] ?: 0,
+                objectType = intAttrs[IntKey.X] ?: 0,
+                hitTypeFlags = intAttrs[IntKey.X] ?: 0,
+                xMoveRes = intAttrs[IntKey.X] ?: 0,
+                yMoveRes = intAttrs[IntKey.X] ?: 0,
+                name = strAttrs[StrKey.NAME] ?: "",
+                logic = strAttrs[StrKey.LOGIC] ?: "",
+                imageSet = strAttrs[StrKey.IMAGE_SET] ?: "",
+                animation = strAttrs[StrKey.ANIMATION] ?: ""
+        )
+    }
+
     val boundingBoxLocal = imageMetadata.map {
         Rect2i.fromCenter(it!!.offset, it.size)
     }
@@ -98,14 +157,3 @@ private fun <K, V> attrMap(keys: Iterable<WapObjectAttrKey<K>>, defaultValue: V)
 fun <K, V> ObservableMap<K, V>.valAt(key: K): Val<V> {
     return Val.wrap(Bindings.valueAt(this, key))
 }
-
-class AttributeMap<T>(
-        private val mapMut: ObservableMap<WapObjectAttrKey<T>, T> = observableHashMap()
-) : ObservableMap<WapObjectAttrKey<T>, T> by unmodifiableObservableMap(mapMut) {
-    internal fun putAttr(attrKey: WapObjectAttrKey<T>, value: T) {
-        mapMut[attrKey] = value
-    }
-}
-
-@Suppress("UNCHECKED_CAST")
-fun <T, U : T> uncheckedCast(obj: T) = obj as U

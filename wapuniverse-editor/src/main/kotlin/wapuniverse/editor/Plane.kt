@@ -3,6 +3,7 @@ package wapuniverse.editor
 import io.github.jwap32.v1.WwdPlane
 import javafx.collections.FXCollections.observableArrayList
 import javafx.collections.FXCollections.unmodifiableObservableList
+import wapuniverse.editor.util.Matrix
 import wapuniverse.editor.util.observableIntMatrix
 import wapuniverse.geom.Rect2i
 import wapuniverse.geom.Vec2i
@@ -12,7 +13,7 @@ val emptyTile = -1
 class Plane(
         val world: World,
         tileSetMetadataSupplier: TileSetMetadataSupplier,
-        wwdPlane: WwdPlane
+        private val wwdPlane: WwdPlane
 ) {
     val name = wwdPlane.name
 
@@ -87,6 +88,22 @@ class Plane(
     internal fun putTile(offset: Vec2i, tileId: Int) {
         tiles.put(offset.y, offset.x, tileId)
     }
+
+    fun toWwdPlane(): WwdPlane {
+        return wwdPlane.copy( // TODO
+                tilesWide = tiles.columnCount, tilesHigh = tiles.rowCount,
+                tiles = tiles.toIntArray(),
+                objects = objects.map { it.toWwdObject() }.toMutableList()
+        )
+    }
+}
+
+private fun Matrix<Int>.toIntArray(): IntArray {
+    val array = IntArray(rowCount * columnCount)
+    forEach { i, j, value ->
+        array[i * columnCount + j] = value
+    }
+    return array
 }
 
 private fun makeFqImageSetId(imageDir: String, imageSet: String): String {

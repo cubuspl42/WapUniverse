@@ -17,7 +17,7 @@ import java.nio.file.Path
 typealias Callback = () -> Unit
 
 class RootWindow(
-        private val stage: Stage,
+        internal val stage: Stage,
         val rezImageCache: RezImageCache
 ) {
     private val imageMetadataSupplier = ImageMetadataSupplierImpl(rezImageCache)
@@ -48,6 +48,8 @@ class RootWindow(
         val world = loadWorld(path)
         enterEditorContext(world)
     }
+
+    val save: Val<Callback> = context.map { { it!!.saveWorld() } }
 
     val switchModes = editor.map { { it!!.switchMode() } }!!
 

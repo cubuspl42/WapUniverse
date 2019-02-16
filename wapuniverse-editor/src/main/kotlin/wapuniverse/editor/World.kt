@@ -1,12 +1,16 @@
 package wapuniverse.editor
 
 import io.github.jwap32.v1.Wwd
+import io.github.jwap32.v1.WwdHeader
+import io.github.jwap32.v1.WwdHeaderFlags
+import io.github.jwap32.v1.dumpWwd
 import javafx.collections.FXCollections.observableArrayList
 import javafx.collections.FXCollections.unmodifiableObservableList
 import org.reactfx.value.Var.newSimpleVar
+import java.io.OutputStream
 
 class World(
-        wwd: Wwd,
+        private val wwd: Wwd,
         private val imageMetadataSupplier: ImageMetadataSupplier,
         private val tileSetMetadataSupplier: TileSetMetadataSupplier
 ) {
@@ -40,6 +44,17 @@ class World(
 
     internal fun supplyMetadata(fqImageSetId: String, i: Int): ImageMetadata? {
         return imageMetadataSupplier.supplyMetadata(fqImageSetId, i)
+    }
+
+    fun save(stream: OutputStream) {
+        val wwd = toWwd()
+        dumpWwd(stream, wwd)
+    }
+
+    private fun toWwd(): Wwd {
+        return wwd.copy( // TODO
+                planes = planes.map { it.toWwdPlane() }.toMutableList()
+        )
     }
 }
 

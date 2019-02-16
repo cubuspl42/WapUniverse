@@ -23,7 +23,8 @@ private fun Ui.root() = BorderPane().apply {
             MenuBar(
                     Menu("File", null,
                             menuItem("New", r::newWorld),
-                            menuItem("Open", r::openWorld)
+                            menuItem("Open", r::openWorld),
+                            menuItem("Save", r.save)
                     )
             ),
             HBox(
@@ -63,6 +64,11 @@ private fun <T> comboBox(
 private inline fun menuItem(text: String, crossinline callback: () -> Unit) =
         MenuItem(text).apply {
             setOnAction { callback() }
+        }
+
+private fun menuItem(text: String, callback: Val<Callback>) =
+        MenuItem(text).apply {
+            onActionProperty().bind(callback.map { f -> EventHandler<ActionEvent> { f() } })
         }
 
 private fun button(text: String, callback: Val<() -> Unit>) =
