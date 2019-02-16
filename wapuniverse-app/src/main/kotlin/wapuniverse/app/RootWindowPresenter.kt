@@ -9,37 +9,36 @@ import javafx.scene.layout.BorderPane
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
 import org.reactfx.value.Val
-import wapuniverse.app.world_preview.WorldPreviewPresenter
+import wapuniverse.app.world_preview.worldPreviewUi
 
-private const val rootWindowTitle = "WapUniverse"
+const val rootWindowTitle = "WapUniverse"
 
-class RootWindowPresenter(
-        private val worldPreviewPresenter: WorldPreviewPresenter
-) {
-    fun title() = rootWindowTitle
+typealias Ui = RootWindow
 
-    fun root(rootWindow: RootWindow) = BorderPane().apply {
-        top = VBox(
-                MenuBar(
-                        Menu("File", null,
-                                menuItem("New", rootWindow::newWorld),
-                                menuItem("Open", rootWindow::openWorld)
-                        )
-                ),
-                HBox(
-                        button("Mode", rootWindow.switchModes),
-                        button("Edit", rootWindow.editObject),
-                        button("Insert object", rootWindow.insertObject),
-                        button("Delete object", rootWindow.deleteObject),
-                        comboBox(rootWindow.planes, rootWindow.activePlane) { it.name }
-                )
-        )
-        centerProperty().bind(rootWindow.context.map {
-            worldPreviewPresenter.root(it)
-        })
-        prefWidth = 640.0
-        prefHeight = 480.0
-    }
+fun rootWindowUi(rootWindow: RootWindow) = rootWindow.root()
+
+private fun Ui.root() = BorderPane().apply {
+    val r = this@root
+    top = VBox(
+            MenuBar(
+                    Menu("File", null,
+                            menuItem("New", r::newWorld),
+                            menuItem("Open", r::openWorld)
+                    )
+            ),
+            HBox(
+                    button("Mode", switchModes),
+                    button("Edit", editObject),
+                    button("Insert object", insertObject),
+                    button("Delete object", deleteObject),
+                    comboBox(planes, activePlane) { it.name }
+            )
+    )
+    centerProperty().bind(context.map {
+        worldPreviewUi(this@root, it)
+    })
+    prefWidth = 640.0
+    prefHeight = 480.0
 }
 
 private fun <T> comboBox(

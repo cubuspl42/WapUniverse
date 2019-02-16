@@ -6,8 +6,6 @@ import javafx.stage.FileChooser
 import javafx.stage.Stage
 import org.reactfx.value.Val
 import org.reactfx.value.Var.newSimpleVar
-import wapuniverse.app.world_preview.WorldPreviewPresenter
-import wapuniverse.editor.TileSetMetadataSupplier
 import wapuniverse.editor.World
 import wapuniverse.editor.extensions.flatMapOl
 import wapuniverse.editor.extensions.flatMapProp
@@ -20,12 +18,8 @@ typealias Callback = () -> Unit
 
 class RootWindow(
         private val stage: Stage,
-        private val rezImageCache: RezImageCache
+        val rezImageCache: RezImageCache
 ) {
-    private val worldPreviewPresenter = WorldPreviewPresenter(rezImageCache)
-
-    private val rootWindowPresenter = RootWindowPresenter(worldPreviewPresenter)
-
     private val imageMetadataSupplier = ImageMetadataSupplierImpl(rezImageCache)
 
     private val tileSetMetadataSupplier = TileSetMetadataSupplierImpl(rezImageCache)
@@ -55,7 +49,7 @@ class RootWindow(
         enterEditorContext(world)
     }
 
-    val switchModes = editor.map { { it!!.switchMode() } }
+    val switchModes = editor.map { { it!!.switchMode() } }!!
 
     val editObject: Val<Callback> = objectModeContext.map { { it!!.editObject() } }
 
@@ -65,8 +59,8 @@ class RootWindow(
 
     init {
         stage.apply {
-            title = rootWindowPresenter.title()
-            scene = Scene(rootWindowPresenter.root(this@RootWindow))
+            title = rootWindowTitle
+            scene = Scene(rootWindowUi(this@RootWindow))
             show()
         }
     }
