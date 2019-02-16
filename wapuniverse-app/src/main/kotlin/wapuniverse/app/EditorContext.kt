@@ -4,7 +4,6 @@ import javafx.stage.FileChooser
 import javafx.stage.Stage
 import wapuniverse.editor.Editor
 import wapuniverse.editor.World
-import wapuniverse.editor.extensions.flatMap
 import wapuniverse.editor.extensions.forEach
 import wapuniverse.rez.RezImageCache
 import java.nio.file.Files
@@ -26,9 +25,9 @@ class EditorContext(
 
     init {
         editor.activePlaneContext
-                .flatMap { it.objectModeContext }
-                .flatMap { it.editObjectContext }
-                .forEach { EditObjectDialog(it) }
+                .flatMap { it!!.objectModeContext }
+                .flatMap { it!!.editObjectContext }
+                .forEach { EditObjectDialog(it!!) }
     }
 }
 

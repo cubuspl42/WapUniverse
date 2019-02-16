@@ -18,9 +18,10 @@ import wapuniverse.app.RootWindow
 import wapuniverse.app.tilePicker
 import wapuniverse.app.world_preview.`object`.wapObject
 import wapuniverse.editor.*
-import wapuniverse.editor.extensions.flatMap
 import wapuniverse.editor.extensions.forEach
 import wapuniverse.editor.extensions.map
+//import wapuniverse.editor.extensions.subscribe
+//import wapuniverse.editor.extensions.subscribe
 import wapuniverse.extensions.group
 import wapuniverse.geom.Rect2i
 import wapuniverse.geom.Size2i
@@ -46,13 +47,13 @@ fun Ui.root(editorContext: EditorContext): Pane {
     }
 
     activePlaneContext.forEach { ActivePlaneController(it, previewPane) }
-    objectModeContext.forEach { ObjectModeController(it, previewPane) }
-    tileModeContext.forEach { TileModeController(it, previewPane) }
+    objectModeContext.forEach { ObjectModeController(it!!, previewPane) }
+    tileModeContext.forEach { TileModeController(it!!, previewPane) }
 
     return StackPane(
             previewPane,
             BorderPane().apply {
-                bottomProperty().bind(tileModeContext.map { tilePicker(it, rezImageCache) })
+                bottomProperty().bind(tileModeContext.map { tilePicker(it!!, rezImageCache) })
                 isPickOnBounds = false
             }
     )

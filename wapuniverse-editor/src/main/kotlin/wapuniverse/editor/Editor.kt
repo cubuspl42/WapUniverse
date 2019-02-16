@@ -17,7 +17,7 @@ class Editor(val world: World) {
         else modeVar.value = Mode.OBJECT
     }
 
-    val activePlane = SimpleObjectProperty<Plane>() as Property<Plane>
+    val activePlane = newSimpleVar<Plane>(null)
 
     val activePlaneContext = activePlane.map { ActivePlaneContext(this, it) }
             .apply { disposeOldValues() }
