@@ -1,6 +1,7 @@
 package wapuniverse.geom
 
 import javafx.geometry.Point2D
+import org.reactfx.value.Var
 import kotlin.math.absoluteValue
 
 data class Vec2i(val x: Int = 0, val y: Int = 0) {
@@ -46,4 +47,8 @@ data class Vec2i(val x: Int = 0, val y: Int = 0) {
     operator fun plus(size: Size2i): Vec2i {
         return this + size.toVec2i()
     }
+
+    fun withX(x: Int) = Vec2i(x, y)
+
+    fun withY(y: Int) = Vec2i(x, y)
 }

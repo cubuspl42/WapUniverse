@@ -9,7 +9,9 @@ import org.reactfx.value.Val
 import org.reactfx.value.Var
 import wapuniverse.editor.Editor
 import wapuniverse.editor.Plane
+import wapuniverse.geom.Vec2i
 import wapuniverse.util.button
+import wapuniverse.util.intTextField
 import wapuniverse.util.stringTextField
 import wapuniverse.util.twoColumnForm
 
@@ -55,8 +57,17 @@ private fun PlanesDialog.planesDialogUi(editor: Editor, selectedPlane: Var<Plane
 //    }
 //}
 
-private fun editPlaneDialogUi(plane: Plane): Parent? {
-    return twoColumnForm(
-            "Name" to stringTextField(plane.name)
-    )
-}
+private fun editPlaneDialogUi(plane: Plane) =
+        twoColumnForm(
+                "Name" to stringTextField(plane.name),
+                "Movement X (%)" to intTextField(plane.movement.x),
+                "Movement Y (%)" to intTextField(plane.movement.y),
+                "Fill color" to intTextField(plane.fillColor),
+                "Z" to intTextField(plane.z)
+        )
+
+val Var<Vec2i>.x: Var<Int>
+    get() = subVar(this, Vec2i::x, Vec2i::withX)
+
+val Var<Vec2i>.y: Var<Int>
+    get() = subVar(this, Vec2i::y, Vec2i::withY)

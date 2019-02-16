@@ -16,7 +16,7 @@ fun stringTextField(strVar: Var<String>) =
 fun intTextField(intVar: Var<Int>) =
         TextField().apply {
             textProperty().value = intVar.value.toString()
-            intVar.bind(textProperty().map { it.toIntOrNull() })
+            intVar.bind(textProperty().map { it.toIntOrNull() ?: 0 })
         }
 
 fun label(labelText: String) =

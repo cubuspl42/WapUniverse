@@ -30,17 +30,6 @@ fun tilePicker(
             }
 
     val items = observableList(plane.tileSet ?: emptyList())
-//    val listView = ListView<TileId>(items)
-
-//    context.tileId.forEach { tileId ->
-//        listView.selectionModel.select(TileId(tileId))
-//    }
-//
-//    listView.selectionModel.selectedItemProperty().forEach {
-//        context.tileId.value = it.value
-//    }
-
-//    val tileId = Var.newSimpleVar(TileId())
 
     fun text(tileId: Int) = tileId.toString()
 
