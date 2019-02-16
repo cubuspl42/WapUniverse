@@ -51,13 +51,15 @@ class RootWindow(
 
     val save: Val<Callback> = context.map { { it!!.saveWorld() } }
 
-    val switchModes = editor.map { { it!!.switchMode() } }!!
+    val switchModes: Val<Callback> = editor.map { { it!!.switchMode() } }!!
 
     val editObject: Val<Callback> = objectModeContext.map { { it!!.editObject() } }
 
     val insertObject: Val<Callback> = objectModeContext.map { { it!!.insertObject() } }
 
     val deleteObject: Val<Callback> = objectModeContext.map { { it!!.deleteObject() } }
+
+    val editPlanes: Val<Callback> = context.map { { it!!.editPlanes() } }
 
     init {
         stage.apply {

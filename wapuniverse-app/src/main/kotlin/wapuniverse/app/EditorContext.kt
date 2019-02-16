@@ -23,11 +23,15 @@ class EditorContext(
         saveWorld(world, path)
     }
 
+    fun editPlanes() {
+        PlanesDialog(editor)
+    }
+
     init {
         editor.activePlaneContext
                 .flatMap { it!!.objectModeContext }
                 .flatMap { it!!.editObjectContext }
-                .forEach { EditObjectDialog(it!!) }
+                .forEach { EditObjectDialog(it) }
     }
 }
 

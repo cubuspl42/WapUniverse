@@ -3,6 +3,7 @@ package wapuniverse.util
 import javafx.scene.Node
 import javafx.scene.layout.ColumnConstraints
 import javafx.scene.layout.GridPane
+import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 
 fun vBox(vararg children: Node, prefWidth: Double) =
@@ -37,3 +38,24 @@ fun twoColumnGrid(
     )
     rows.forEachIndexed { i, (l, r) -> addRow(i, l, r) }
 }
+
+fun twoColumnForm(vararg rows: Pair<String, Node>) =
+        twoColumnForm(rows.asIterable())
+
+fun twoColumnForm(rows: Iterable<Pair<String, Node>>) =
+        twoColumnGrid(rows.map { (labelText, node) ->
+            label(labelText) to node
+        }).apply {
+            columnConstraints.addAll(
+                    ColumnConstraints().apply {
+                        hgrow = Priority.ALWAYS
+                        minWidth = 70.0
+                        maxWidth = 70.0
+                    },
+                    ColumnConstraints().apply {
+                        hgrow = Priority.ALWAYS
+                        minWidth = 128.0
+                        maxWidth = Double.POSITIVE_INFINITY
+                    }
+            )
+        }

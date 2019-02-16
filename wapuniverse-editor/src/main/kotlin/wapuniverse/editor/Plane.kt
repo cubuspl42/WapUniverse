@@ -3,6 +3,8 @@ package wapuniverse.editor
 import io.github.jwap32.v1.WwdPlane
 import javafx.collections.FXCollections.observableArrayList
 import javafx.collections.FXCollections.unmodifiableObservableList
+import org.reactfx.value.Var
+import org.reactfx.value.Var.newSimpleVar
 import wapuniverse.editor.util.Matrix
 import wapuniverse.editor.util.observableIntMatrix
 import wapuniverse.geom.Rect2i
@@ -15,7 +17,15 @@ class Plane(
         tileSetMetadataSupplier: TileSetMetadataSupplier,
         private val wwdPlane: WwdPlane
 ) {
-    val name = wwdPlane.name
+    val name = newSimpleVar(wwdPlane.name)
+
+    val movement = newSimpleVar(Vec2i(100, 100))
+
+    val fillColor = newSimpleVar(0)
+
+    val z = newSimpleVar(0)
+
+    // TODO: image sets
 
     val tiles = observableIntMatrix(wwdPlane.tilesHigh, wwdPlane.tilesWide) { emptyTile }
 

@@ -1,4 +1,4 @@
-package wapuniverse.app
+package wapuniverse.util
 
 import javafx.fxml.FXMLLoader
 import javafx.scene.Parent

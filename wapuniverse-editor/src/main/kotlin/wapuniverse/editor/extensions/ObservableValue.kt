@@ -34,12 +34,12 @@ fun <T : Any> ObservableValue<T?>.subscribe(function: (T?) -> Unit): Subscriptio
     return subscribe(this) { function(it) }
 }
 
-fun <T : Any> ObservableValue<T>.forEach(function: (T) -> Unit) {
-    subscribe(this) { it?.let(function) }
-}
+//fun <T : Any> ObservableValue<T>.forEach(function: (T) -> Unit) {
+//    subscribe(this) { it?.let(function) }
+//}
 
 @JvmName("forEachNullable")
-fun <T : Any> ObservableValue<T?>.forEach(function: (T) -> Unit) {
+fun <T> ObservableValue<out T?>.forEach(function: (T) -> Unit) {
     subscribe(this) { it?.let(function) }
 }
 

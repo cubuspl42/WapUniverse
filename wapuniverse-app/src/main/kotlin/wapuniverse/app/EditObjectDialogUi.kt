@@ -1,18 +1,11 @@
-import javafx.geometry.HPos
 import javafx.scene.Node
 import javafx.scene.control.Button
-import javafx.scene.control.Label
-import javafx.scene.control.TextField
 import javafx.scene.control.TitledPane
 import javafx.scene.layout.ColumnConstraints
 import javafx.scene.layout.GridPane
 import javafx.scene.layout.HBox
-import javafx.scene.layout.Priority
-import org.reactfx.value.Var
 import wapuniverse.app.EditObjectDialog
-import wapuniverse.editor.extensions.map
-import wapuniverse.util.twoColumnGrid
-import wapuniverse.util.vBox
+import wapuniverse.util.*
 import wapuniverse.editor.WapObjectIntAttrKey as IntKey
 import wapuniverse.editor.WapObjectStringAttrKey as StrKey
 
@@ -38,7 +31,7 @@ fun Ui.attrTextField(attrKey: IntKey) =
 
 fun Ui.identificationPane() = titledPane(
         "Identification",
-        twoColumnGrid(
+        twoColumnForm(
                 "ID" to attrTextField(StrKey.ID),
                 "Name" to attrTextField(StrKey.NAME),
                 "Logic" to attrTextField(StrKey.LOGIC),
@@ -109,32 +102,6 @@ fun Ui.buttons() =
                 Button("Cancel").apply { setOnAction { cancel() } }
         )
 
-private fun twoColumnGrid(vararg rows: Pair<String, Node>) =
-        twoColumnGrid(rows.asIterable())
-
-private fun twoColumnGrid(rows: Iterable<Pair<String, Node>>) =
-        twoColumnGrid(rows.map { (labelText, node) ->
-            label(labelText) to node
-        }).apply {
-            columnConstraints.addAll(
-                    ColumnConstraints().apply {
-                        hgrow = Priority.ALWAYS
-                        minWidth = 70.0
-                        maxWidth = 70.0
-                    },
-                    ColumnConstraints().apply {
-                        hgrow = Priority.ALWAYS
-                        minWidth = 128.0
-                        maxWidth = Double.POSITIVE_INFINITY
-                    }
-            )
-        }
-
-fun label(labelText: String) =
-        Label("$labelText:").apply {
-            GridPane.setHalignment(this, HPos.RIGHT)
-        }
-
 data class Row4(val column0: Node, val column1: Node, val column2: Node, val column3: Node)
 
 fun fourColumnGrid(vararg rows: Row4, minWidth: Double, prefWidth: Double): GridPane {
@@ -164,16 +131,4 @@ fun threeColumnGrid(vararg rows: Row3, minWidth: Double, prefWidth: Double): Gri
 fun titledPane(title: String, content: Node) =
         TitledPane(title, content).apply {
             isAnimated = false
-        }
-
-fun intTextField(intVar: Var<Int>) =
-        TextField().apply {
-            textProperty().value = intVar.value.toString()
-            intVar.bind(textProperty().map { it.toIntOrNull() })
-        }
-
-fun stringTextField(strVar: Var<String>) =
-        TextField().apply {
-            textProperty().value = strVar.value.toString()
-            strVar.bind(textProperty())
         }

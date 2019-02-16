@@ -10,6 +10,7 @@ import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
 import org.reactfx.value.Val
 import wapuniverse.app.world_preview.worldPreviewUi
+import wapuniverse.util.button
 
 const val rootWindowTitle = "WapUniverse"
 
@@ -32,6 +33,7 @@ private fun Ui.root() = BorderPane().apply {
                     button("Edit", editObject),
                     button("Insert object", insertObject),
                     button("Delete object", deleteObject),
+                    button("Edit planes", editPlanes),
                     comboBox(planes, activePlane) { it.name }
             )
     )
@@ -45,7 +47,7 @@ private fun Ui.root() = BorderPane().apply {
 private fun <T> comboBox(
         items: ObservableList<T>,
         valueProperty: Property<T>,
-        provideText: (item: T) -> String
+        provideText: (item: T) -> Val<String>
 ) = ComboBox<T>(items).apply {
     valueProperty().bindBidirectional(valueProperty)
 
@@ -53,7 +55,7 @@ private fun <T> comboBox(
         object : ListCell<T>() {
             override fun updateItem(item: T?, bln: Boolean) {
                 super.updateItem(item, bln)
-                item?.let { text = provideText(it) }
+                item?.let { textProperty().bind(provideText(it))}
             }
         }
     }
@@ -71,7 +73,3 @@ private fun menuItem(text: String, callback: Val<Callback>) =
             onActionProperty().bind(callback.map { f -> EventHandler<ActionEvent> { f() } })
         }
 
-private fun button(text: String, callback: Val<() -> Unit>) =
-        Button(text).apply {
-            onActionProperty().bind(callback.map { f -> EventHandler<ActionEvent> { f() } })
-        }

@@ -1,11 +1,14 @@
 package wapuniverse.app
 
 import javafx.collections.FXCollections.observableList
+import javafx.collections.ObservableList
 import javafx.geometry.Orientation
 import javafx.scene.Node
 import javafx.scene.control.ListCell
 import javafx.scene.control.ListView
 import javafx.scene.image.ImageView
+import org.reactfx.value.Val
+import org.reactfx.value.Var
 import wapuniverse.app.world_preview.tileLength
 import wapuniverse.editor.TileModeContext
 import wapuniverse.editor.extensions.forEach
@@ -26,28 +29,62 @@ fun tilePicker(
                 image = rezImageCache.getImage(plane.fqImageSetId, tileId)?.image
             }
 
-    val listView = ListView<TileId>(observableList(plane.tileSet?.map(::TileId) ?: emptyList()))
+    val items = observableList(plane.tileSet ?: emptyList())
+//    val listView = ListView<TileId>(items)
 
-    context.tileId.forEach { tileId ->
-        listView.selectionModel.select(TileId(tileId))
-    }
+//    context.tileId.forEach { tileId ->
+//        listView.selectionModel.select(TileId(tileId))
+//    }
+//
+//    listView.selectionModel.selectedItemProperty().forEach {
+//        context.tileId.value = it.value
+//    }
 
-    listView.selectionModel.selectedItemProperty().forEach {
-        context.tileId.value = it.value
-    }
+//    val tileId = Var.newSimpleVar(TileId())
 
-    return listView.apply {
+    fun text(tileId: Int) = tileId.toString()
+
+    return listView(items, context.tileId, graphics = ::tileImage, text = ::text).apply {
         orientation = Orientation.HORIZONTAL
         prefHeight = 128.0
-        setCellFactory { _ ->
-            object : ListCell<TileId>() {
-                override fun updateItem(item: TileId?, empty: Boolean) {
-                    super.updateItem(item, empty)
-                    val tileIdVal = item?.value
-                    graphic = tileIdVal?.let(::tileImage)
-                    text = tileIdVal?.toString()
+    }
+}
+
+private fun <E> listViewBase(
+        items: ObservableList<E>,
+        selectedItem: Var<E>,
+        graphics: (E) -> Node? = { null },
+        text: (E) -> Val<String>
+) =
+        ListView(items).apply {
+            selectedItem.forEach {
+                selectionModel.select(it)
+            }
+            selectionModel.selectedItemProperty().forEach {
+                selectedItem.value = it
+            }
+            setCellFactory { _ ->
+                object : ListCell<E>() {
+                    override fun updateItem(item: E?, empty: Boolean) {
+                        super.updateItem(item, empty)
+                        item?.let { textProperty().bind(text(it)) }
+                        this.graphic = item?.let(graphics)
+                    }
                 }
             }
         }
-    }
-}
+
+fun <E> listView(
+        items: ObservableList<E>,
+        selectedItem: Var<E>,
+        graphics: (E) -> Node? = { null },
+        text: (E) -> Val<String>
+) = listViewBase(items, selectedItem, graphics, text)
+
+@JvmName("listView2")
+fun <E> listView(
+        items: ObservableList<E>,
+        selectedItem: Var<E>,
+        graphics: (E) -> Node? = { null },
+        text: (E) -> String
+) = listViewBase(items, selectedItem, graphics) { Val.constant(text(it)) }
