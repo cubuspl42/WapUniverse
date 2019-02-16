@@ -16,7 +16,7 @@ import wapuniverse.util.vBox
 import wapuniverse.editor.WapObjectIntAttrKey as IntKey
 import wapuniverse.editor.WapObjectStringAttrKey as StrKey
 
-typealias Ui = EditObjectDialog
+private typealias Ui = EditObjectDialog
 
 fun editObjectDialogUi(editObjectDialog: EditObjectDialog) =
         editObjectDialog.root()

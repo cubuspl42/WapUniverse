@@ -4,7 +4,6 @@ import javafx.beans.value.ObservableValue
 import javafx.scene.Group
 import javafx.scene.Node
 import javafx.scene.canvas.Canvas
-import javafx.scene.image.ImageView
 import javafx.scene.input.MouseButton
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.BorderPane
@@ -17,6 +16,7 @@ import org.reactfx.value.Val
 import wapuniverse.app.EditorContext
 import wapuniverse.app.RootWindow
 import wapuniverse.app.tilePicker
+import wapuniverse.app.world_preview.`object`.wapObject
 import wapuniverse.editor.*
 import wapuniverse.editor.extensions.flatMap
 import wapuniverse.editor.extensions.forEach
@@ -29,7 +29,7 @@ import wapuniverse.geom.Vec2i
 import wapuniverse.util.bindChild
 import wapuniverse.util.fullClip
 
-typealias Ui = RootWindow
+private typealias Ui = RootWindow
 
 fun worldPreviewUi(rootWindow: RootWindow, editorContext: EditorContext) =
         rootWindow.root(editorContext)
@@ -52,7 +52,7 @@ fun Ui.root(editorContext: EditorContext): Pane {
     return StackPane(
             previewPane,
             BorderPane().apply {
-                bottomProperty().bind(tileModeContext.map { tilePicker(it!!, rezImageCache) })
+                bottomProperty().bind(tileModeContext.map { tilePicker(it, rezImageCache) })
                 isPickOnBounds = false
             }
     )
@@ -131,26 +131,6 @@ private fun areaSelectionRect(areaSelectionContext: AreaSelectionContext): Node 
     }
 }
 
-private fun Ui.wapObject(wapObject: WapObject): DoubleNode {
-    val rezImage = Val.combine(wapObject.fqImageSetId, wapObject.i) { fqImageSetIdNow, iNow ->
-        rezImageCache.getImage(fqImageSetIdNow!!, iNow)
-    }
-    val image = rezImage.map { it!!.image }
-    val boundingBox = wapObject.boundingBox
-    return DoubleNode(
-            ImageView().apply {
-                imageProperty().bind(image)
-                bindPosition(boundingBox.map { it.position })
-            },
-            Group(
-                    Rectangle(boundingBox).apply {
-                        fill = Color.TRANSPARENT
-                        strokeProperty().bind(wapObjectStrokeColor(wapObject))
-                    }
-            )
-    )
-}
-
 private fun tileRect(offset: Vec2i) =
         Rect2i(offset * tileLength, Size2i(tileLength, tileLength))
 
@@ -168,24 +148,11 @@ private fun inputRectangle(controller: Node.() -> Unit): Node {
     }
 }
 
-private fun wapObjectStrokeColor(wapObject: WapObject) =
-        Val.combine(
-                wapObject.isHighlighted,
-                wapObject.isSelected
-        ) { isHighlightedNow, isSelectedNow ->
-            if (isHighlightedNow || isSelectedNow) Color.RED else Color.LIGHTBLUE
-        }
-
 fun Rectangle(rect: Val<Rect2i>) = Rectangle().apply {
     xProperty().bind(rect.map { it.position.x })
     yProperty().bind(rect.map { it.position.y })
     widthProperty().bind(rect.map { it.size.width })
     heightProperty().bind(rect.map { it.size.height })
-}
-
-private fun ImageView.bindPosition(position: Val<Vec2i>) {
-    xProperty().bind(position.map { it.x })
-    yProperty().bind(position.map { it.y })
 }
 
 private fun Rectangle.bind(rect: Val<Rect2i>) {

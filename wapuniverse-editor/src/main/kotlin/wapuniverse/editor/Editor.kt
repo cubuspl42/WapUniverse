@@ -21,4 +21,8 @@ class Editor(val world: World) {
 
     val activePlaneContext = activePlane.map { ActivePlaneContext(this, it) }
             .apply { disposeOldValues() }
+
+    init {
+        world.editor.value = this
+    }
 }

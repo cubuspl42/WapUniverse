@@ -3,12 +3,15 @@ package wapuniverse.editor
 import io.github.jwap32.v1.Wwd
 import javafx.collections.FXCollections.observableArrayList
 import javafx.collections.FXCollections.unmodifiableObservableList
+import org.reactfx.value.Var.newSimpleVar
 
 class World(
         wwd: Wwd,
         private val imageMetadataSupplier: ImageMetadataSupplier,
         private val tileSetMetadataSupplier: TileSetMetadataSupplier
 ) {
+    internal val editor = newSimpleVar<Editor>(null)
+
     internal val imageDir = wwd.header.imageDir
 
     private val planesMut = observableArrayList<Plane>()

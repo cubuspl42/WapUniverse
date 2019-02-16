@@ -13,7 +13,7 @@ import wapuniverse.app.world_preview.worldPreviewUi
 
 const val rootWindowTitle = "WapUniverse"
 
-typealias Ui = RootWindow
+private typealias Ui = RootWindow
 
 fun rootWindowUi(rootWindow: RootWindow) = rootWindow.root()
 

@@ -23,6 +23,8 @@ class WapObject internal constructor(
 
     private val world = plane.world
 
+    val isActive = world.editor.flatMap { editor -> editor.mode.map { it == Mode.OBJECT } }
+
     internal val intAttrs = attrMap(IntKey.values().map { it as WapObjectAttrKey<Int> }, 0)
 
     internal val strAttrs = attrMap(StrKey.values().map { it as WapObjectAttrKey<String> }, "")
@@ -46,11 +48,11 @@ class WapObject internal constructor(
 
     val imageSet = strAttrs.valAt(StrKey.IMAGE_SET)
 
-    val fqImageSetId = imageSet.map { world.expandImageSetId(it) }
+    val fqImageSetId = imageSet.map { world.expandImageSetId(it) }!!
 
     val imageMetadata = Val.combine(fqImageSetId, i) { fqImageSetIdNow, iNow ->
         world.supplyMetadata(fqImageSetIdNow!!, iNow)
-    }
+    }!!
 
     private val isHighlightedVar = newSimpleVar(false)
 
