@@ -4,6 +4,7 @@ plugins {
     application
     kotlin("jvm")
     id("edu.sc.seis.launch4j") version "2.4.4"
+    id("com.github.johnrengelman.shadow") version "4.0.4"
 }
 
 application {
@@ -33,5 +34,7 @@ tasks.register<Jar>("uberJar") {
 
 launch4j {
     mainClassName = "wapuniverse.app.MyApplication"
+    copyConfigurable = project.tasks.shadowJar.get().outputs.files
+    jar = "lib/${project.tasks.shadowJar.get().archiveName}"
 //    icon = "${projectDir}/icons/myApp.ico"
 }
