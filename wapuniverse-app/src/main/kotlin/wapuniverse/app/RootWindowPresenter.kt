@@ -33,7 +33,8 @@ private fun Ui.root() = BorderPane().apply {
                     button("Edit", editObject),
                     button("Insert object", insertObject),
                     button("Delete object", deleteObject),
-                    button("Edit planes", editPlanes),
+                    button("World", editWorld),
+                    button("Planes", editPlanes),
                     comboBox(planes, activePlane) { it.name }
             )
     )

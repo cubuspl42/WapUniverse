@@ -19,23 +19,30 @@ private data class TileId(val value: Int)
 fun tilePicker(
         context: TileModeContext,
         rezImageCache: RezImageCache
-): Node? {
+): Val<Node?> {
     val plane = context.plane
 
     fun tileImage(tileId: Int) =
             ImageView().apply {
                 fitWidth = tileLength.toDouble()
                 fitHeight = tileLength.toDouble()
-                image = rezImageCache.getImage(plane.fqImageSetId, tileId)?.image
+                imageProperty().bind(plane.fqImageSetId.map {
+                    rezImageCache.getImage(it, tileId)?.image
+                })
             }
-
-    val items = observableList(plane.tileSet ?: emptyList())
 
     fun text(tileId: Int) = tileId.toString()
 
-    return listView(items, context.tileId, graphics = ::tileImage, text = ::text).apply {
-        orientation = Orientation.HORIZONTAL
-        prefHeight = 128.0
+    return plane.tileSet.map { items ->
+        listView(
+                observableList(items!!),
+                context.tileId,
+                graphics = ::tileImage,
+                text = ::text
+        ).apply {
+            orientation = Orientation.HORIZONTAL
+            prefHeight = 128.0
+        } as Node
     }
 }
 

@@ -6,7 +6,9 @@ import io.github.jwap32.v1.WwdHeaderFlags
 import io.github.jwap32.v1.dumpWwd
 import javafx.collections.FXCollections.observableArrayList
 import javafx.collections.FXCollections.unmodifiableObservableList
+import org.reactfx.value.Var
 import org.reactfx.value.Var.newSimpleVar
+import wapuniverse.geom.Vec2i
 import java.io.OutputStream
 
 class World(
@@ -16,7 +18,21 @@ class World(
 ) {
     internal val editor = newSimpleVar<Editor>(null)
 
-    internal val imageDir = wwd.header.imageDir
+    val levelName = Var.newSimpleVar(wwd.header.levelName)
+
+    val author = Var.newSimpleVar(wwd.header.author)
+
+    val birth = Var.newSimpleVar(wwd.header.birth)
+
+    val rezFile = Var.newSimpleVar(wwd.header.rezFile)
+
+    val imageDir = Var.newSimpleVar(wwd.header.imageDir)
+
+    val palRez = Var.newSimpleVar(wwd.header.palRez)
+
+    val startPosition = Var.newSimpleVar(Vec2i(wwd.header.startX, wwd.header.startY))
+
+    val launchApp = Var.newSimpleVar(wwd.header.launchApp)
 
     private val planesMut = observableArrayList<Plane>()
 

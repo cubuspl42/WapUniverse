@@ -3,7 +3,6 @@ package wapuniverse.editor
 import io.github.jwap32.v1.WwdPlane
 import javafx.collections.FXCollections.observableArrayList
 import javafx.collections.FXCollections.unmodifiableObservableList
-import org.reactfx.value.Var
 import org.reactfx.value.Var.newSimpleVar
 import wapuniverse.editor.util.Matrix
 import wapuniverse.editor.util.observableIntMatrix
@@ -31,9 +30,11 @@ class Plane(
 
     private val imageSet = wwdPlane.imageSets.first()
 
-    val fqImageSetId: String = makeFqImageSetId(world.imageDir, imageSet) // TODO: Val
+    val fqImageSetId = world.imageDir.map { imageDirNow ->
+        makeFqImageSetId(imageDirNow, imageSet) // TODO: Val
+    }!!
 
-    val tileSet = tileSetMetadataSupplier.listTiles(fqImageSetId)
+    val tileSet = fqImageSetId.map(tileSetMetadataSupplier::listTiles)!!
 
     private val objectsMut = observableArrayList<WapObject>()
 

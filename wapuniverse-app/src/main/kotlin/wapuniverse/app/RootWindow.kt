@@ -61,6 +61,8 @@ class RootWindow(
 
     val editPlanes: Val<Callback> = context.map { { it!!.editPlanes() } }
 
+    val editWorld: Val<Callback> = context.map { { it!!.editWorld() } }
+
     init {
         stage.apply {
             title = rootWindowTitle

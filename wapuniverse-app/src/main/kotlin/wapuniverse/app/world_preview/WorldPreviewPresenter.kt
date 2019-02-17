@@ -53,7 +53,7 @@ fun Ui.root(editorContext: EditorContext): Pane {
     return StackPane(
             previewPane,
             BorderPane().apply {
-                bottomProperty().bind(tileModeContext.map { tilePicker(it!!, rezImageCache) })
+                bottomProperty().bind(tileModeContext.flatMap { tilePicker(it!!, rezImageCache) })
                 isPickOnBounds = false
             }
     )

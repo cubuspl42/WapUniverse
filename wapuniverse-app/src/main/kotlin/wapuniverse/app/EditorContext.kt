@@ -23,6 +23,10 @@ class EditorContext(
         saveWorld(world, path)
     }
 
+    fun editWorld() {
+        WorldDialog(editor)
+    }
+
     fun editPlanes() {
         PlanesDialog(editor)
     }

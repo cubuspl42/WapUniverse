@@ -11,7 +11,7 @@ const val tileLength = 64
 
 class TilesCanvasController(
         activePlaneContext: ActivePlaneContext,
-        rezImageCache: RezImageCache,
+        private val rezImageCache: RezImageCache,
         private val canvas: Canvas,
         previewPane: Pane
 ) : Controller(activePlaneContext) {
@@ -21,10 +21,13 @@ class TilesCanvasController(
 
     private val cameraPosition = activePlaneContext.cameraPosition
 
-    private val tilesImages = rezImageCache
-            .imageSets[plane.fqImageSetId]
-            ?.getAllImages()
-            ?.mapValues { it.value?.image }
+    private fun makeTilesImages(fqImageSetId: String) =
+            rezImageCache
+                    .imageSets[fqImageSetId]
+                    ?.getAllImages()
+                    ?.mapValues { it.value?.image }
+
+    private val tilesImages = plane.fqImageSetId.map(this::makeTilesImages)
 
     init {
         canvas.widthProperty().bind(previewPane.widthProperty())
@@ -32,6 +35,7 @@ class TilesCanvasController(
         draw()
 
         val stream = tiles.changes()
+                .or(tilesImages.changes())
                 .or(changesOf(cameraPosition))
                 .or(changesOf(previewPane.widthProperty()))
                 .or(changesOf(previewPane.heightProperty()))
@@ -52,7 +56,7 @@ class TilesCanvasController(
     private fun drawTiles() {
         tiles.forEach { i: Int, j: Int, tileId: Int ->
             if (tileId != emptyTile) {
-                tilesImages?.get(tileId)?.let { image ->
+                tilesImages.value?.get(tileId)?.let { image ->
                     val x = j * tileLength.toDouble()
                     val y = i * tileLength.toDouble()
                     canvas.graphicsContext2D.drawImage(image, x, y)
