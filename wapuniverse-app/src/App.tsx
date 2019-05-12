@@ -1,21 +1,15 @@
-import React, {ReactNode} from 'react';
-import './App.css';
-import 'typeface-roboto';
+import React from 'react';
 import Editor from "./Editor";
 
-class App extends React.Component {
+import './App.css';
+import 'typeface-roboto';
 
-  componentDidMount() {
-
-  }
-
-  render() {
-    return (
-      <div className='App'>
-        <Editor/>
-      </div>
-    );
-  }
-}
+const App: React.FC = () => {
+  return (
+    <div className='App'>
+      <Editor/>
+    </div>
+  );
+};
 
 export default App;
