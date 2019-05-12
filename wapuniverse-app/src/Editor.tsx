@@ -1,30 +1,52 @@
 import React from 'react';
-import * as PIXI from 'pixi.js'
-import './Editor.css'
+import * as PIXI from 'pixi.js';
+import yaml from 'js-yaml';
+import {autoResizingPixiApplication} from "./pixiUtils";
+
+import './Editor.css';
 
 class EditorMd {
 }
 
-function autoResizingPixiApplication(parent: HTMLElement) {
-  const application = new PIXI.Application({
-    autoResize: true,
-    resolution: devicePixelRatio
-  });
-
-  parent.appendChild(application.view);
-
-  function resizeRenderer() {
-    const parent = application.view.parentNode as Element;
-    application.renderer.resize(parent.clientWidth, parent.clientHeight);
-  }
-
-  window.addEventListener('resize', resizeRenderer);
-
-  resizeRenderer();
-
-  return application;
+interface Image {
+  offset: [number]; // [int, int]
+  path: string; // path to PID file inside REZ
 }
 
+interface ImageSet {
+  frames: { [frameIndex: number]: string } // -> pidFileName
+  sprites: { [pidFileName: string]: Image }
+}
+
+interface RezIndex {
+  imageSets: { [imageSetId: string]: ImageSet };
+}
+
+async function fetchRezIndex() {
+  const response = await fetch("rezIndex.yaml");
+  const text = await response.text();
+  const root = yaml.load(text) as RezIndex;
+  return root
+}
+
+async function loadResources(rezIndex: RezIndex): Promise<PIXI.loaders.ResourceDictionary> {
+  return new Promise(function (resolve, reject) {
+    const loader = new PIXI.loaders.Loader();
+    Object.entries(rezIndex.imageSets)
+      .filter(([imageSetId,]) => imageSetId.startsWith("LEVEL1_"))
+      .forEach(([, imageSet]) => {
+          Object.values(imageSet.sprites).forEach((image) => {
+              const pngPath = "CLAW/" + image.path.replace(".PID", ".png");
+              loader.add(pngPath)
+            }
+          );
+        }
+      );
+    loader.load((_loader, resources: PIXI.loaders.ResourceDictionary) => {
+      resolve(resources);
+    });
+  });
+}
 
 class Editor extends React.Component {
   private application: PIXI.Application | null = null;
@@ -32,16 +54,18 @@ class Editor extends React.Component {
   private divElement: HTMLDivElement | null = null;
 
   componentDidMount() {
-    const application = autoResizingPixiApplication(this.divElement!);
+    this.application = autoResizingPixiApplication(this.divElement!);
 
-    const rect = new PIXI.Graphics()
-      .beginFill(0xff0000)
-      .drawRect(0, 0, 100, 100);
-
-    application.stage.addChild(rect);
-
-    this.application = application;
+    this.init();
   }
+
+  async init() {
+    const rezIndex = await fetchRezIndex();
+    const resources = await loadResources(rezIndex);
+    const officerTexture = resources["CLAW/LEVEL1/IMAGES/OFFICER/FRAME001.png"];
+    this.application!.stage.addChild(new PIXI.Sprite(officerTexture.texture));
+  }
+
 
   componentWillUnmount() {
     this.application!.destroy(true)
