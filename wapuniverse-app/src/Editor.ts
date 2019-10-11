@@ -23,6 +23,8 @@ export class EdObject {
 
   readonly boundingBox: Cell<Rectangle>;
 
+  readonly isHovered: CellSink<boolean>;
+
   constructor(rezIndex: RezIndex, levelResources: LevelResources) {
     function getRezImage(imageSetId: string, i: number): Image {
       const rezImageSet = rezIndex.imageSets[imageSetId];
@@ -49,6 +51,7 @@ export class EdObject {
 
     this.texture = texture;
     this.boundingBox = boundingBox;
+    this.isHovered = new CellSink<boolean>(false);
   }
 
 }
