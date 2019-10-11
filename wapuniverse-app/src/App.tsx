@@ -1,15 +1,20 @@
 import React from 'react';
-import Editor from "./Editor";
 
 import './App.css';
 import 'typeface-roboto';
+import usePromise from "react-promise";
+import {App} from "./Editor";
+import {EditorUi} from "./EditorUi";
 
-const App: React.FC = () => {
-  return (
-    <div className='App'>
-      <Editor/>
-    </div>
-  );
-};
+interface AppUiProps {
+  app: App;
+}
 
-export default App;
+export function AppUi({app}: AppUiProps) {
+  const {value,} = usePromise(app.editor);
+  if (value !== undefined) {
+    return <EditorUi editor={value}/>
+  } else {
+    return <span>Loading...</span>
+  }
+}

@@ -1,7 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './App';
 
 import './index.css';
+import {AppUi} from "./App";
+import {App} from "./Editor";
 
-ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render(<AppUi app={new App()}/>, document.getElementById('root'));
