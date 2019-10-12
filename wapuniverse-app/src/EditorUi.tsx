@@ -1,8 +1,8 @@
 import React, {useEffect, useState} from 'react';
 
 import './Editor.css';
-import {Editor} from "./Editor";
-import {Sprite, Stage} from "@inlet/react-pixi";
+import {Editor, EdObject} from "./Editor";
+import {Container, Sprite, Stage} from "@inlet/react-pixi";
 import {GraphicsRectangle} from "./GraphicsRectangle";
 import {Cell} from "sodiumjs";
 
@@ -20,14 +20,11 @@ function useCell<T>(cell: Cell<T>) {
   return value;
 }
 
-export function EditorUi({editor}: EditorUiProps) {
-  const object = editor.object;
-
+function EdObjectUi(object: EdObject) {
   const texture = useCell(object.texture);
   const boundingBox = useCell(object.boundingBox);
   const isHovered = useCell(object.isHovered);
-
-  return <Stage width={1024} height={768}>
+  return <Container>
     <Sprite
       x={boundingBox.x}
       y={boundingBox.y}
@@ -43,6 +40,12 @@ export function EditorUi({editor}: EditorUiProps) {
     <GraphicsRectangle x={boundingBox.x} y={boundingBox.y} width={boundingBox.width} height={boundingBox.height}
                        strokeWidth={2}
                        strokeColor={isHovered ? 0xFF0000 : 0x0000AA}/>
+  </Container>;
+}
+
+export function EditorUi({editor}: EditorUiProps) {
+  return <Stage width={1024} height={768}>
+    {editor.objects.map(EdObjectUi)}
   </Stage>
 }
 

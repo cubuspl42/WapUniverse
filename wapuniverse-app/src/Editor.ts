@@ -19,13 +19,20 @@ class Vec2 {
 }
 
 export class EdObject {
+  readonly position: Cell<Vec2>;
+
   readonly texture: Cell<Texture>;
 
   readonly boundingBox: Cell<Rectangle>;
 
   readonly isHovered: CellSink<boolean>;
 
-  constructor(rezIndex: RezIndex, levelResources: LevelResources) {
+  constructor(
+    rezIndex: RezIndex,
+    levelResources: LevelResources,
+    initialPosition: Vec2,
+    initialImageSet: string
+  ) {
     function getRezImage(imageSetId: string, i: number): Image {
       const rezImageSet = rezIndex.imageSets[imageSetId];
       const pidFileName = rezImageSet.frames[i];
@@ -41,14 +48,15 @@ export class EdObject {
       return new Rectangle(position.x, position.y, texture.width, texture.height);
     }
 
-    const position = new CellSink(new Vec2(0, 0));
+    const position = new CellSink(initialPosition);
     const i = new CellSink(-1);
-    const imageSet = new CellSink("LEVEL1_IMAGES_OFFICER");
+    const imageSet = new CellSink(initialImageSet);
 
     const rezImage = imageSet.lift(i, getRezImage);
     const texture = rezImage.map(getTexture);
     const boundingBox = position.lift3(rezImage, texture, calculateBoundingBox);
 
+    this.position = position;
     this.texture = texture;
     this.boundingBox = boundingBox;
     this.isHovered = new CellSink<boolean>(false);
@@ -61,10 +69,21 @@ export class App {
 }
 
 export class Editor {
-  readonly object: EdObject;
+  readonly objects: ReadonlyArray<EdObject>;
 
   private constructor(rezIndex: RezIndex, levelResources: LevelResources) {
-    this.object = new EdObject(rezIndex, levelResources);
+    this.objects = [
+      new EdObject(
+        rezIndex, levelResources,
+        new Vec2(64, 64),
+        "LEVEL1_IMAGES_OFFICER"
+      ),
+      new EdObject(
+        rezIndex, levelResources,
+        new Vec2(256, 256),
+        "LEVEL1_IMAGES_SKULL"
+      )
+    ];
   }
 
   static async create(): Promise<Editor> {
