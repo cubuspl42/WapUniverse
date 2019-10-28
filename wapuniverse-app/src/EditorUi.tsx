@@ -31,6 +31,7 @@ function EdObjectUi(object: EdObject) {
   const boundingBox = useCell(object.boundingBox);
   const isHovered = useCell(object.isHovered);
   const isInSelectionArea = useCell(object.isInSelectionArea);
+  const isSelected = useCell(object.isSelected);
 
   return <Container>
     <Sprite
@@ -48,8 +49,11 @@ function EdObjectUi(object: EdObject) {
     <GraphicsRectangle x={boundingBox.xMin} y={boundingBox.yMin}
                        width={boundingBox.width} height={boundingBox.height}
                        strokeWidth={2}
-                       strokeColor={isInSelectionArea ? 0xcd0000 :
-                         isHovered ? 0x0000cd : 0x87cefa
+                       strokeColor={
+                         isInSelectionArea ? 0xcd0000 :
+                           isHovered ? 0x0000cd :
+                             isSelected ? 0xe3fc03 :
+                               0x87cefa
                        }/>
   </Container>;
 }
@@ -76,6 +80,9 @@ export function EditorUi({editor}: EditorUiProps) {
       }
     }}
     onPointerUp={e => {
+      if (areaSelectionDestination !== undefined) {
+        setAreaSelectionDestination(undefined);
+      }
       if (areaSelection != null) {
         areaSelection.commit();
       }

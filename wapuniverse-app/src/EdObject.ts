@@ -4,10 +4,13 @@ import {Image, RezIndex} from "./rezIndex";
 import {LevelResources} from "./LevelResources";
 import {AreaSelection} from "./AreaSelection";
 import {Rectangle} from "./Rectangle";
+import {EditorInternal} from "./Editor";
 
 type Texture = PIXI.Texture;
 
 export class EdObject {
+  readonly _editor: EditorInternal;
+
   readonly position: Cell<Vec2>;
 
   readonly texture: Cell<Texture>;
@@ -18,7 +21,10 @@ export class EdObject {
 
   readonly isInSelectionArea: Cell<boolean>;
 
+  readonly isSelected: Cell<boolean>;
+
   constructor(
+    editor: EditorInternal,
     rezIndex: RezIndex,
     levelResources: LevelResources,
     areaSelection: Cell<AreaSelection | null>,
@@ -54,10 +60,14 @@ export class EdObject {
         new Cell(false);
     }));
 
+    const isSelected = editor.selectedObjects.map(s => s.indexOf(this) !== -1);
+
+    this._editor = editor;
     this.position = position;
     this.texture = texture;
     this.boundingBox = boundingBox;
     this.isHovered = new CellSink<boolean>(false);
     this.isInSelectionArea = isInSelectionArea;
+    this.isSelected = isSelected;
   }
 }
