@@ -1,11 +1,13 @@
 import React, {useEffect, useMemo, useState} from 'react';
 
 import './Editor.css';
-import {AreaSelection, Editor, EdObject} from "./Editor";
+import {Editor} from "./Editor";
 import {Container, Sprite, Stage} from "@inlet/react-pixi";
 import {GraphicsRectangle} from "./GraphicsRectangle";
 import {Cell, StreamSink} from "sodiumjs";
 import {Vec2} from "./Vec2";
+import {EdObject} from "./EdObject";
+import {AreaSelection} from "./AreaSelection";
 
 type CellProvider<T> = () => Cell<T>;
 
