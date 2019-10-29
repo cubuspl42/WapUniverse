@@ -51,10 +51,14 @@ function EdObjectUi(object: EdObject) {
                        strokeWidth={2}
                        strokeColor={
                          isInSelectionArea ? 0xcd0000 :
-                           isHovered ? 0x0000cd :
-                             isSelected ? 0xe3fc03 :
-                               0x87cefa
+                           isSelected ? 0xe3fc03 :
+                             0x87cefa
                        }/>
+    {isHovered && <GraphicsRectangle x={boundingBox.xMin - 2} y={boundingBox.yMin - 2}
+                                     width={boundingBox.width + 4} height={boundingBox.height + 4}
+                                     strokeWidth={2}
+                                     strokeColor={0x0000cd}/>
+    }
   </Container>;
 }
 
