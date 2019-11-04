@@ -6,7 +6,9 @@ import {EdObject} from "./EdObject";
 import {AreaSelection} from "./AreaSelection";
 
 export class App {
-  editor = EditorInternal.create();
+  readonly _editor = new CellSink(EditorInternal.create());
+
+  readonly editor = this._editor as Cell<Promise<Editor>>;
 }
 
 export interface Editor {

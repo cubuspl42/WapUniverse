@@ -4,14 +4,15 @@ import './App.css';
 import 'typeface-roboto';
 import usePromise from "react-promise";
 import {App} from "./Editor";
-import {EditorUi} from "./EditorUi";
+import {EditorUi, useCell} from "./EditorUi";
 
 interface AppUiProps {
   app: App;
 }
 
 export function AppUi({app}: AppUiProps) {
-  const {value,} = usePromise(app.editor);
+  const editorPromise = useCell(app.editor);
+  const {value,} = usePromise(editorPromise);
   if (value !== undefined) {
     return <EditorUi editor={value}/>
   } else {

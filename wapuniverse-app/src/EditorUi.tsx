@@ -15,7 +15,7 @@ interface EditorUiProps {
   editor: Editor;
 }
 
-function useCell<T>(cell: Cell<T> | CellProvider<T>) {
+export function useCell<T>(cell: Cell<T> | CellProvider<T>) {
   const cell_ = useMemo(
     cell instanceof Cell ? () => cell : cell,
     undefined);
