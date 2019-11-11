@@ -4,6 +4,8 @@ import {Cell, CellSink} from "sodiumjs";
 import {Vec2} from "./Vec2";
 import {EdObject} from "./EdObject";
 import {AreaSelection} from "./AreaSelection";
+import {DataStream} from "./DataStream";
+import {readWwdHeader} from "./wwd";
 
 export class App {
   readonly _editor = new CellSink(EditorInternal.create());
@@ -19,6 +21,15 @@ export interface Editor {
   readonly areaSelection: Cell<AreaSelection | null>;
 
   selectByArea(origin: Vec2, destination: Cell<Vec2>): void;
+}
+
+async function fetchWwd() {
+  const wwd = await fetch("WORLD.WWD");
+  const blob = await wwd.blob();
+  const arrayBuffer = await blob.arrayBuffer();
+  const dataStream = new DataStream(arrayBuffer);
+  const header = readWwdHeader(dataStream);
+  console.log(`header: ${header}`);
 }
 
 export class EditorInternal implements Editor {
@@ -50,6 +61,7 @@ export class EditorInternal implements Editor {
   }
 
   static async create(): Promise<Editor> {
+    await fetchWwd();
     const rezIndex = await fetchRezIndex();
     const resources = await LevelResources.load(rezIndex, 1);
     return new EditorInternal(rezIndex, resources);
