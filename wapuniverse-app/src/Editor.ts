@@ -4,8 +4,7 @@ import {Cell, CellSink} from "sodiumjs";
 import {Vec2} from "./Vec2";
 import {EdObject} from "./EdObject";
 import {AreaSelection} from "./AreaSelection";
-import {DataStream} from "./DataStream";
-import {readWwdHeader} from "./wwd";
+import {readWwd} from "./wwd";
 
 export class App {
   readonly _editor = new CellSink(EditorInternal.create());
@@ -27,8 +26,7 @@ async function fetchWwd() {
   const wwd = await fetch("WORLD.WWD");
   const blob = await wwd.blob();
   const arrayBuffer = await blob.arrayBuffer();
-  const dataStream = new DataStream(arrayBuffer);
-  const header = readWwdHeader(dataStream);
+  const header = readWwd(arrayBuffer);
   console.log(`header: ${header}`);
 }
 
