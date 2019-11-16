@@ -9,9 +9,10 @@ export class DataStream {
 
   private _littleEndian = true;
 
-  constructor(arrayBuffer: ArrayBuffer) {
+  constructor(arrayBuffer: ArrayBuffer, initialOffset: number = 0) {
     this._arrayBuffer = arrayBuffer;
     this._dataView = new DataView(arrayBuffer);
+    this._offset = initialOffset;
   }
 
   readUint32(): number {
