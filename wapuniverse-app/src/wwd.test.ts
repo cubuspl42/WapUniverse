@@ -1,4 +1,4 @@
-import {readWwd} from "./wwd";
+import {readWorld} from "./wwd";
 import * as fs from "fs";
 import * as path from "path";
 
@@ -11,5 +11,5 @@ function readWorldBuffer(levelIndex: number): ArrayBuffer {
 
 it('reads LEVEL1.WWD', () => {
   const worldBuffer = readWorldBuffer(1);
-  const wwd = readWwd(worldBuffer);
+  const wwd = readWorld(worldBuffer);
 });

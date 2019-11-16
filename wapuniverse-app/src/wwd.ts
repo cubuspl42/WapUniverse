@@ -1,6 +1,118 @@
 import {ByteString, DataStream} from "./DataStream";
 import * as pako from "pako";
 
+class World {
+  readonly name: ByteString;
+  readonly author: ByteString;
+  readonly dateCreatedString: ByteString;
+  readonly rezFilePath: ByteString;
+  readonly imageDir: ByteString;
+  readonly palRez: ByteString;
+  readonly startX: number;
+  readonly startY: number;
+  readonly launchApp: ByteString;
+  readonly imageSet1: ByteString;
+  readonly imageSet2: ByteString;
+  readonly imageSet3: ByteString;
+  readonly imageSet4: ByteString;
+  readonly prefix1: ByteString;
+  readonly prefix2: ByteString;
+  readonly prefix3: ByteString;
+  readonly prefix4: ByteString;
+
+  readonly planes: ReadonlyArray<Plane>;
+
+  constructor(
+    name: ByteString,
+    author: ByteString,
+    dateCreatedString: ByteString,
+    rezFilePath: ByteString,
+    imageDir: ByteString,
+    palRez: ByteString,
+    startX: number,
+    startY: number,
+    launchApp: ByteString,
+    imageSet1: ByteString,
+    imageSet2: ByteString,
+    imageSet3: ByteString,
+    imageSet4: ByteString,
+    prefix1: ByteString,
+    prefix2: ByteString,
+    prefix3: ByteString,
+    prefix4: ByteString,
+    planes: ReadonlyArray<Plane>
+  ) {
+    this.name = name;
+    this.author = author;
+    this.dateCreatedString = dateCreatedString;
+    this.rezFilePath = rezFilePath;
+    this.imageDir = imageDir;
+    this.palRez = palRez;
+    this.startX = startX;
+    this.startY = startY;
+    this.launchApp = launchApp;
+    this.imageSet1 = imageSet1;
+    this.imageSet2 = imageSet2;
+    this.imageSet3 = imageSet3;
+    this.imageSet4 = imageSet4;
+    this.prefix1 = prefix1;
+    this.prefix2 = prefix2;
+    this.prefix3 = prefix3;
+    this.prefix4 = prefix4;
+    this.planes = planes;
+  }
+}
+
+class Plane {
+  readonly flags: number;
+  readonly name: ByteString;
+  readonly tileWidth: number; /* tile's width in pixels */
+  readonly tileHeight: number; /* tile's height in pixels */
+  readonly movementXPercent: number;
+  readonly movementYPercent: number;
+  readonly fillColor: number;
+  readonly zCoord: number;
+  readonly tilesWide: number;
+  readonly tilesHigh: number;
+
+  readonly tiles: ReadonlyArray<number>;
+  readonly imageSets: ReadonlyArray<string>;
+  readonly objects: ReadonlyArray<Object>;
+
+  constructor(
+    flags: number,
+    name: ByteString,
+    tileWidth: number,
+    tileHeight: number,
+    movementXPercent: number,
+    movementYPercent: number,
+    fillColor: number,
+    zCoord: number,
+    tilesWide: number,
+    tilesHigh: number,
+    tiles: ReadonlyArray<number>,
+    imageSets: ReadonlyArray<string>,
+    objects: ReadonlyArray<Object>
+  ) {
+    this.flags = flags;
+    this.name = name;
+    this.tileWidth = tileWidth;
+    this.tileHeight = tileHeight;
+    this.movementXPercent = movementXPercent;
+    this.movementYPercent = movementYPercent;
+    this.fillColor = fillColor;
+    this.zCoord = zCoord;
+    this.tilesWide = tilesWide;
+    this.tilesHigh = tilesHigh;
+    this.tiles = tiles;
+    this.imageSets = imageSets;
+    this.objects = objects;
+  }
+}
+
+class Object {
+}
+
 enum WwdHeaderFlags {
   USE_Z_COORDS = 1 << 0,
   COMPRESS = 1 << 1
@@ -47,19 +159,19 @@ interface WwdPlaneHeader {
   readonly name: ByteString,
   readonly widthPx: number;
   readonly heightPx: number;
-  readonly tileWidth: number, /* tile's width in pixels */
-  readonly tileHeight: number, /* tile's height in pixels */
-  readonly movementXPercent: number,
-  readonly movementYPercent: number,
-  readonly fillColor: number,
-  readonly imageSetCount: number, // *
-  readonly objectCount: number, // *
-  readonly tilesOffset: number, // *
-  readonly imageSetsOffset: number, // *
-  readonly objectsOffset: number, // *
-  readonly zCoord: number,
-  readonly tilesWide: number,
-  readonly tilesHigh: number,
+  readonly tileWidth: number; /* tile's width in pixels */
+  readonly tileHeight: number; /* tile's height in pixels */
+  readonly movementXPercent: number;
+  readonly movementYPercent: number;
+  readonly fillColor: number;
+  readonly imageSetCount: number; // *
+  readonly objectCount: number; // *
+  readonly tilesOffset: number; // *
+  readonly imageSetsOffset: number; // *
+  readonly objectsOffset: number; // *
+  readonly zCoord: number;
+  readonly tilesWide: number;
+  readonly tilesHigh: number;
 }
 
 const levelNameLength = 64;
@@ -88,7 +200,7 @@ function decompressBuffer(compressedBuffer: ArrayBuffer): ArrayBuffer {
   return decompressedArray.buffer;
 }
 
-export function readWwd(wwdBuffer: ArrayBuffer) {
+export function readWorld(wwdBuffer: ArrayBuffer): World {
   const header = readWwdHeader(wwdBuffer);
   const mainBlock = wwdBuffer.slice(header.mainBlockOffset);
 
@@ -101,7 +213,28 @@ export function readWwd(wwdBuffer: ArrayBuffer) {
   const decompressedWwdBuffer = (header.flags & WwdHeaderFlags.COMPRESS) ?
     decompressWwdBuffer() : wwdBuffer;
 
-  return readMainBlock(header, decompressedWwdBuffer);
+  const planes = readMainBlock(header, decompressedWwdBuffer);
+
+  return new World(
+    header.levelName,
+    header.author,
+    header.birth,
+    header.rezFile,
+    header.imageDir,
+    header.palRez,
+    header.startX,
+    header.startY,
+    header.launchApp,
+    header.imageSet1,
+    header.imageSet2,
+    header.imageSet3,
+    header.imageSet4,
+    header.prefix1,
+    header.prefix2,
+    header.prefix3,
+    header.prefix4,
+    planes
+  )
 }
 
 export function readWwdHeader(headerBuffer: ArrayBuffer): WwdHeader {
@@ -164,11 +297,11 @@ export function readWwdHeader(headerBuffer: ArrayBuffer): WwdHeader {
   }
 }
 
-function readMainBlock(header: WwdHeader, wwdBuffer: ArrayBuffer) {
-  readPlanes(header, wwdBuffer);
+function readMainBlock(header: WwdHeader, wwdBuffer: ArrayBuffer): ReadonlyArray<Plane> {
+  return readPlanes(header, wwdBuffer);
 }
 
-function readPlanes(wwdHeader: WwdHeader, wwdBuffer: ArrayBuffer) {
+function readPlanes(wwdHeader: WwdHeader, wwdBuffer: ArrayBuffer): ReadonlyArray<Plane> {
   const headers = readPlaneHeaders(wwdHeader, wwdBuffer);
   return headers.map((header) => readPlane(header, wwdBuffer));
 }
@@ -230,28 +363,49 @@ function readPlaneHeader(stream: DataStream): WwdPlaneHeader {
   }
 }
 
-function readPlane(header: WwdPlaneHeader, wwdBuffer: ArrayBuffer) {
-  readPlaneTiles(header, wwdBuffer);
-  readPlaneImageSets(header, wwdBuffer);
-  readPlanObjects(header, wwdBuffer);
+function readPlane(header: WwdPlaneHeader, wwdBuffer: ArrayBuffer): Plane {
+  const tiles = readPlaneTiles(header, wwdBuffer);
+  const imageSets = readPlaneImageSets(header, wwdBuffer);
+  const objects = readPlanObjects(header, wwdBuffer);
+  const plane = new Plane(
+    header.flags,
+    header.name,
+    header.tileWidth,
+    header.tileHeight,
+    header.movementXPercent,
+    header.movementYPercent,
+    header.fillColor,
+    header.zCoord,
+    header.tilesWide,
+    header.tilesHigh,
+    tiles,
+    imageSets,
+    objects
+  );
+  return plane;
 }
 
-function readPlaneTiles(header: WwdPlaneHeader, wwdBuffer: ArrayBuffer) {
+function readPlaneTiles(header: WwdPlaneHeader, wwdBuffer: ArrayBuffer): ReadonlyArray<number> {
+  const tiles: number[] = [];
   const stream = new DataStream(wwdBuffer, header.tilesOffset);
 
   for (const i in range(header.tilesHigh)) {
     for (const j in range(header.tilesWide)) {
       const tile = stream.readUint32();
+      tiles.push(tile);
     }
   }
+
+  return tiles;
 }
 
-function readPlaneImageSets(header: WwdPlaneHeader, wwdBuffer: ArrayBuffer) {
+function readPlaneImageSets(header: WwdPlaneHeader, wwdBuffer: ArrayBuffer): ReadonlyArray<string> {
   const stream = new DataStream(wwdBuffer, header.imageSetsOffset);
-
+  return []; // FIXME
 }
 
-function readPlanObjects(header: WwdPlaneHeader, wwdBuffer: ArrayBuffer) {
+function readPlanObjects(header: WwdPlaneHeader, wwdBuffer: ArrayBuffer): ReadonlyArray<Object> {
   const stream = new DataStream(wwdBuffer, header.objectsOffset);
+  return []; // FIXME
 
 }
