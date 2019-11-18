@@ -15,6 +15,12 @@ export class DataStream {
     this._offset = initialOffset;
   }
 
+  readInt32() {
+    const value = this._dataView.getInt32(this._offset, this._littleEndian);
+    this._offset += 4;
+    return value;
+  }
+
   readUint32(): number {
     const value = this._dataView.getUint32(this._offset, this._littleEndian);
     this._offset += 4;
@@ -22,7 +28,11 @@ export class DataStream {
   }
 
   readByteString(length: number): ByteString {
-    const byteString = new Uint8Array(this._arrayBuffer, this._offset, length);
+    const fullByteString = new Uint8Array(this._arrayBuffer, this._offset, length);
+    const firstZeroIndex = fullByteString.indexOf(0);
+    const byteString = firstZeroIndex >= 0 ?
+      fullByteString.slice(0, firstZeroIndex) :
+      fullByteString;
     this._offset += length;
     return byteString;
   }

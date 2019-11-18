@@ -1,7 +1,7 @@
 import {ByteString, DataStream} from "./DataStream";
 import * as pako from "pako";
 
-class World {
+export class World {
   readonly name: ByteString;
   readonly author: ByteString;
   readonly dateCreatedString: ByteString;
@@ -63,7 +63,7 @@ class World {
   }
 }
 
-class Plane {
+export class Plane {
   readonly flags: number;
   readonly name: ByteString;
   readonly tileWidth: number; /* tile's width in pixels */
@@ -76,8 +76,8 @@ class Plane {
   readonly tilesHigh: number;
 
   readonly tiles: ReadonlyArray<number>;
-  readonly imageSets: ReadonlyArray<string>;
-  readonly objects: ReadonlyArray<Object>;
+  readonly imageSets: ReadonlyArray<ByteString>;
+  readonly objects: ReadonlyArray<Object_>;
 
   constructor(
     flags: number,
@@ -91,8 +91,8 @@ class Plane {
     tilesWide: number,
     tilesHigh: number,
     tiles: ReadonlyArray<number>,
-    imageSets: ReadonlyArray<string>,
-    objects: ReadonlyArray<Object>
+    imageSets: ReadonlyArray<ByteString>,
+    objects: ReadonlyArray<Object_>
   ) {
     this.flags = flags;
     this.name = name;
@@ -110,7 +110,7 @@ class Plane {
   }
 }
 
-class Object {
+export class Object_ {
 }
 
 enum WwdHeaderFlags {
@@ -188,7 +188,7 @@ function range(end: number): Array<number> {
   return [...Array(end).keys()];
 }
 
-function concat(buffer1: ArrayBuffer, buffer2: ArrayBuffer) {
+function concat(buffer1: ArrayBuffer, buffer2: ArrayBuffer): ArrayBuffer {
   const tmp = new Uint8Array(buffer1.byteLength + buffer2.byteLength);
   tmp.set(new Uint8Array(buffer1), 0);
   tmp.set(new Uint8Array(buffer2), buffer1.byteLength);
@@ -308,11 +308,10 @@ function readPlanes(wwdHeader: WwdHeader, wwdBuffer: ArrayBuffer): ReadonlyArray
 
 function readPlaneHeaders(wwdHeader: WwdHeader, wwdBuffer: ArrayBuffer) {
   const stream = new DataStream(wwdBuffer, wwdHeader.mainBlockOffset);
-  const r: Iterable<number> = range(wwdHeader.planeCount);
   return range(wwdHeader.planeCount).map(() => readPlaneHeader(stream));
 }
 
-const planeNameBufferSize = 32;
+const planeNameBufferSize = 64;
 
 function readPlaneHeader(stream: DataStream): WwdPlaneHeader {
   const size = stream.readUint32();
@@ -336,7 +335,7 @@ function readPlaneHeader(stream: DataStream): WwdPlaneHeader {
   const tilesOffset = stream.readUint32();
   const imageSetsOffset = stream.readUint32();
   const objectsOffset = stream.readUint32();
-  const zCoord = stream.readUint32();
+  const zCoord = stream.readInt32();
   stream.readUint32(); // 0
   stream.readUint32(); // 0
   stream.readUint32(); // 0
@@ -391,7 +390,7 @@ function readPlaneTiles(header: WwdPlaneHeader, wwdBuffer: ArrayBuffer): Readonl
 
   for (const i in range(header.tilesHigh)) {
     for (const j in range(header.tilesWide)) {
-      const tile = stream.readUint32();
+      const tile = stream.readInt32();
       tiles.push(tile);
     }
   }
@@ -399,12 +398,12 @@ function readPlaneTiles(header: WwdPlaneHeader, wwdBuffer: ArrayBuffer): Readonl
   return tiles;
 }
 
-function readPlaneImageSets(header: WwdPlaneHeader, wwdBuffer: ArrayBuffer): ReadonlyArray<string> {
+function readPlaneImageSets(header: WwdPlaneHeader, wwdBuffer: ArrayBuffer): ReadonlyArray<ByteString> {
   const stream = new DataStream(wwdBuffer, header.imageSetsOffset);
   return []; // FIXME
 }
 
-function readPlanObjects(header: WwdPlaneHeader, wwdBuffer: ArrayBuffer): ReadonlyArray<Object> {
+function readPlanObjects(header: WwdPlaneHeader, wwdBuffer: ArrayBuffer): ReadonlyArray<Object_> {
   const stream = new DataStream(wwdBuffer, header.objectsOffset);
   return []; // FIXME
 
