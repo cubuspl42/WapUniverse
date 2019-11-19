@@ -1,3 +1,5 @@
+import {Rectangle} from "./Rectangle";
+
 export type ByteString = Uint8Array;
 
 export class DataStream {
@@ -46,5 +48,14 @@ export class DataStream {
       bytes.push(byte);
     }
     return new Uint8Array(bytes);
+  }
+
+  readRectangle(): Rectangle {
+    return Rectangle.fromBounds(
+      this.readInt32(),
+      this.readInt32(),
+      this.readInt32(),
+      this.readInt32(),
+    );
   }
 }
