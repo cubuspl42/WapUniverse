@@ -81,7 +81,7 @@ it('correctly reads TEST1.WWD', () => {
           17, 18, 19, 20,
           25, 26, 27, 28
         ],
-        [], // FIXME
+        [encode("BACK")],
         [], // FIXME
       ),
       new wwd.Plane(
@@ -101,7 +101,7 @@ it('correctly reads TEST1.WWD', () => {
           12, 403, 404, 305,
           12, 12, 12, 12
         ],
-        [],
+        [encode("ACTION")],
         [],
       ),
       new wwd.Plane(
@@ -121,7 +121,7 @@ it('correctly reads TEST1.WWD', () => {
           -1, -1, -1, -1,
           -1, -1, -1, -1,
         ],
-        [],
+        [encode("FRONT")],
         [],
       ),
     ],

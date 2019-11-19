@@ -36,4 +36,15 @@ export class DataStream {
     this._offset += length;
     return byteString;
   }
+
+  readByteStringNullTerminated(): ByteString {
+    const bytes = [];
+    while (true) {
+      const byte = this._dataView.getUint8(this._offset);
+      ++this._offset;
+      if (byte === 0) break;
+      bytes.push(byte);
+    }
+    return new Uint8Array(bytes);
+  }
 }

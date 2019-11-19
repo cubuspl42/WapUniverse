@@ -400,11 +400,10 @@ function readPlaneTiles(header: WwdPlaneHeader, wwdBuffer: ArrayBuffer): Readonl
 
 function readPlaneImageSets(header: WwdPlaneHeader, wwdBuffer: ArrayBuffer): ReadonlyArray<ByteString> {
   const stream = new DataStream(wwdBuffer, header.imageSetsOffset);
-  return []; // FIXME
+  return range(header.imageSetCount).map(() => stream.readByteStringNullTerminated())
 }
 
 function readPlanObjects(header: WwdPlaneHeader, wwdBuffer: ArrayBuffer): ReadonlyArray<Object_> {
   const stream = new DataStream(wwdBuffer, header.objectsOffset);
   return []; // FIXME
-
 }
