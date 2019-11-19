@@ -25,6 +25,10 @@ export class Rectangle {
     this.height = height;
   }
 
+  static fromBounds(left: number, top: number, right: number, bottom: number): Rectangle {
+    return new this(left, top, right - left, bottom - top);
+  }
+
   overlaps(b: Rectangle): boolean {
     return this.xMin < b.xMax && b.xMin < this.xMax &&
       this.yMin < b.yMax && b.yMin < this.yMax;

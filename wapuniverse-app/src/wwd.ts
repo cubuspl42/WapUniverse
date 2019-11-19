@@ -1,5 +1,6 @@
 import {ByteString, DataStream} from "./DataStream";
 import * as pako from "pako";
+import {Rectangle} from "./Rectangle";
 
 export class World {
   readonly name: ByteString;
@@ -111,6 +112,170 @@ export class Plane {
 }
 
 export class Object_ {
+  readonly id: number;
+  readonly name: ByteString;
+  readonly logic: ByteString;
+  readonly imageSet: ByteString;
+  readonly animation: ByteString;
+  readonly x: number;
+  readonly y: number;
+  readonly z: number;
+  readonly i: number;
+  readonly addFlags: number;
+  readonly dynamicFlags: number;
+  readonly drawFlags: number;
+  readonly userFlags: number;
+  readonly score: number;
+  readonly points: number;
+  readonly powerup: number;
+  readonly damage: number;
+  readonly smarts: number;
+  readonly health: number;
+  readonly moveRect: Rectangle;
+  readonly hitRect: Rectangle;
+  readonly attackRect: Rectangle;
+  readonly clipRect: Rectangle;
+  readonly userRect1: Rectangle;
+  readonly userRect2: Rectangle;
+  readonly userValue1: number;
+  readonly userValue2: number;
+  readonly userValue3: number;
+  readonly userValue4: number;
+  readonly userValue5: number;
+  readonly userValue6: number;
+  readonly userValue7: number;
+  readonly userValue8: number;
+  readonly xMin: number;
+  readonly yMin: number;
+  readonly xMax: number;
+  readonly yMax: number;
+  readonly speedX: number;
+  readonly speedY: number;
+  readonly xTweak: number;
+  readonly yTweak: number;
+  readonly counter: number;
+  readonly speed: number;
+  readonly width: number;
+  readonly height: number;
+  readonly direction: number;
+  readonly faceDir: number;
+  readonly timeDelay: number;
+  readonly frameDelay: number;
+  readonly objectType: number;
+  readonly hitTypeFlags: number;
+  readonly xMoveRes: number;
+  readonly yMoveRes: number;
+
+  constructor(
+    id: number,
+    name: ByteString,
+    logic: ByteString,
+    imageSet: ByteString,
+    animation: ByteString,
+    x: number,
+    y: number,
+    z: number,
+    i: number,
+    addFlags: number,
+    dynamicFlags: number,
+    drawFlags: number,
+    userFlags: number,
+    score: number,
+    points: number,
+    powerup: number,
+    damage: number,
+    smarts: number,
+    health: number,
+    moveRect: Rectangle,
+    hitRect: Rectangle,
+    attackRect: Rectangle,
+    clipRect: Rectangle,
+    userRect1: Rectangle,
+    userRect2: Rectangle,
+    userValue1: number,
+    userValue2: number,
+    userValue3: number,
+    userValue4: number,
+    userValue5: number,
+    userValue6: number,
+    userValue7: number,
+    userValue8: number,
+    xMin: number,
+    yMin: number,
+    xMax: number,
+    yMax: number,
+    speedX: number,
+    speedY: number,
+    xTweak: number,
+    yTweak: number,
+    counter: number,
+    speed: number,
+    width: number,
+    height: number,
+    direction: number,
+    faceDir: number,
+    timeDelay: number,
+    frameDelay: number,
+    objectType: number,
+    hitTypeFlags: number,
+    xMoveRes: number,
+    yMoveRes: number,
+  ) {
+    this.id = id;
+    this.name = name;
+    this.logic = logic;
+    this.imageSet = imageSet;
+    this.animation = animation;
+    this.x = x;
+    this.y = y;
+    this.z = z;
+    this.i = i;
+    this.addFlags = addFlags;
+    this.dynamicFlags = dynamicFlags;
+    this.drawFlags = drawFlags;
+    this.userFlags = userFlags;
+    this.score = score;
+    this.points = points;
+    this.powerup = powerup;
+    this.damage = damage;
+    this.smarts = smarts;
+    this.health = health;
+    this.moveRect = moveRect;
+    this.hitRect = hitRect;
+    this.attackRect = attackRect;
+    this.clipRect = clipRect;
+    this.userRect1 = userRect1;
+    this.userRect2 = userRect2;
+    this.userValue1 = userValue1;
+    this.userValue2 = userValue2;
+    this.userValue3 = userValue3;
+    this.userValue4 = userValue4;
+    this.userValue5 = userValue5;
+    this.userValue6 = userValue6;
+    this.userValue7 = userValue7;
+    this.userValue8 = userValue8;
+    this.xMin = xMin;
+    this.yMin = yMin;
+    this.xMax = xMax;
+    this.yMax = yMax;
+    this.speedX = speedX;
+    this.speedY = speedY;
+    this.xTweak = xTweak;
+    this.yTweak = yTweak;
+    this.counter = counter;
+    this.speed = speed;
+    this.width = width;
+    this.height = height;
+    this.direction = direction;
+    this.faceDir = faceDir;
+    this.timeDelay = timeDelay;
+    this.frameDelay = frameDelay;
+    this.objectType = objectType;
+    this.hitTypeFlags = hitTypeFlags;
+    this.xMoveRes = xMoveRes;
+    this.yMoveRes = yMoveRes;
+  }
+
 }
 
 enum WwdHeaderFlags {
@@ -365,7 +530,7 @@ function readPlaneHeader(stream: DataStream): WwdPlaneHeader {
 function readPlane(header: WwdPlaneHeader, wwdBuffer: ArrayBuffer): Plane {
   const tiles = readPlaneTiles(header, wwdBuffer);
   const imageSets = readPlaneImageSets(header, wwdBuffer);
-  const objects = readPlanObjects(header, wwdBuffer);
+  const objects = readPlaneObjects(header, wwdBuffer);
   const plane = new Plane(
     header.flags,
     header.name,
@@ -403,7 +568,124 @@ function readPlaneImageSets(header: WwdPlaneHeader, wwdBuffer: ArrayBuffer): Rea
   return range(header.imageSetCount).map(() => stream.readByteStringNullTerminated())
 }
 
-function readPlanObjects(header: WwdPlaneHeader, wwdBuffer: ArrayBuffer): ReadonlyArray<Object_> {
+function readPlaneObjects(header: WwdPlaneHeader, wwdBuffer: ArrayBuffer): ReadonlyArray<Object_> {
   const stream = new DataStream(wwdBuffer, header.objectsOffset);
-  return []; // FIXME
+  return range(header.objectCount).map(() => readObject(stream));
+}
+
+function readObject(stream: DataStream): Object_ {
+  const id = stream.readInt32();
+  const nameLen = stream.readInt32();
+  const logicLen = stream.readInt32();
+  const imageSetLen = stream.readInt32();
+  const animationLen = stream.readInt32();
+  const x = stream.readInt32();
+  const y = stream.readInt32();
+  const z = stream.readInt32();
+  const i = stream.readInt32();
+  const addFlags = stream.readInt32();
+  const dynamicFlags = stream.readInt32();
+  const drawFlags = stream.readInt32();
+  const userFlags = stream.readInt32();
+  const score = stream.readInt32();
+  const points = stream.readInt32();
+  const powerup = stream.readInt32();
+  const damage = stream.readInt32();
+  const smarts = stream.readInt32();
+  const health = stream.readInt32();
+  const moveRect = stream.readRectangle();
+  const hitRect = stream.readRectangle();
+  const attackRect = stream.readRectangle();
+  const clipRect = stream.readRectangle();
+  const userRect1 = stream.readRectangle();
+  const userRect2 = stream.readRectangle();
+  const userValue1 = stream.readInt32();
+  const userValue2 = stream.readInt32();
+  const userValue3 = stream.readInt32();
+  const userValue4 = stream.readInt32();
+  const userValue5 = stream.readInt32();
+  const userValue6 = stream.readInt32();
+  const userValue7 = stream.readInt32();
+  const userValue8 = stream.readInt32();
+  const xMin = stream.readInt32();
+  const yMin = stream.readInt32();
+  const xMax = stream.readInt32();
+  const yMax = stream.readInt32();
+  const speedX = stream.readInt32();
+  const speedY = stream.readInt32();
+  const xTweak = stream.readInt32();
+  const yTweak = stream.readInt32();
+  const counter = stream.readInt32();
+  const speed = stream.readInt32();
+  const width = stream.readInt32();
+  const height = stream.readInt32();
+  const direction = stream.readInt32();
+  const faceDir = stream.readInt32();
+  const timeDelay = stream.readInt32();
+  const frameDelay = stream.readInt32();
+  const objectType = stream.readInt32();
+  const hitTypeFlags = stream.readInt32();
+  const xMoveRes = stream.readInt32();
+  const yMoveRes = stream.readInt32();
+
+  const name = stream.readByteString(nameLen);
+  const logic = stream.readByteString(logicLen);
+  const imageSet = stream.readByteString(imageSetLen);
+  const animation = stream.readByteString(animationLen);
+
+  return new Object_(
+    id,
+    name,
+    logic,
+    imageSet,
+    animation,
+    x,
+    y,
+    z,
+    i,
+    addFlags,
+    dynamicFlags,
+    drawFlags,
+    userFlags,
+    score,
+    points,
+    powerup,
+    damage,
+    smarts,
+    health,
+    moveRect,
+    hitRect,
+    attackRect,
+    clipRect,
+    userRect1,
+    userRect2,
+    userValue1,
+    userValue2,
+    userValue3,
+    userValue4,
+    userValue5,
+    userValue6,
+    userValue7,
+    userValue8,
+    xMin,
+    yMin,
+    xMax,
+    yMax,
+    speedX,
+    speedY,
+    xTweak,
+    yTweak,
+    counter,
+    speed,
+    width,
+    height,
+    direction,
+    faceDir,
+    timeDelay,
+    frameDelay,
+    objectType,
+    hitTypeFlags,
+    xMoveRes,
+    yMoveRes,
+  );
 }
