@@ -76,7 +76,7 @@ export function EditorUi({editor}: EditorUiProps) {
       const destinationS = new StreamSink<Vec2>();
       setAreaSelectionDestination(destinationS);
       const destination = new Cell(origin, destinationS);
-      editor.selectByArea(origin, destination);
+      editor.startAreaSelection(origin, destination);
     }}
     onPointerMove={e => {
       if (areaSelectionDestination !== undefined) {

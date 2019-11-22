@@ -4,7 +4,11 @@ import {Cell, CellSink} from "sodiumjs";
 import {Vec2} from "./Vec2";
 import {EdObject} from "./EdObject";
 import {AreaSelection} from "./AreaSelection";
-import {readWorld} from "./wwd";
+import {readWorld, World} from "./wwd";
+
+function decode(s: Uint8Array): string {
+  return new TextDecoder().decode(s);
+}
 
 export class App {
   readonly _editor = new CellSink(EditorInternal.create());
@@ -19,53 +23,60 @@ export interface Editor {
 
   readonly areaSelection: Cell<AreaSelection | null>;
 
-  selectByArea(origin: Vec2, destination: Cell<Vec2>): void;
+  startAreaSelection(origin: Vec2, destination: Cell<Vec2>): void;
 }
 
 async function fetchWwd() {
   const wwd = await fetch("WORLD.WWD");
   const blob = await wwd.blob();
   const arrayBuffer = await blob.arrayBuffer();
-  const header = readWorld(arrayBuffer);
-  console.log(`header: ${header}`);
+  return readWorld(arrayBuffer);
+}
+
+interface PrefixEntry {
+  readonly prefix: string;
+  readonly expansion: string;
 }
 
 export class EditorInternal implements Editor {
-  private _selectedObjects = new CellSink<ReadonlyArray<EdObject>>([]);
+  private readonly _areaSelection = new CellSink<AreaSelection | null>(null);
 
-  readonly selectedObjects = this._selectedObjects as Cell<ReadonlyArray<EdObject>>;
+  private readonly _selectedObjects = new CellSink<ReadonlyArray<EdObject>>([]);
 
   readonly objects: ReadonlyArray<EdObject>;
 
-  private _areaSelection = new CellSink<AreaSelection | null>(null);
+  readonly imageSets: ReadonlyArray<PrefixEntry>;
 
   readonly areaSelection = this._areaSelection as Cell<AreaSelection | null>;
 
-  private constructor(rezIndex: RezIndex, levelResources: LevelResources) {
-    this.objects = [
-      new EdObject(
-        this,
-        rezIndex, levelResources, this.areaSelection,
-        new Vec2(64, 64),
-        "LEVEL1_IMAGES_OFFICER"
-      ),
-      new EdObject(
-        this,
-        rezIndex, levelResources, this.areaSelection,
-        new Vec2(256, 256),
-        "LEVEL1_IMAGES_SKULL"
-      )
+  readonly selectedObjects = this._selectedObjects as Cell<ReadonlyArray<EdObject>>;
+
+  private constructor(rezIndex: RezIndex, levelResources: LevelResources, wwd: World) {
+    const action = wwd.planes[1];
+    this.imageSets = [ // TODO:
+      {prefix: decode(wwd.prefix1), expansion: decode(wwd.imageSet1)},
+      {prefix: decode(wwd.prefix2), expansion: decode(wwd.imageSet2)},
+      {prefix: decode(wwd.prefix3), expansion: decode(wwd.imageSet3)},
+      {prefix: decode(wwd.prefix4), expansion: decode(wwd.imageSet4)}
     ];
+
+    this.objects =
+      action.objects.map((o) => new EdObject(
+        this,
+        rezIndex, levelResources, this.areaSelection,
+        new Vec2(o.x, o.y),
+        decode(o.imageSet),
+      ));
   }
 
   static async create(): Promise<Editor> {
-    await fetchWwd();
+    const wwd = await fetchWwd();
     const rezIndex = await fetchRezIndex();
     const resources = await LevelResources.load(rezIndex, 1);
-    return new EditorInternal(rezIndex, resources);
+    return new EditorInternal(rezIndex, resources, wwd);
   }
 
-  selectByArea(origin: Vec2, destination: Cell<Vec2>): void {
+  startAreaSelection(origin: Vec2, destination: Cell<Vec2>): void {
     const areaSelection = new AreaSelection(
       this,
       origin,
@@ -79,5 +90,19 @@ export class EditorInternal implements Editor {
 
   selectObjects(objects: ReadonlyArray<EdObject>) {
     this._selectedObjects.send(objects);
+  }
+
+  expandShortImageSetId(shortImageSetId: String): string | null {
+    function expandPrefix(prefixEntry: PrefixEntry): string | null {
+      if (shortImageSetId.startsWith(prefixEntry.prefix)) {
+        return shortImageSetId.replace(prefixEntry.prefix, prefixEntry.expansion);
+      } else return null;
+    }
+
+    const expansion = this.imageSets
+      .map(expandPrefix)
+      .find((expansion) => expansion != null);
+
+    return expansion || null;
   }
 }
