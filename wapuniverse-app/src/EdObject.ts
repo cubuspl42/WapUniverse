@@ -31,10 +31,14 @@ export class EdObject {
     initialPosition: Vec2,
     initialImageSet: string
   ) {
-    function getRezImage(imageSetId: string, i: number): Image {
-      const rezImageSet = rezIndex.imageSets[imageSetId];
-      const pidFileName = rezImageSet.frames[i];
-      return rezImageSet.sprites[pidFileName];
+    function getRezImage(imageSetId: string | null, i: number): Image | null {
+      function findRezImage(imageSetId: string) {
+        const rezImageSet = rezIndex.imageSets[imageSetId];
+        const pidFileName = rezImageSet.frames[i];
+        return rezImageSet.sprites[pidFileName];
+      }
+
+      return ((imageSetId != null) && findRezImage(imageSetId)) || null;
     }
 
     function getTexture(rezImage: Image) {
@@ -48,9 +52,10 @@ export class EdObject {
 
     const position = new CellSink(initialPosition);
     const i = new CellSink(-1);
-    const imageSet = new CellSink(initialImageSet);
+    const shortImageSetId = new CellSink(initialImageSet);
+    const imageSetId = shortImageSetId.map(editor.expandShortImageSetId)
 
-    const rezImage = imageSet.lift(i, getRezImage);
+    const rezImage = imageSetId.lift(i, getRezImage);
     const texture = rezImage.map(getTexture);
     const boundingBox = position.lift3(rezImage, texture, calculateBoundingBox);
 

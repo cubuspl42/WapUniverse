@@ -12,9 +12,11 @@ interface AppUiProps {
 
 export function AppUi({app}: AppUiProps) {
   const editorPromise = useCell(app.editor);
-  const {value,} = usePromise(editorPromise);
+  const {value,error} = usePromise(editorPromise);
   if (value !== undefined) {
     return <EditorUi editor={value}/>
+  }  else if (!!error) {
+    return <span>Error: {error.message}</span>
   } else {
     return <span>Loading...</span>
   }
