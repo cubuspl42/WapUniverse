@@ -5,6 +5,7 @@ import {Vec2} from "./Vec2";
 import {EdObject} from "./EdObject";
 import {AreaSelection} from "./AreaSelection";
 import {readWorld, World} from "./wwd";
+import {Maybe} from "./Maybe";
 
 function decode(s: Uint8Array): string {
   return new TextDecoder().decode(s);
@@ -53,7 +54,7 @@ export class EditorInternal implements Editor {
 
   private constructor(rezIndex: RezIndex, levelResources: LevelResources, wwd: World) {
     const action = wwd.planes[1];
-    this.imageSets = [ // TODO:
+    this.imageSets = [
       {prefix: decode(wwd.prefix1), expansion: decode(wwd.imageSet1)},
       {prefix: decode(wwd.prefix2), expansion: decode(wwd.imageSet2)},
       {prefix: decode(wwd.prefix3), expansion: decode(wwd.imageSet3)},
@@ -66,6 +67,7 @@ export class EditorInternal implements Editor {
         rezIndex, levelResources, this.areaSelection,
         new Vec2(o.x, o.y),
         decode(o.imageSet),
+        o.id,
       ));
   }
 
@@ -92,17 +94,15 @@ export class EditorInternal implements Editor {
     this._selectedObjects.send(objects);
   }
 
-  expandShortImageSetId(shortImageSetId: String): string | null {
-    function expandPrefix(prefixEntry: PrefixEntry): string | null {
-      if (shortImageSetId.startsWith(prefixEntry.prefix)) {
-        return shortImageSetId.replace(prefixEntry.prefix, prefixEntry.expansion);
-      } else return null;
+  expandShortImageSetId(shortImageSetId: String): Maybe<string> {
+    function expandPrefix(prefixEntry: PrefixEntry): Maybe<string> {
+      const sanitizedExpansion = prefixEntry.expansion.replace('\\', '_');
+      return Maybe.test(shortImageSetId.startsWith(prefixEntry.prefix),
+        () => shortImageSetId.replace(prefixEntry.prefix, sanitizedExpansion));
     }
 
-    const expansion = this.imageSets
-      .map(expandPrefix)
-      .find((expansion) => expansion != null);
+    const expandedPrefixes = this.imageSets.map(expandPrefix);
 
-    return expansion || null;
+    return Maybe.findSome(expandedPrefixes);
   }
 }

@@ -349,7 +349,7 @@ const launchAppLength = 128;
 const imageSetLength = 128;
 const prefixLength = 32;
 
-function range(end: number): Array<number> {
+export function range(end: number): Array<number> {
   return [...Array(end).keys()];
 }
 

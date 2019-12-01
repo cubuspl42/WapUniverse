@@ -12,7 +12,6 @@ export interface ImageSet {
 
 export interface RezIndex {
   imageSets: { [imageSetId: string]: ImageSet };
-
 }
 
 export async function fetchRezIndex() {
