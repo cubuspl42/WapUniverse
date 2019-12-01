@@ -15,10 +15,19 @@ interface ImageData {
   readonly texture: Texture;
 }
 
+export function getRandomInt(max: number) {
+  let min = 0;
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 export class EdObject {
   readonly _editor: EditorInternal;
 
   readonly position: Cell<Vec2>;
+
+  readonly i: CellSink<number>;
 
   readonly texture: Cell<Texture>;
 
@@ -36,12 +45,14 @@ export class EdObject {
     editor: EditorInternal,
     rezIndex: RezIndex,
     levelResources: LevelResources,
-    areaSelection: Cell<AreaSelection | null>,
+    areaSelection: Cell<Maybe<AreaSelection>>,
     initialPosition: Vec2,
     initialImageSet: string,
     id: number,
   ) {
-    function getRezImage(imageSetId: string, i: number): Maybe<Image> {
+    function
+
+    getRezImage(imageSetId: string, i: number): Maybe<Image> {
       const rezImageSet = rezIndex.imageSets[imageSetId];
       if (!rezImageSet) return new None();
       const pidFileName = rezImageSet.frames[i];
@@ -49,27 +60,28 @@ export class EdObject {
       return new Some(rezImageSet.sprites[pidFileName]);
     }
 
-    function getTexture(rezImage: Image): Maybe<Texture> {
+    function
+
+    getTexture(rezImage: Image): Maybe<Texture> {
       return levelResources.getTexture(rezImage.path);
     }
 
-    function calculateBoundingBox(position: Vec2, rezImage: Image, texture: Texture): Rectangle {
+    function
+
+    calculateBoundingBox(position: Vec2, rezImage: Image, texture: Texture): Rectangle {
       const [offsetX, offsetY] = rezImage.offset; // FIXME: Position means center
       return new Rectangle(position.x, position.y, texture.width, texture.height);
     }
 
-    function getRandomInt(max: number) {
-      let min = 0;
-      min = Math.ceil(min);
-      max = Math.floor(max);
-      return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
-
     // const position = new CellSink(initialPosition);
-    const position = new CellSink(new Vec2(getRandomInt(800), getRandomInt(600)));
-    const i = new CellSink(-1);
+    const
+      position = new CellSink(new Vec2(getRandomInt(800), getRandomInt(600)));
+    const
+      i = new CellSink(-1);
 
-    function getImageData(imageSetId: string, i: number): Maybe<ImageData> {
+    function
+
+    getImageData(imageSetId: string, i: number): Maybe<ImageData> {
       return getRezImage(imageSetId, i).flatMap(
         (rezImage) => getTexture(rezImage).map(
           (texture) => {
@@ -83,35 +95,52 @@ export class EdObject {
       );
     }
 
-    const shortImageSetId = new CellSink(initialImageSet);
+    const
+      shortImageSetId = new CellSink(initialImageSet);
 
-    const imageSetId = shortImageSetId.map((s) => editor.expandShortImageSetId(s));
+    const
+      imageSetId = shortImageSetId.map((s) => editor.expandShortImageSetId(s));
 
-    const imageData = imageSetId.lift(i,
-      (isM, i) => isM
-        .flatMap(is => getImageData(is, i))
-        .orElse(() => getImageData("LEVEL1_IMAGES_OFFICER", -1).get()));
+    const
+      imageData = imageSetId.lift(i,
+        (isM, i) => isM
+          .flatMap(is => getImageData(is, i))
+          .orElse(() => getImageData("LEVEL1_IMAGES_OFFICER", -1).get()));
 
-    const texture = imageData.map((id) => id.texture);
+    const
+      texture = imageData.map((id) => id.texture);
 
-    const boundingBox = position.lift(imageData, (p: Vec2, id: ImageData) =>
-      calculateBoundingBox(p, id.rezImage, id.texture));
+    const
+      boundingBox = position.lift(imageData, (p: Vec2, id: ImageData) =>
+        calculateBoundingBox(p, id.rezImage, id.texture));
 
-    const isInSelectionArea = Cell.switchC(areaSelection.map(a => {
-      return a !== null ?
-        a.objectsInArea.map(o => o.indexOf(this) !== -1) :
-        new Cell(false);
-    }));
+    const isInSelectionArea = Cell.switchC(areaSelection.map(aM => aM.map((a) =>
+        a.objectsInArea
+        .map(o => o.indexOf(this) !== -1))
+        .orElse(() => new Cell<boolean>(false))
+      )
+    );
 
-    const isSelected = editor.selectedObjects.map(s => s.indexOf(this) !== -1);
+    const
+      isSelected = editor.selectedObjects.map(s => s.indexOf(this) !== -1);
 
-    this._editor = editor;
-    this.position = position;
-    this.texture = texture;
-    this.boundingBox = boundingBox;
-    this.isHovered = new CellSink<boolean>(false);
-    this.isInSelectionArea = isInSelectionArea;
-    this.isSelected = isSelected;
-    this.id = id;
+    this
+      ._editor = editor;
+    this
+      .position = position;
+    this
+      .i = i;
+    this
+      .texture = texture;
+    this
+      .boundingBox = boundingBox;
+    this
+      .isHovered = new CellSink<boolean>(false);
+    this
+      .isInSelectionArea = isInSelectionArea;
+    this
+      .isSelected = isSelected;
+    this
+      .id = id;
   }
 }

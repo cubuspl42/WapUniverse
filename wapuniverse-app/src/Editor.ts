@@ -5,7 +5,7 @@ import {Vec2} from "./Vec2";
 import {EdObject} from "./EdObject";
 import {AreaSelection} from "./AreaSelection";
 import {readWorld, World} from "./wwd";
-import {Maybe} from "./Maybe";
+import {Maybe, None, Some} from "./Maybe";
 
 function decode(s: Uint8Array): string {
   return new TextDecoder().decode(s);
@@ -22,9 +22,9 @@ export interface Editor {
 
   readonly objects: ReadonlyArray<EdObject>;
 
-  readonly areaSelection: Cell<AreaSelection | null>;
+  readonly areaSelection: Cell<Maybe<AreaSelection>>;
 
-  startAreaSelection(origin: Vec2, destination: Cell<Vec2>): void;
+  startAreaSelection(origin: Vec2, destination: Cell<Vec2>): AreaSelection;
 }
 
 async function fetchWwd() {
@@ -39,8 +39,24 @@ interface PrefixEntry {
   readonly expansion: string;
 }
 
+export function stopwatch_<R>(s: string, f: () => R) {
+  // const a = Date.now();
+  const r = f();
+  // const b = Date.now();
+  // console.log(`${s} - Elapsed: ${b - a}`);
+  return r;
+}
+
+export function stopwatch<R>(s: string, f: () => R) {
+  const a = Date.now();
+  const r = f();
+  const b = Date.now();
+  console.log(`${s} - Elapsed: ${b - a}`);
+  return r;
+}
+
 export class EditorInternal implements Editor {
-  private readonly _areaSelection = new CellSink<AreaSelection | null>(null);
+  private readonly _areaSelection = new CellSink<Maybe<AreaSelection>>(new None());
 
   private readonly _selectedObjects = new CellSink<ReadonlyArray<EdObject>>([]);
 
@@ -48,7 +64,7 @@ export class EditorInternal implements Editor {
 
   readonly imageSets: ReadonlyArray<PrefixEntry>;
 
-  readonly areaSelection = this._areaSelection as Cell<AreaSelection | null>;
+  readonly areaSelection = this._areaSelection as Cell<Maybe<AreaSelection>>;
 
   readonly selectedObjects = this._selectedObjects as Cell<ReadonlyArray<EdObject>>;
 
@@ -78,16 +94,18 @@ export class EditorInternal implements Editor {
     return new EditorInternal(rezIndex, resources, wwd);
   }
 
-  startAreaSelection(origin: Vec2, destination: Cell<Vec2>): void {
+  startAreaSelection(origin: Vec2, destination: Cell<Vec2>): AreaSelection {
     const areaSelection = new AreaSelection(
       this,
       origin,
       destination,
       this.objects,
-      () => {
-        this._areaSelection.send(null);
-      });
-    this._areaSelection.send(areaSelection);
+      () => this._areaSelection.send(new None())
+    );
+    stopwatch("this._areaSelection.send", () => {
+      this._areaSelection.send(new Some(areaSelection));
+    });
+    return areaSelection;
   }
 
   selectObjects(objects: ReadonlyArray<EdObject>) {

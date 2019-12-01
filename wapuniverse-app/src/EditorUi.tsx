@@ -2,12 +2,12 @@ import React, {useEffect, useMemo, useState} from 'react';
 
 import './Editor.css';
 import {Editor} from "./Editor";
-import {Container, Sprite, Stage} from "@inlet/react-pixi";
 import {GraphicsRectangle} from "./GraphicsRectangle";
 import {Cell, StreamSink} from "sodiumjs";
 import {EdObject} from "./EdObject";
 import {AreaSelection} from "./AreaSelection";
 import * as PIXI from 'pixi.js';
+import * as pu from "./pixiUtils";
 import {Vec2} from "./Vec2";
 
 const Texture = PIXI.Texture;
@@ -47,84 +47,168 @@ interface EdObjectUiProps {
   object: EdObject;
 }
 
-function EdObjectUi({object}: EdObjectUiProps): JSX.Element {
-  console.log("EdObjectUi(...)");
-  const textureM = useCell(object.texture);
-  const boundingBox = useCell(object.boundingBox);
-  const isHovered = useCell(object.isHovered);
-  const isInSelectionArea = useCell(object.isInSelectionArea);
-  const isSelected = useCell(object.isSelected);
+function EdObjectUi({object}: EdObjectUiProps): PIXI.DisplayObject {
+  const texture = object.texture;
+  const boundingBox = object.boundingBox;
+  const isHovered = object.isHovered;
+  const isInSelectionArea = object.isInSelectionArea;
+  const isSelected = object.isSelected;
 
-  return <Container key={object.id}>
-    <Sprite key={`s${object.id}`}
-            x={boundingBox.xMin}
-            y={boundingBox.yMin}
-            texture={textureM}
-            interactive={true}
-            pointerover={() => {
-              object.isHovered.send(true);
-            }}
-            pointerout={() => {
-              object.isHovered.send(false);
-            }}
-            alpha={isHovered ? 1 : 0.5}
-    />
-    <GraphicsRectangle key={`g1${object.id}`} x={boundingBox.xMin} y={boundingBox.yMin}
-                       width={boundingBox.width} height={boundingBox.height}
-                       strokeWidth={2}
-                       strokeColor={
-                         isInSelectionArea ? 0xcd0000 :
-                           isSelected ? 0xe3fc03 :
-                             0x87cefa
-                       }/>
+  const x = boundingBox.map((b) => b.xMin);
+  const y = boundingBox.map((b) => b.yMin);
+  const width = boundingBox.map((b) => b.width);
+  const height = boundingBox.map((b) => b.height);
 
-    {isHovered && <GraphicsRectangle key={`g2${object.id}`} x={boundingBox.xMin - 2} y={boundingBox.yMin - 2}
-                                     width={boundingBox.width + 4} height={boundingBox.height + 4}
-                                     strokeWidth={2}
-                                     strokeColor={0x0000cd}/>
-    }
-  </Container>;
+  const container = new PIXI.Container();
+
+  const sprite = pu.sprite({
+    x: x,
+    y: y,
+    texture: texture,
+    alpha: isHovered.map((h): number => h ? 1 : 0.5),
+  });
+
+  sprite.interactive = true;
+
+  sprite.on("pointerdown", () => {
+    const newI = object.i.sample() + 1;
+    console.log(`newI: ${newI}`);
+    object.i.send(newI);
+  });
+
+  sprite.on("pointerover", () => {
+    object.isHovered.send(true);
+  });
+
+  sprite.on("pointerout", () => {
+    object.isHovered.send(false);
+  });
+
+  container.addChild(sprite);
+
+  const frameRectangle = pu.graphicsRectangle({
+    x: x,
+    y: y,
+    width: width,
+    height: height,
+    strokeWidth: new Cell(2),
+    strokeColor: isInSelectionArea.lift(isSelected, (isInSelectionAreaV: boolean, isSelectedV: boolean): number =>
+      isInSelectionArea ? 0xcd0000 : isSelected ? 0xe3fc03 : 0x87cefa),
+  });
+
+  container.addChild(frameRectangle);
+
+  {/*{isHovered && <GraphicsRectangle key={`g2${object.id}`} x={boundingBox.xMin - 2} y={boundingBox.yMin - 2}*/
+  }
+  {/*                                 width={boundingBox.width + 4} height={boundingBox.height + 4}*/
+  }
+  {/*                                 strokeWidth={2}*/
+  }
+  {/*                                 strokeColor={0x0000cd}/>*/
+  }
+  {/*}*/
+  }
+
+  return container;
 }
 
 
-export function EditorUi({editor}: EditorUiProps) {
-  const areaSelection = useCell(editor.areaSelection);
-  const [areaSelectionDestination, setAreaSelectionDestination] =
-    useState<StreamSink<Vec2>>();
+export class EditorUi extends React.Component<EditorUiProps> {
+  private get editor(): Editor {
+    return this.props.editor;
+  }
 
-  return <Stage key={"stage"}
-                width={1024}
-                height={768}
-                onPointerDown={e => {
-                  const origin = new Vec2(e.clientX, e.clientY);
-                  const destinationS = new StreamSink<Vec2>();
-                  setAreaSelectionDestination(destinationS);
-                  const destination = new Cell(origin, destinationS);
-                  editor.startAreaSelection(origin, destination);
-                }}
-                onPointerMove={e => {
-                  if (areaSelectionDestination !== undefined) {
-                    areaSelectionDestination.send(new Vec2(e.clientX, e.clientY));
-                  }
-                }}
-                onPointerUp={e => {
-                  if (areaSelectionDestination !== undefined) {
-                    setAreaSelectionDestination(undefined);
-                  }
-                  if (areaSelection != null) {
-                    areaSelection.commit();
-                  }
-                }}
-  >
-    {
-      editor.objects
+  private application: PIXI.Application | null = null;
 
-        .map((o) => <EdObjectUi key={`o${o.id}`} object={o}/>)
+  private divElement: HTMLDivElement | null = null;
 
+  componentDidMount() {
+    const parent = this.divElement!;
+    const application = pu.autoResizingPixiApplication(parent);
+    const objectsContainer = new PIXI.Container();
 
-    }
-    {areaSelection !== null && <AreaSelectionRectangle areaSelection={areaSelection}/>}
-  </Stage>;
+    parent.addEventListener("pointerdown", (e) => {
+      console.log("pointerdown");
+
+      const origin = new Vec2(e.clientX, e.clientY);
+      const destinationS = new StreamSink<Vec2>();
+      const destination = new Cell(origin, destinationS);
+      const areaSelection = this.editor.startAreaSelection(origin, destination);
+
+      const onPointerMove = (e: PointerEvent) => {
+        destinationS.send(new Vec2(e.x, e.y));
+      };
+
+      const onPointerUp = () => {
+        areaSelection.commit();
+        parent.removeEventListener("pointermove", onPointerMove);
+        parent.removeEventListener("pointerup", onPointerUp);
+      };
+
+      parent.addEventListener("pointermove", onPointerMove);
+      parent.addEventListener("pointerup", onPointerUp);
+    });
+
+    this.editor.objects.forEach((o) => {
+      objectsContainer.addChild(EdObjectUi({object: o}));
+    });
+
+    application.stage.addChild(objectsContainer);
+
+    this.application = application;
+  }
+
+  componentWillUnmount() {
+    this.application!.destroy(true);
+  }
+
+  render() {
+    return <div
+      onPointerDown={() => {
+        // this.cell.send(Math.random());
+      }}
+      className={"Editor"} ref={el => this.divElement = el}
+    />;
+  }
+
+  // _render() {
+  //   const areaSelection = useCell(this.editor.areaSelection);
+  //   const [areaSelectionDestination, setAreaSelectionDestination] =
+  //     useState<StreamSink<Vec2>>();
+  //   return <Stage key={"stage"}
+  //                 width={1024}
+  //                 height={768}
+  //                 onPointerDown={e => {
+  //                   const origin = new Vec2(e.clientX, e.clientY);
+  //                   const destinationS = new StreamSink<Vec2>();
+  //                   setAreaSelectionDestination(destinationS);
+  //                   const destination = new Cell(origin, destinationS);
+  //                   editor.startAreaSelection(origin, destination);
+  //                 }}
+  //                 onPointerMove={e => {
+  //                   if (areaSelectionDestination !== undefined) {
+  //                     areaSelectionDestination.send(new Vec2(e.clientX, e.clientY));
+  //                   }
+  //                 }}
+  //                 onPointerUp={e => {
+  //                   if (areaSelectionDestination !== undefined) {
+  //                     setAreaSelectionDestination(undefined);
+  //                   }
+  //                   if (areaSelection != null) {
+  //                     areaSelection.commit();
+  //                   }
+  //                 }}
+  //   >
+  //     {
+  //       editor.objects
+  //
+  //         .map((o) => <EdObjectUi key={`o${o.id}`} object={o}/>)
+  //
+  //
+  //     }
+  //     {areaSelection !== null && <AreaSelectionRectangle areaSelection={areaSelection}/>}
+  //   </Stage>;
+  // }
 }
 
 interface AreaSelectionRectangleProps {
