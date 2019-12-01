@@ -1,5 +1,6 @@
 import {RezIndex} from "./rezIndex";
 import * as PIXI from "pixi.js";
+import {Maybe} from "./Maybe";
 
 type LoaderResource = PIXI.LoaderResource;
 type Texture = PIXI.Texture;
@@ -12,8 +13,10 @@ export class LevelResources {
     this._resourceDictionary = levelResources;
   }
 
-  getTexture(pidPath: string): Texture {
-    return this._resourceDictionary[pidPath]!.texture;
+  getTexture(pidPath: string): Maybe<Texture> {
+    return Maybe
+      .ofUndefined(this._resourceDictionary[pidPath])
+      .map((r) => r.texture);
   }
 
   static load(rezIndex: RezIndex, level: number): Promise<LevelResources> {
