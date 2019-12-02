@@ -41,6 +41,12 @@ it('Cell.map', () => {
   expect(outputs).to.be.deep.equal(["s2", "s3"]);
   expect(mapped.sample()).to.be.equal("s3");
 
+  source.send(3);
+
+  expect(inputs).to.be.deep.equal([1, 2, 3]);
+  expect(outputs).to.be.deep.equal(["s2", "s3"]);
+  expect(mapped.sample()).to.be.equal("s3");
+
   unsubscribe();
 
   expect(inputs).to.be.deep.equal([1, 2, 3]);
@@ -137,6 +143,33 @@ it('Cell.flatMap', () => {
   expect(nested2.refCount).to.be.equal(0);
   expect(nested3.refCount).to.be.equal(0);
   expect(flatMapped.refCount).to.be.equal(0);
+});
+
+it('Cell.flatMap (same nested returned twice)', () => {
+  const inputs: number[] = [];
+  const outputs: string[] = [];
+
+  const nested = new CellSink("1,1");
+  const source = new CellSink(1);
+
+  const flatMapped = source.flatMap((i) => {
+    inputs.push(i);
+    return nested;
+  });
+
+  flatMapped.listen((value) => {
+    outputs.push(value);
+  });
+
+  nested.send("1,2");
+
+  source.send(2);
+
+  nested.send("1,3");
+
+  expect(inputs).to.be.deep.equal([1, 2]);
+  expect(outputs).to.be.deep.equal(["1,2", "1,3"]);
+  expect(flatMapped.sample()).to.be.equal("1,3");
 });
 
 it('Cell.lift', () => {
