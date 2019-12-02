@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useState} from 'react';
+import React from 'react';
 
 import './Editor.css';
 import {Editor} from "./Editor";
@@ -7,29 +7,12 @@ import {AreaSelection} from "./AreaSelection";
 import * as PIXI from 'pixi.js';
 import * as pu from "./pixiUtils";
 import {Vec2} from "./Vec2";
-import {Cell, CellSink} from "./Cell";
+import {CellSink, useCell} from "./Cell";
 import {StreamSink} from "sodiumjs";
 import {EdObjectUi} from "./EdObjectUi";
 
-type CellProvider<T> = () => Cell<T>;
-
 interface EditorUiProps {
   editor: Editor;
-}
-
-export function useCell<T>(cell: Cell<T> | CellProvider<T>): T {
-  const cell_ = useMemo<Cell<T>>(
-    cell instanceof Cell ? () => {
-      return cell;
-    } : cell, []);
-
-  const [value, setValue] = useState(cell_.sample());
-
-  useEffect(() => {
-    return cell_.listen(setValue);
-  }, []);
-
-  return value;
 }
 
 export function range(end: number): Array<number> {

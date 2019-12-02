@@ -4,7 +4,8 @@ import './App.css';
 import 'typeface-roboto';
 import usePromise from "react-promise";
 import {App} from "./Editor";
-import {EditorUi, useCell} from "./EditorUi";
+import {EditorUi} from "./EditorUi";
+import {useCell} from "./Cell";
 
 interface AppUiProps {
   app: App;

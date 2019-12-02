@@ -1,4 +1,5 @@
 import {Stream} from "sodiumjs";
+import {useEffect, useMemo, useState} from "react";
 
 type Listener<T> = (value: T) => void;
 
@@ -38,7 +39,7 @@ export abstract class Cell<T> {
 
   abstract sample(): T;
 
-  forEach<R>(f: (value: T) => R): () => void  {
+  forEach<R>(f: (value: T) => R): () => void {
     f(this.sample());
     return this.listen(f);
   }
@@ -209,4 +210,21 @@ export class CellSink<T> extends Cell<T> {
       this.unsubscribe!();
     }
   }
+}
+
+type CellProvider<T> = () => Cell<T>;
+
+export function useCell<T>(cell: Cell<T> | CellProvider<T>): T {
+  const cell_ = useMemo<Cell<T>>(
+    cell instanceof Cell ? () => {
+      return cell;
+    } : cell, []);
+
+  const [value, setValue] = useState(cell_.sample());
+
+  useEffect(() => {
+    return cell_.listen(setValue);
+  }, []);
+
+  return value;
 }
