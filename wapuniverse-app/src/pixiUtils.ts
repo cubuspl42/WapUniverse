@@ -21,40 +21,40 @@ export interface SpriteParams {
 export function sprite(params: SpriteParams): PIXI.Sprite {
   const sprite = new PIXI.Sprite();
 
-  if(params.x instanceof Cell) {
+  if (params.x instanceof Cell) {
     params.x.forEach((x) => sprite.x = x);
   } else {
     sprite.x = params.x;
   }
 
-  if(params.y instanceof Cell) {
+  if (params.y instanceof Cell) {
     params.y.forEach((y) => sprite.y = y);
   } else {
     sprite.y = params.y;
   }
 
-  if(params.texture instanceof Cell) {
+  if (params.texture instanceof Cell) {
     params.texture.forEach((texture) => sprite.texture = texture);
   } else {
     sprite.texture = params.texture;
   }
 
-  if(params.alpha instanceof Cell) {
+  if (params.alpha instanceof Cell) {
     params.alpha.forEach((alpha) => sprite.alpha = alpha);
   } else {
     sprite.alpha = params.alpha;
   }
-  
+
   return sprite;
 }
 
 export interface GraphicsRectangleParams {
-  x: Cell<number>;
-  y: Cell<number>;
-  width: Cell<number>;
-  height: Cell<number>;
-  strokeWidth: Cell<number>;
-  strokeColor: Cell<number>;
+  x: Cell<number> | number;
+  y: Cell<number> | number;
+  width: Cell<number> | number;
+  height: Cell<number> | number;
+  strokeWidth: Cell<number> | number;
+  strokeColor: Cell<number> | number;
 }
 
 export function graphicsRectangle(params: GraphicsRectangleParams): PIXI.DisplayObject {
@@ -63,24 +63,42 @@ export function graphicsRectangle(params: GraphicsRectangleParams): PIXI.Display
   function redraw() {
     graphics.clear();
     graphics.lineStyle(
-      params.strokeWidth.sample(),
-      params.strokeColor.sample(),
+      params.strokeWidth instanceof Cell ?
+        params.strokeWidth.sample() : params.strokeWidth,
+      params.strokeColor instanceof Cell ?
+        params.strokeColor.sample() : params.strokeColor,
     );
     graphics.drawRect(
-      params.x.sample(),
-      params.y.sample(),
-      params.width.sample(),
-      params.height.sample(),
+      params.x instanceof Cell ?
+        params.x.sample() : params.x,
+      params.y instanceof Cell ?
+        params.y.sample() : params.y,
+      params.width instanceof Cell ?
+        params.width.sample() : params.width,
+      params.height instanceof Cell ?
+        params.height.sample() : params.height,
     );
     graphics.endFill();
   }
 
-  params.strokeWidth.listen(() => redraw());
-  params.strokeColor.listen(() => redraw());
-  params.x.listen(() => redraw());
-  params.y.listen(() => redraw());
-  params.width.listen(() => redraw());
-  params.height.listen(() => redraw());
+  if (params.x instanceof Cell) {
+    params.x.listen(() => redraw());
+  }
+  if (params.y instanceof Cell) {
+    params.y.listen(() => redraw());
+  }
+  if (params.width instanceof Cell) {
+    params.width.listen(() => redraw());
+  }
+  if (params.height instanceof Cell) {
+    params.height.listen(() => redraw());
+  }
+  if (params.strokeWidth instanceof Cell) {
+    params.strokeWidth.listen(() => redraw());
+  }
+  if (params.strokeColor instanceof Cell) {
+    params.strokeColor.listen(() => redraw());
+  }
 
   redraw();
 

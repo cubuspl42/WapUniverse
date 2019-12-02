@@ -2,12 +2,11 @@ import React from 'react';
 
 import './Editor.css';
 import {Editor} from "./Editor";
-import {GraphicsRectangle} from "./GraphicsRectangle";
 import {AreaSelection} from "./AreaSelection";
 import * as PIXI from 'pixi.js';
 import * as pu from "./pixiUtils";
 import {Vec2} from "./Vec2";
-import {CellSink, useCell} from "./Cell";
+import {CellSink} from "./Cell";
 import {StreamSink} from "sodiumjs";
 import {EdObjectUi} from "./EdObjectUi";
 
@@ -59,7 +58,15 @@ export class EditorUi extends React.Component<EditorUiProps> {
       objectsContainer.addChild(EdObjectUi({object: o}));
     });
 
-    application.stage.addChild(objectsContainer);
+    const stage = application.stage;
+
+    stage.addChild(objectsContainer);
+
+    this.editor.areaSelection.forEach(
+      (aM) => aM.map((a) => {
+        stage.addChild(AreaSelectionRectangle({areaSelection: a}));
+      }));
+
 
     this.application = application;
   }
@@ -123,9 +130,14 @@ interface AreaSelectionRectangleProps {
 
 export function AreaSelectionRectangle(
   {areaSelection}: AreaSelectionRectangleProps
-) {
-  const rectangle = useCell(areaSelection.rectangle);
-  return <GraphicsRectangle x={rectangle.xMin} y={rectangle.yMin}
-                            width={rectangle.width} height={rectangle.height}
-                            strokeWidth={1} strokeColor={0x00FFF0}/>
+): PIXI.DisplayObject {
+  const rectangle = areaSelection.rectangle;
+  return pu.graphicsRectangle({
+    x: rectangle.map((r) => r.xMin),
+    y: rectangle.map((r) => r.yMin),
+    width: rectangle.map((r) => r.width),
+    height: rectangle.map((r) => r.height),
+    strokeWidth: 1,
+    strokeColor: 0x00FFF0,
+  });
 }
