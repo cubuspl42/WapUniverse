@@ -23,16 +23,18 @@ export class LevelResources {
     return new Promise(resolve => {
       const loader = new PIXI.Loader();
       Object.entries(rezIndex.imageSets)
-        .filter(([imageSetId,]) => imageSetId.startsWith(`LEVEL${level}_`))
-        .forEach(([, imageSet]) => {
-            Object.values(imageSet.sprites).forEach((image) => {
-                const pidPath = image.path;
-                const pngPath = "CLAW/" + pidPath.replace(".PID", ".png");
-                loader.add(pidPath, pngPath);
-              }
-            );
-          }
-        );
+        .filter(([imageSetId,]) =>
+          imageSetId.startsWith("GAME_") ||
+          imageSetId.startsWith(`LEVEL${level}_`),
+        ).forEach(([, imageSet]) => {
+          Object.values(imageSet.sprites).forEach((image) => {
+              const pidPath = image.path;
+              const pngPath = "CLAW/" + pidPath.replace(".PID", ".png");
+              loader.add(pidPath, pngPath);
+            }
+          );
+        }
+      );
       loader.load((_loader, resources) => {
         resolve(new LevelResources(resources));
       });

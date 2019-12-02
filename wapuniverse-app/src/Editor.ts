@@ -28,7 +28,7 @@ export interface Editor {
 }
 
 async function fetchWwd() {
-  const wwd = await fetch("WORLD.WWD");
+  const wwd = await fetch("WORLD14.WWD");
   const blob = await wwd.blob();
   const arrayBuffer = await blob.arrayBuffer();
   return readWorld(arrayBuffer);
@@ -85,12 +85,14 @@ export class EditorInternal implements Editor {
         decode(o.imageSet),
         o.id,
       ));
+
+    console.log(`Object count: ${this.objects.length}`);
   }
 
   static async create(): Promise<Editor> {
     const wwd = await fetchWwd();
     const rezIndex = await fetchRezIndex();
-    const resources = await LevelResources.load(rezIndex, 1);
+    const resources = await LevelResources.load(rezIndex, 14);
     return new EditorInternal(rezIndex, resources, wwd);
   }
 
