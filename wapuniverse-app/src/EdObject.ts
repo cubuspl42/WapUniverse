@@ -102,7 +102,7 @@ export class EdObject {
     const imageData = imageSetId.lift(i,
       (isM, i) => isM
         .flatMap(is => getImageData(is, i))
-        .orElse(() => getImageData("LEVEL1_IMAGES_OFFICER", -1).get()));
+        .orElse(() => getImageData("GAME_IMAGES_POWERUPS_EXTRALIFE", -1).get()));
 
     const texture = imageData.map((id) => id.texture);
 
