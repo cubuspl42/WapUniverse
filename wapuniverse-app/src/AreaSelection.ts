@@ -1,8 +1,8 @@
-import {Cell} from "sodiumjs";
 import {Rectangle} from "./Rectangle";
 import {EdObject} from "./EdObject";
 import {Vec2} from "./Vec2";
 import {EditorInternal} from "./Editor";
+import {Cell} from "./Cell";
 
 export class AreaSelection {
   private readonly _editor: EditorInternal;

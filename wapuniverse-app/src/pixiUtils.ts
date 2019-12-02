@@ -1,5 +1,5 @@
 import * as PIXI from "pixi.js";
-import {Cell} from "sodiumjs";
+import {Cell} from "./Cell";
 
 export function autoResizingPixiApplication(parent: HTMLElement) {
   const application = new PIXI.Application({
@@ -12,18 +12,39 @@ export function autoResizingPixiApplication(parent: HTMLElement) {
 }
 
 export interface SpriteParams {
-  x: Cell<number>;
-  y: Cell<number>;
-  texture: Cell<PIXI.Texture>;
-  alpha: Cell<number>;
+  x: Cell<number> | number;
+  y: Cell<number> | number;
+  texture: Cell<PIXI.Texture> | PIXI.Texture;
+  alpha: Cell<number> | number;
 }
 
 export function sprite(params: SpriteParams): PIXI.Sprite {
   const sprite = new PIXI.Sprite();
-  params.x.listen((x) => sprite.x = x);
-  params.y.listen((y) => sprite.y = y);
-  params.texture.listen((t) => sprite.texture = t);
-  params.alpha.listen((a) => sprite.alpha = a);
+
+  if(params.x instanceof Cell) {
+    params.x.forEach((x) => sprite.x = x);
+  } else {
+    sprite.x = params.x;
+  }
+
+  if(params.y instanceof Cell) {
+    params.y.forEach((y) => sprite.y = y);
+  } else {
+    sprite.y = params.y;
+  }
+
+  if(params.texture instanceof Cell) {
+    params.texture.forEach((texture) => sprite.texture = texture);
+  } else {
+    sprite.texture = params.texture;
+  }
+
+  if(params.alpha instanceof Cell) {
+    params.alpha.forEach((alpha) => sprite.alpha = alpha);
+  } else {
+    sprite.alpha = params.alpha;
+  }
+  
   return sprite;
 }
 
@@ -60,6 +81,8 @@ export function graphicsRectangle(params: GraphicsRectangleParams): PIXI.Display
   params.y.listen(() => redraw());
   params.width.listen(() => redraw());
   params.height.listen(() => redraw());
+
+  redraw();
 
   return graphics;
 }
