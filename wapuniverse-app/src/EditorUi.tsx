@@ -3,12 +3,13 @@ import React, {useEffect, useMemo, useState} from 'react';
 import './Editor.css';
 import {Editor} from "./Editor";
 import {GraphicsRectangle} from "./GraphicsRectangle";
-import {Cell, StreamSink} from "sodiumjs";
 import {EdObject} from "./EdObject";
 import {AreaSelection} from "./AreaSelection";
 import * as PIXI from 'pixi.js';
 import * as pu from "./pixiUtils";
 import {Vec2} from "./Vec2";
+import {Cell, CellSink} from "./Cell";
+import {StreamSink} from "sodiumjs";
 
 const Texture = PIXI.Texture;
 
@@ -19,10 +20,11 @@ interface EditorUiProps {
 }
 
 export function useCell<T>(cell: Cell<T> | CellProvider<T>): T {
-  const cell_ = useMemo(
+  const cell_ = useMemo<Cell<T>>(
     cell instanceof Cell ? () => {
       return cell;
     } : cell, []);
+
   const [value, setValue] = useState(cell_.sample());
 
   useEffect(() => {
@@ -91,9 +93,11 @@ function EdObjectUi({object}: EdObjectUiProps): PIXI.DisplayObject {
     y: y,
     width: width,
     height: height,
-    strokeWidth: new Cell(2),
-    strokeColor: isInSelectionArea.lift(isSelected, (isInSelectionAreaV: boolean, isSelectedV: boolean): number =>
-      isInSelectionArea ? 0xcd0000 : isSelected ? 0xe3fc03 : 0x87cefa),
+    strokeWidth: new CellSink(2),
+    strokeColor: isInSelectionArea.lift(isSelected,
+      (isInSelectionAreaV: boolean, isSelectedV: boolean): number =>
+        isInSelectionAreaV ? 0xcd0000 : isSelectedV ? 0xe3fc03 : 0x87cefa
+    ),
   });
 
   container.addChild(frameRectangle);
@@ -111,7 +115,6 @@ function EdObjectUi({object}: EdObjectUiProps): PIXI.DisplayObject {
 
   return container;
 }
-
 
 export class EditorUi extends React.Component<EditorUiProps> {
   private get editor(): Editor {
@@ -132,7 +135,7 @@ export class EditorUi extends React.Component<EditorUiProps> {
 
       const origin = new Vec2(e.clientX, e.clientY);
       const destinationS = new StreamSink<Vec2>();
-      const destination = new Cell(origin, destinationS);
+      const destination = new CellSink(origin, destinationS);
       const areaSelection = this.editor.startAreaSelection(origin, destination);
 
       const onPointerMove = (e: PointerEvent) => {

@@ -1,6 +1,6 @@
 import {fetchRezIndex, RezIndex} from "./rezIndex";
 import {LevelResources} from "./LevelResources";
-import {Cell, CellSink} from "sodiumjs";
+import {Cell, CellSink} from "./Cell";
 import {Vec2} from "./Vec2";
 import {EdObject} from "./EdObject";
 import {AreaSelection} from "./AreaSelection";

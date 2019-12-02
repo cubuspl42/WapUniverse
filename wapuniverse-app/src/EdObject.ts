@@ -1,4 +1,3 @@
-import {Cell, CellSink} from "sodiumjs";
 import {Vec2} from "./Vec2";
 import {Image, RezIndex} from "./rezIndex";
 import {LevelResources} from "./LevelResources";
@@ -6,6 +5,7 @@ import {AreaSelection} from "./AreaSelection";
 import {Rectangle} from "./Rectangle";
 import {EditorInternal} from "./Editor";
 import {Maybe, None, Some} from "./Maybe";
+import {Cell, CellSink} from "./Cell";
 
 type Texture = PIXI.Texture;
 
@@ -95,52 +95,36 @@ export class EdObject {
       );
     }
 
-    const
-      shortImageSetId = new CellSink(initialImageSet);
+    const shortImageSetId = new CellSink(initialImageSet);
 
-    const
-      imageSetId = shortImageSetId.map((s) => editor.expandShortImageSetId(s));
+    const imageSetId = shortImageSetId.map((s) => editor.expandShortImageSetId(s));
 
-    const
-      imageData = imageSetId.lift(i,
-        (isM, i) => isM
-          .flatMap(is => getImageData(is, i))
-          .orElse(() => getImageData("LEVEL1_IMAGES_OFFICER", -1).get()));
+    const imageData = imageSetId.lift(i,
+      (isM, i) => isM
+        .flatMap(is => getImageData(is, i))
+        .orElse(() => getImageData("LEVEL1_IMAGES_OFFICER", -1).get()));
 
-    const
-      texture = imageData.map((id) => id.texture);
+    const texture = imageData.map((id) => id.texture);
 
-    const
-      boundingBox = position.lift(imageData, (p: Vec2, id: ImageData) =>
-        calculateBoundingBox(p, id.rezImage, id.texture));
+    const boundingBox = position.lift(imageData, (p: Vec2, id: ImageData) =>
+      calculateBoundingBox(p, id.rezImage, id.texture));
 
     const isInSelectionArea = Cell.switchC(areaSelection.map(aM => aM.map((a) =>
-        a.objectsInArea
+      a.objectsInArea
         .map(o => o.indexOf(this) !== -1))
-        .orElse(() => new Cell<boolean>(false))
-      )
-    );
+      .orElse(() => new CellSink<boolean>(false) as Cell<boolean>)
+    ));
 
-    const
-      isSelected = editor.selectedObjects.map(s => s.indexOf(this) !== -1);
+    const isSelected = editor.selectedObjects.map(s => s.indexOf(this) !== -1);
 
-    this
-      ._editor = editor;
-    this
-      .position = position;
-    this
-      .i = i;
-    this
-      .texture = texture;
-    this
-      .boundingBox = boundingBox;
-    this
-      .isHovered = new CellSink<boolean>(false);
-    this
-      .isInSelectionArea = isInSelectionArea;
-    this
-      .isSelected = isSelected;
-    this
-      .id = id;
+    this._editor = editor;
+    this.position = position;
+    this.i = i;
+    this.texture = texture;
+    this.boundingBox = boundingBox;
+    this.isHovered = new CellSink<boolean>(false);
+    this.isInSelectionArea = isInSelectionArea;
+    this.isSelected = isSelected;
+    this.id = id;
   }
 }
