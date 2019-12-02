@@ -111,11 +111,11 @@ export class EdObject {
 
     const isInSelectionArea = Cell.switchC(areaSelection.map(aM => aM.map((a) =>
       a.objectsInArea
-        .map(o => o.indexOf(this) !== -1))
+        .map(o => o.has(this)))
       .orElse(() => new CellSink<boolean>(false) as Cell<boolean>)
     ));
 
-    const isSelected = editor.selectedObjects.map(s => s.indexOf(this) !== -1);
+    const isSelected = editor.selectedObjects.map(s => s.has(this));
 
     this._editor = editor;
     this.position = position;

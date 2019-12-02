@@ -9,7 +9,7 @@ export class AreaSelection {
 
   readonly rectangle: Cell<Rectangle>;
 
-  readonly objectsInArea: Cell<ReadonlyArray<EdObject>>;
+  readonly objectsInArea: Cell<ReadonlySet<EdObject>>;
 
   private readonly _onDone: () => void;
 
@@ -27,10 +27,10 @@ export class AreaSelection {
     });
     this.rectangle = area;
     const objectsInArea = area.map((area) => {
-      return objects.filter((object) => {
+      return new Set(objects.filter((object) => {
         const boundingBox = object.boundingBox.sample();
         return area.overlaps(boundingBox);
-      }) as ReadonlyArray<EdObject>;
+      })) as ReadonlySet<EdObject>;
     });
     objectsInArea.listen(() => {}); // for .sample()
     this.objectsInArea = objectsInArea;

@@ -18,7 +18,7 @@ export class App {
 }
 
 export interface Editor {
-  readonly selectedObjects: Cell<ReadonlyArray<EdObject>>;
+  readonly selectedObjects: Cell<ReadonlySet<EdObject>>;
 
   readonly objects: ReadonlyArray<EdObject>;
 
@@ -58,7 +58,7 @@ export function stopwatch<R>(s: string, f: () => R) {
 export class EditorInternal implements Editor {
   private readonly _areaSelection = new CellSink<Maybe<AreaSelection>>(new None());
 
-  private readonly _selectedObjects = new CellSink<ReadonlyArray<EdObject>>([]);
+  private readonly _selectedObjects = new CellSink<ReadonlySet<EdObject>>(new Set());
 
   readonly objects: ReadonlyArray<EdObject>;
 
@@ -66,7 +66,7 @@ export class EditorInternal implements Editor {
 
   readonly areaSelection = this._areaSelection as Cell<Maybe<AreaSelection>>;
 
-  readonly selectedObjects = this._selectedObjects as Cell<ReadonlyArray<EdObject>>;
+  readonly selectedObjects = this._selectedObjects as Cell<ReadonlySet<EdObject>>;
 
   private constructor(rezIndex: RezIndex, levelResources: LevelResources, wwd: World) {
     const action = wwd.planes[1];
@@ -110,7 +110,7 @@ export class EditorInternal implements Editor {
     return areaSelection;
   }
 
-  selectObjects(objects: ReadonlyArray<EdObject>) {
+  selectObjects(objects: ReadonlySet<EdObject>) {
     this._selectedObjects.send(objects);
   }
 
