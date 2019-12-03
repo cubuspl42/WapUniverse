@@ -109,11 +109,13 @@ export class EdObject {
     const boundingBox = position.lift(imageData, (p: Vec2, id: ImageData) =>
       calculateBoundingBox(p, id.rezImage, id.texture));
 
-    const isInSelectionArea = Cell.switchC(areaSelection.map(aM => aM.map((a) =>
+    const falseCell = new CellSink<boolean>(false);
+
+    const isInSelectionArea = areaSelection.flatMap(aM => aM.map((a) =>
       a.objectsInArea
         .map(o => o.has(this)))
-      .orElse(() => new CellSink<boolean>(false) as Cell<boolean>)
-    ));
+      .orElse(() => falseCell)
+    );
 
     const isSelected = editor.selectedObjects.map(s => s.has(this));
 

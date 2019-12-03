@@ -4,7 +4,6 @@ import './Editor.css';
 import {EdObject} from "./EdObject";
 import * as PIXI from 'pixi.js';
 import * as pu from "./pixiUtils";
-import {CellSink} from "./Cell";
 
 
 interface EdObjectUiProps {
@@ -29,16 +28,11 @@ export function EdObjectUi({object}: EdObjectUiProps): PIXI.DisplayObject {
     x: x,
     y: y,
     texture: texture,
-    alpha: isHovered.map((h): number => h ? 1 : 0.5),
+    alpha: 1,
   });
 
   sprite.interactive = true;
 
-  sprite.on("pointerdown", () => {
-    const newI = object.i.sample() + 1;
-    console.log(`newI: ${newI}`);
-    object.i.send(newI);
-  });
 
   sprite.on("pointerover", () => {
     object.isHovered.send(true);
@@ -55,7 +49,7 @@ export function EdObjectUi({object}: EdObjectUiProps): PIXI.DisplayObject {
     y: y,
     width: width,
     height: height,
-    strokeWidth: new CellSink(2),
+    strokeWidth: 2,
     strokeColor: isInSelectionArea.lift(isSelected,
       (isInSelectionAreaV: boolean, isSelectedV: boolean): number =>
         isInSelectionAreaV ? 0xcd0000 : isSelectedV ? 0xe3fc03 : 0x87cefa
@@ -63,6 +57,20 @@ export function EdObjectUi({object}: EdObjectUiProps): PIXI.DisplayObject {
   });
 
   container.addChild(frameRectangle);
+
+  const hoverRectangle = pu.graphicsRectangle({
+    x: x.map(x => x - 2),
+    y: y.map(y => y - 2),
+    width: width.map(w => w + 4),
+    height: height.map(h => h + 4),
+    strokeWidth: 2,
+    strokeColor: isHovered.map<number>(h => {
+      // console.log(`h: ${h}`);
+      return h ? 0x0000cd : 0xFFFFFF;
+    }),
+  });
+
+  container.addChild(hoverRectangle);
 
   {/*{isHovered && <GraphicsRectangle key={`g2${object.id}`} x={boundingBox.xMin - 2} y={boundingBox.yMin - 2}*/
   }

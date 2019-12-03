@@ -16,6 +16,7 @@ export interface SpriteParams {
   y: Cell<number> | number;
   texture: Cell<PIXI.Texture> | PIXI.Texture;
   alpha: Cell<number> | number;
+  tint?: Cell<number> | number;
 }
 
 export function sprite(params: SpriteParams): PIXI.Sprite {
@@ -23,26 +24,35 @@ export function sprite(params: SpriteParams): PIXI.Sprite {
 
   if (params.x instanceof Cell) {
     params.x.forEach((x) => sprite.x = x);
-  } else {
+  } else if (params.x !== undefined) {
     sprite.x = params.x;
   }
 
   if (params.y instanceof Cell) {
     params.y.forEach((y) => sprite.y = y);
-  } else {
+  } else if (params.y !== undefined) {
     sprite.y = params.y;
   }
 
   if (params.texture instanceof Cell) {
     params.texture.forEach((texture) => sprite.texture = texture);
-  } else {
+  } else if (params.texture !== undefined) {
     sprite.texture = params.texture;
   }
 
   if (params.alpha instanceof Cell) {
     params.alpha.forEach((alpha) => sprite.alpha = alpha);
-  } else {
+  } else if (params.alpha !== undefined) {
     sprite.alpha = params.alpha;
+  }
+
+  if (params.tint instanceof Cell) {
+    params.tint.forEach((tint) => {
+      // console.log(`tint!`);
+      sprite.tint = tint;
+    });
+  } else if (params.tint !== undefined) {
+    sprite.tint = params.tint;
   }
 
   return sprite;
@@ -65,8 +75,7 @@ export function graphicsRectangle(params: GraphicsRectangleParams): PIXI.Display
     graphics.lineStyle(
       params.strokeWidth instanceof Cell ?
         params.strokeWidth.sample() : params.strokeWidth,
-      params.strokeColor instanceof Cell ?
-        params.strokeColor.sample() : params.strokeColor,
+      0xFFFFFF,
     );
     graphics.drawRect(
       params.x instanceof Cell ?
@@ -96,8 +105,13 @@ export function graphicsRectangle(params: GraphicsRectangleParams): PIXI.Display
   if (params.strokeWidth instanceof Cell) {
     params.strokeWidth.listen(() => redraw());
   }
+
   if (params.strokeColor instanceof Cell) {
-    params.strokeColor.listen(() => redraw());
+    params.strokeColor.forEach((strokeColor) => {
+      graphics.tint = strokeColor;
+    });
+  } else if (params.strokeColor !== undefined) {
+    graphics.tint = params.strokeColor;
   }
 
   redraw();

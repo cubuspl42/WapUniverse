@@ -102,11 +102,12 @@ export class EditorInternal implements Editor {
       origin,
       destination,
       this.objects,
-      () => this._areaSelection.send(new None())
+      () => {
+        this._areaSelection.send(new None());
+      }
     );
-    stopwatch("this._areaSelection.send", () => {
-      this._areaSelection.send(new Some(areaSelection));
-    });
+    this._areaSelection.send(new Some(areaSelection));
+
     return areaSelection;
   }
 
