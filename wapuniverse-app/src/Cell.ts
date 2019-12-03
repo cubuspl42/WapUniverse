@@ -4,10 +4,10 @@ import {useEffect, useMemo, useState} from "react";
 type Listener<T> = (value: T) => void;
 
 export abstract class Cell<T> {
-  private readonly listeners: Listener<T>[] = [];
+  private readonly listeners = new Set<Listener<T>>();
 
   get refCount(): number {
-    return this.listeners.length;
+    return this.listeners.size;
   }
 
   protected onFirstListenerSubscribed(): void {
@@ -23,15 +23,12 @@ export abstract class Cell<T> {
   }
 
   listen(listener: Listener<T>): () => void {
-    this.listeners.push(listener);
-    if (this.listeners.length == 1) this.onFirstListenerSubscribed();
+    this.listeners.add(listener);
+    if (this.listeners.size == 1) this.onFirstListenerSubscribed();
 
     const unsubscribe = () => {
-      const index = this.listeners.indexOf(listener);
-      if (index > -1) {
-        this.listeners.splice(index, 1);
-      }
-      if (this.listeners.length == 0) this.onLastListenerUnsubscribed();
+      this.listeners.delete(listener);
+      if (this.listeners.size == 0) this.onLastListenerUnsubscribed();
     };
 
     return unsubscribe;
@@ -82,9 +79,9 @@ class MappedCell<T, R> extends Cell<R> {
     this.unsubscribe = this.source.listen((value => {
       const newValue = this.f(value);
       if (newValue !== this.value) {
+        this.value = newValue;
         this.emit(newValue);
       }
-      this.value = newValue;
     }));
   }
 
