@@ -6,7 +6,7 @@ import {AreaSelection} from "./AreaSelection";
 import * as PIXI from 'pixi.js';
 import * as pu from "./pixiUtils";
 import {Vec2} from "./Vec2";
-import {CellSink} from "./Cell";
+import {Cell, CellSink} from "./Cell";
 import {StreamSink} from "sodiumjs";
 import {EdObjectUi} from "./EdObjectUi";
 
