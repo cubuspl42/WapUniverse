@@ -6,9 +6,9 @@ import {AreaSelection} from "./AreaSelection";
 import * as PIXI from 'pixi.js';
 import * as pu from "./pixiUtils";
 import {Vec2} from "./Vec2";
-import {Cell, CellSink} from "./Cell";
+import {CellSink} from "./Cell";
 import {StreamSink} from "sodiumjs";
-import {EdObjectUi} from "./EdObjectUi";
+import {edObjectBorder, edObjectSprite} from "./EdObjectUi";
 
 interface EditorUiProps {
   editor: Editor;
@@ -30,7 +30,11 @@ export class EditorUi extends React.Component<EditorUiProps> {
   componentDidMount() {
     const parent = this.divElement!;
     const application = pu.autoResizingPixiApplication(parent);
+    const stage = application.stage;
+
     const objectsContainer = new PIXI.Container();
+
+    const borderTexture = PIXI.Texture.from("border.png");
 
     parent.addEventListener("pointerdown", (e) => {
       console.log("pointerdown");
@@ -55,18 +59,14 @@ export class EditorUi extends React.Component<EditorUiProps> {
     });
 
     this.editor.objects.forEach((o) => {
-      objectsContainer.addChild(EdObjectUi({object: o}));
+      objectsContainer.addChild(edObjectSprite(o));
     });
 
-    const stage = application.stage;
+    this.editor.objects.forEach((o) => {
+      objectsContainer.addChild(edObjectBorder(o, borderTexture));
+    });
 
     stage.addChild(objectsContainer);
-
-    this.editor.areaSelection.forEach(
-      (aM) => aM.map((a) => {
-        stage.addChild(AreaSelectionRectangle({areaSelection: a}));
-      }));
-
 
     this.application = application;
   }
