@@ -50,9 +50,7 @@ export class EdObject {
     initialImageSet: string,
     id: number,
   ) {
-    function
-
-    getRezImage(imageSetId: string, i: number): Maybe<Image> {
+    function getRezImage(imageSetId: string, i: number): Maybe<Image> {
       const rezImageSet = rezIndex.imageSets[imageSetId];
       if (!rezImageSet) return new None();
       const pidFileName = rezImageSet.frames[i];
@@ -60,22 +58,17 @@ export class EdObject {
       return new Some(rezImageSet.sprites[pidFileName]);
     }
 
-    function
-
-    getTexture(rezImage: Image): Maybe<Texture> {
+    function getTexture(rezImage: Image): Maybe<Texture> {
       return levelResources.getTexture(rezImage.path);
     }
 
-    function
-
-    calculateBoundingBox(position: Vec2, rezImage: Image, texture: Texture): Rectangle {
+    function calculateBoundingBox(position: Vec2, rezImage: Image, texture: Texture): Rectangle {
       const [offsetX, offsetY] = rezImage.offset; // FIXME: Position means center
       return new Rectangle(position.x, position.y, texture.width, texture.height);
     }
 
     // const position = new CellSink(initialPosition);
-    const
-      position = new CellSink(new Vec2(getRandomInt(800), getRandomInt(600)));
+    const position = new CellSink(new Vec2(getRandomInt(800), getRandomInt(600)));
     const
       i = new CellSink(-1);
 
@@ -95,7 +88,8 @@ export class EdObject {
       );
     }
 
-    const shortImageSetId = new CellSink(initialImageSet);
+    // const shortImageSetId = new CellSink(initialImageSet);
+    const shortImageSetId = new CellSink("GAME_EXTRALIFE");
 
     const imageSetId = shortImageSetId.map((s) => editor.expandShortImageSetId(s));
 
