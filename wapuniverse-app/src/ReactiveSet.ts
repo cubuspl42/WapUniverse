@@ -1,57 +1,47 @@
-import {Cell, CellSink} from 'sodiumjs';
+import {Cell, CellSink} from "./Cell";
 
-export interface ReactiveReadonlySet<T> extends ReadonlySet<T> {
-  sizeC: Cell<number>
+export interface ReactiveReadonlySet<T> {
+  size: Cell<number>
 
-  hasC(x: T): Cell<boolean>
+  has(x: T): Cell<boolean>
 
-  hasCC(x: Cell<T>): Cell<boolean>
+  has(x: Cell<T>): Cell<boolean>
 }
 
-export class ReactiveSet<T> implements Set<T>, ReactiveReadonlySet<T> {
+class Node<T> {
+  value: T;
 
+  constructor(initialValue: T) {
+    this.value = initialValue;
+  }
+}
+
+export class ReactiveSet<T> implements ReactiveReadonlySet<T> {
   private _set = new Set<T>();
 
   private _size = new CellSink(0);
 
-  get sizeC(): Cell<number> {
-    return this._size;
+  readonly size = this._size as Cell<number>;
+
+  view(): ReadonlySet<T> {
+    return this._set;
   }
 
-  hasC(x: T): Cell<boolean> {
-    throw new Error("Method not implemented.");
+  has(element: T): Cell<boolean>;
+
+  has(element: Cell<T>): Cell<boolean>;
+
+  has(element: T | Cell<T>): Cell<boolean> {
+    const elementC = element instanceof Cell ?
+      element as Cell<T> :
+      new CellSink(element) as Cell<T>;
   }
 
-  hasCC(x: Cell<T>): Cell<boolean> {
-    throw new Error("Method not implemented.");
-  }
-
-  forEach(callback: (value: T, value2: T, set: Set<T>) => void, thisArg?: any): void {
-    this._set.forEach(callback, thisArg);
-  }
-
-  has(value: T): boolean {
-    return this._set.has(value);
-  }
-
-  get size(): number {
-    return this._set.size;
-  }
-
-  [Symbol.iterator](): IterableIterator<T> {
-    return this._set[Symbol.iterator]();
-  }
-
-  entries(): IterableIterator<[T, T]> {
-    throw new Error("Method not implemented.");
-  }
-
-  keys(): IterableIterator<T> {
-    throw new Error("Method not implemented.");
-  }
-
-  values(): IterableIterator<T> {
-    throw new Error("Method not implemented.");
+  add(element: T) {
+    if (!this._set.has(element)) {
+      this._set.add(element);
+      this._size.send(this._size.sample() + 1);
+    }
   }
 
 }
