@@ -2,6 +2,10 @@ import {ByteString, DataStream} from "./DataStream";
 import * as pako from "pako";
 import {Rectangle} from "./Rectangle";
 
+export function toArrayBuffer(buffer: Buffer) {
+  return buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
+}
+
 export class World {
   readonly name: ByteString;
   readonly author: ByteString;
