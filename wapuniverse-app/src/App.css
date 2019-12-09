@@ -17,3 +17,8 @@
 .App-link {
   color: #61dafb;
 }
+
+html, body {
+  overscroll-behavior-x: none;
+  overscroll-behavior-y: none;
+}
