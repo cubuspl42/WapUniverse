@@ -43,7 +43,10 @@ export class EditorUi extends React.Component<EditorUiProps> {
     const rootContainer = pu.container({
       x: offset.map((f) => f.x),
       y: offset.map((f) => f.y),
-      scale: this.editor.cameraZoom.map((z) => new PIXI.Point(z, z)),
+      scale: this.editor.cameraZoom.map((z) => {
+        console.log(`z: ${z}`);
+        return new PIXI.Point(z, z);
+      }),
       pivot: focusPoint,
     });
 
@@ -71,6 +74,18 @@ export class EditorUi extends React.Component<EditorUiProps> {
       parent.addEventListener("pointerup", onPointerUp);
     });
 
+    parent.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      if (e.ctrlKey) {
+        this.editor.zoom(e.deltaY * zoomMultiplier);
+      } else {
+        this.editor.scroll(new Vec2(
+          e.deltaX * scrollMultiplier,
+          e.deltaY * scrollMultiplier,
+        ));
+      }
+    });
+
     this.editor.objects.forEach((o) => {
       rootContainer.addChild(edObjectSprite(o));
     });
@@ -92,16 +107,6 @@ export class EditorUi extends React.Component<EditorUiProps> {
     return <div
       onPointerDown={() => {
         // this.cell.send(Math.random());
-      }}
-      onWheel={(e) => {
-        if (e.ctrlKey) {
-          this.editor.zoom(e.deltaY * zoomMultiplier);
-        } else {
-          this.editor.scroll(new Vec2(
-            e.deltaX * scrollMultiplier,
-            e.deltaY * scrollMultiplier,
-          ));
-        }
       }}
       className={"Editor"} ref={el => this.divElement = el}
     />;

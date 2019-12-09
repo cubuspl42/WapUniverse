@@ -7,11 +7,19 @@ import {AreaSelection} from "./AreaSelection";
 import {readWorld, World} from "./wwd";
 import {Maybe, None, Some} from "./Maybe";
 import {clamp} from "./utils";
+import * as _ from 'lodash';
 
 const zoomMin = 0.1;
 const zoomExponentMin = Math.log2(zoomMin);
 const zoomMax = 3;
 const zoomExponentMax = Math.log2(zoomMax);
+
+const zoomValues = [0.25, 0.5, 0.75, 1, 1.5, 2, 2.5, 3];
+
+function correctZoom(inputValue: number): number {
+  // return _.minBy(zoomValues, (z) => Math.abs(inputValue - z))!;
+  return inputValue;
+}
 
 
 function decode(s: Uint8Array): string {
@@ -89,7 +97,7 @@ export class EditorInternal implements Editor {
 
   readonly cameraFocusPoint = this._cameraFocusPoint as Cell<Vec2>;
 
-  readonly cameraZoom = this._cameraZoomExponent.map((z) => Math.pow(2, z));
+  readonly cameraZoom = this._cameraZoomExponent.map((z) => correctZoom(Math.pow(2, z)));
 
   private constructor(rezIndex: RezIndex, levelResources: LevelResources, wwd: World) {
     const action = wwd.planes[1];
@@ -154,14 +162,14 @@ export class EditorInternal implements Editor {
     const currentFocusPoint = this.cameraFocusPoint.sample();
     const currentZoom = this.cameraZoom.sample();
     const newFocusPoint = currentFocusPoint.sub(delta.div(currentZoom)).floor();
-    console.log(`newFocusPoint: ${newFocusPoint}`);
+    // console.log(`newFocusPoint: ${newFocusPoint}`);
     this._cameraFocusPoint.send(newFocusPoint);
   }
 
   zoom(delta: number): void {
     const currentZoomExponent = this._cameraZoomExponent.sample();
     const newZoomExponent = clamp(currentZoomExponent - delta, zoomExponentMin, zoomExponentMax);
-    console.log(`newZoomExponent: ${newZoomExponent}`);
+    // console.log(`newZoomExponent: ${newZoomExponent}`);
     this._cameraZoomExponent.send(newZoomExponent);
   }
 }
