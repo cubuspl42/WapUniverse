@@ -9,6 +9,10 @@ import {Vec2} from "./Vec2";
 import {CellSink} from "./Cell";
 import {StreamSink} from "sodiumjs";
 import {edObjectBorder, edObjectSprite} from "./EdObjectUi";
+import {elementSize} from "./cellUtils";
+
+const zoomMultiplier = 0.01;
+const scrollMultiplier = 2;
 
 interface EditorUiProps {
   editor: Editor;
@@ -32,7 +36,16 @@ export class EditorUi extends React.Component<EditorUiProps> {
     const application = pu.autoResizingPixiApplication(parent);
     const stage = application.stage;
 
-    const objectsContainer = new PIXI.Container();
+    const parentSize = elementSize(parent);
+    const offset = parentSize.map((s) => s.div(2).toPixiPoint());
+    const focusPoint = this.editor.cameraFocusPoint.map((f) => f.neg().toPixiPoint());
+
+    const rootContainer = pu.container({
+      x: offset.map((f) => f.x),
+      y: offset.map((f) => f.y),
+      scale: this.editor.cameraZoom.map((z) => new PIXI.Point(z, z)),
+      pivot: focusPoint,
+    });
 
     const borderTexture = PIXI.Texture.from("border.png");
 
@@ -59,14 +72,14 @@ export class EditorUi extends React.Component<EditorUiProps> {
     });
 
     this.editor.objects.forEach((o) => {
-      objectsContainer.addChild(edObjectSprite(o));
+      rootContainer.addChild(edObjectSprite(o));
     });
 
     this.editor.objects.forEach((o) => {
-      objectsContainer.addChild(edObjectBorder(o, borderTexture));
+      rootContainer.addChild(edObjectBorder(o, borderTexture));
     });
 
-    stage.addChild(objectsContainer);
+    stage.addChild(rootContainer);
 
     this.application = application;
   }
@@ -79,6 +92,16 @@ export class EditorUi extends React.Component<EditorUiProps> {
     return <div
       onPointerDown={() => {
         // this.cell.send(Math.random());
+      }}
+      onWheel={(e) => {
+        if (e.ctrlKey) {
+          this.editor.zoom(e.deltaY * zoomMultiplier);
+        } else {
+          this.editor.scroll(new Vec2(
+            e.deltaX * scrollMultiplier,
+            e.deltaY * scrollMultiplier,
+          ));
+        }
       }}
       className={"Editor"} ref={el => this.divElement = el}
     />;

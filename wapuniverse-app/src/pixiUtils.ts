@@ -118,3 +118,41 @@ export function graphicsRectangle(params: GraphicsRectangleParams): PIXI.Display
 
   return graphics;
 }
+
+export interface ContainerParams {
+  x: Cell<number> | number;
+  y: Cell<number> | number;
+  pivot: Cell<PIXI.Point> | PIXI.Point;
+  scale: Cell<PIXI.Point> | PIXI.Point;
+}
+
+export function container(params: ContainerParams): PIXI.Container {
+  const container = new PIXI.Container();
+
+  if (params.x instanceof Cell) {
+    params.x.forEach((x) => container.x = x);
+  } else if (params.x !== undefined) {
+    container.x = params.x;
+  }
+
+  if (params.y instanceof Cell) {
+    params.y.forEach((y) => container.y = y);
+  } else if (params.y !== undefined) {
+    container.y = params.y;
+  }
+
+  if (params.pivot instanceof Cell) {
+    params.pivot.forEach((pivot) => container.pivot = pivot);
+  } else if (params.pivot !== undefined) {
+    container.pivot = params.pivot;
+  }
+
+  if (params.scale instanceof Cell) {
+    params.scale.forEach((scale) => container.scale = scale);
+  } else if (params.scale !== undefined) {
+    container.scale = params.scale;
+  }
+
+  return container;
+}
+

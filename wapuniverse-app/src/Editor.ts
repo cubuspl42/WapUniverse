@@ -6,6 +6,10 @@ import {EdObject} from "./EdObject";
 import {AreaSelection} from "./AreaSelection";
 import {readWorld, World} from "./wwd";
 import {Maybe, None, Some} from "./Maybe";
+import {clamp} from "./utils";
+
+const zoomMin = 0.1;
+const zoomMax = 3;
 
 function decode(s: Uint8Array): string {
   return new TextDecoder().decode(s);
@@ -24,7 +28,15 @@ export interface Editor {
 
   readonly areaSelection: Cell<Maybe<AreaSelection>>;
 
+  readonly cameraFocusPoint: Cell<Vec2>;
+
+  readonly cameraZoom: Cell<number>;
+
   startAreaSelection(origin: Vec2, destination: Cell<Vec2>): AreaSelection;
+
+  zoom(delta: number): void;
+
+  scroll(delta: Vec2): void;
 }
 
 async function fetchWwd() {
@@ -60,6 +72,10 @@ export class EditorInternal implements Editor {
 
   private readonly _selectedObjects = new CellSink<ReadonlySet<EdObject>>(new Set());
 
+  private _cameraFocusPoint = new CellSink(new Vec2(0, 0));
+
+  private _cameraZoom = new CellSink(1.0);
+
   readonly objects: ReadonlyArray<EdObject>;
 
   readonly imageSets: ReadonlyArray<PrefixEntry>;
@@ -67,6 +83,10 @@ export class EditorInternal implements Editor {
   readonly areaSelection = this._areaSelection as Cell<Maybe<AreaSelection>>;
 
   readonly selectedObjects = this._selectedObjects as Cell<ReadonlySet<EdObject>>;
+
+  readonly cameraFocusPoint = this._cameraFocusPoint as Cell<Vec2>;
+
+  readonly cameraZoom = this._cameraZoom as Cell<number>;
 
   private constructor(rezIndex: RezIndex, levelResources: LevelResources, wwd: World) {
     const action = wwd.planes[1];
@@ -125,5 +145,18 @@ export class EditorInternal implements Editor {
     const expandedPrefixes = this.imageSets.map(expandPrefix);
 
     return Maybe.findSome(expandedPrefixes);
+  }
+
+  scroll(delta: Vec2): void {
+    const currentFocusPoint = this.cameraFocusPoint.sample();
+    const currentZoom = this.cameraZoom.sample();
+    const newFocusPoint = currentFocusPoint.sub(delta.div(currentZoom));
+    this._cameraFocusPoint.send(newFocusPoint);
+  }
+
+  zoom(delta: number): void {
+    const currentZoom = this.cameraZoom.sample();
+    const newZoom = clamp( currentZoom - delta, zoomMin, zoomMax);
+    this._cameraZoom.send(newZoom);
   }
 }

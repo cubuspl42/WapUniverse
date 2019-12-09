@@ -67,14 +67,10 @@ export class EdObject {
       return new Rectangle(position.x, position.y, texture.width, texture.height);
     }
 
-    // const position = new CellSink(initialPosition);
-    const position = new CellSink(new Vec2(getRandomInt(800), getRandomInt(600)));
-    const
-      i = new CellSink(-1);
+    const position = new CellSink(initialPosition);
+    const i = new CellSink(-1);
 
-    function
-
-    getImageData(imageSetId: string, i: number): Maybe<ImageData> {
+    function getImageData(imageSetId: string, i: number): Maybe<ImageData> {
       return getRezImage(imageSetId, i).flatMap(
         (rezImage) => getTexture(rezImage).map(
           (texture) => {
@@ -88,8 +84,8 @@ export class EdObject {
       );
     }
 
-    // const shortImageSetId = new CellSink(initialImageSet);
-    const shortImageSetId = new CellSink("GAME_EXTRALIFE");
+    const shortImageSetId = new CellSink(initialImageSet);
+    // const shortImageSetId = new CellSink("GAME_EXTRALIFE");
 
     const imageSetId = shortImageSetId.map((s) => editor.expandShortImageSetId(s));
 
