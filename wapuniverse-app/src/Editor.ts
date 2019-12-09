@@ -9,7 +9,10 @@ import {Maybe, None, Some} from "./Maybe";
 import {clamp} from "./utils";
 
 const zoomMin = 0.1;
+const zoomExponentMin = Math.log2(zoomMin);
 const zoomMax = 3;
+const zoomExponentMax = Math.log2(zoomMax);
+
 
 function decode(s: Uint8Array): string {
   return new TextDecoder().decode(s);
@@ -74,7 +77,7 @@ export class EditorInternal implements Editor {
 
   private _cameraFocusPoint = new CellSink(new Vec2(0, 0));
 
-  private _cameraZoom = new CellSink(1.0);
+  private _cameraZoomExponent = new CellSink(1.0);
 
   readonly objects: ReadonlyArray<EdObject>;
 
@@ -86,7 +89,7 @@ export class EditorInternal implements Editor {
 
   readonly cameraFocusPoint = this._cameraFocusPoint as Cell<Vec2>;
 
-  readonly cameraZoom = this._cameraZoom as Cell<number>;
+  readonly cameraZoom = this._cameraZoomExponent.map((z) => Math.pow(2, z));
 
   private constructor(rezIndex: RezIndex, levelResources: LevelResources, wwd: World) {
     const action = wwd.planes[1];
@@ -150,13 +153,15 @@ export class EditorInternal implements Editor {
   scroll(delta: Vec2): void {
     const currentFocusPoint = this.cameraFocusPoint.sample();
     const currentZoom = this.cameraZoom.sample();
-    const newFocusPoint = currentFocusPoint.sub(delta.div(currentZoom));
+    const newFocusPoint = currentFocusPoint.sub(delta.div(currentZoom)).floor();
+    console.log(`newFocusPoint: ${newFocusPoint}`);
     this._cameraFocusPoint.send(newFocusPoint);
   }
 
   zoom(delta: number): void {
-    const currentZoom = this.cameraZoom.sample();
-    const newZoom = clamp( currentZoom - delta, zoomMin, zoomMax);
-    this._cameraZoom.send(newZoom);
+    const currentZoomExponent = this._cameraZoomExponent.sample();
+    const newZoomExponent = clamp(currentZoomExponent - delta, zoomExponentMin, zoomExponentMax);
+    console.log(`newZoomExponent: ${newZoomExponent}`);
+    this._cameraZoomExponent.send(newZoomExponent);
   }
 }
