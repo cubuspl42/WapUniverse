@@ -37,6 +37,13 @@ export class Vec2 {
     );
   }
 
+  floor() {
+    return new Vec2(
+      Math.floor(this.x),
+      Math.floor(this.y),
+    );
+  }
+
   toString(): string {
     return `(${this.x}, ${this.y})`;
   }
