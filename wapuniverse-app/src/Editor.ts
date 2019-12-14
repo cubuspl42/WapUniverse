@@ -8,6 +8,7 @@ import {readWorld, World} from "./wwd";
 import {Maybe, None, Some} from "./Maybe";
 import {clamp} from "./utils";
 import * as _ from 'lodash';
+import {Matrix} from "./Matrix";
 
 const zoomMin = 0.1;
 const zoomExponentMin = Math.log2(zoomMin);
@@ -33,7 +34,11 @@ export class App {
 }
 
 export interface Editor {
+  readonly levelResources: LevelResources;
+
   readonly selectedObjects: Cell<ReadonlySet<EdObject>>;
+
+  readonly tiles: Matrix<number>;
 
   readonly objects: ReadonlyArray<EdObject>;
 
@@ -79,6 +84,8 @@ export function stopwatch<R>(s: string, f: () => R) {
 }
 
 export class EditorInternal implements Editor {
+  readonly levelResources: LevelResources;
+
   private readonly _areaSelection = new CellSink<Maybe<AreaSelection>>(new None());
 
   private readonly _selectedObjects = new CellSink<ReadonlySet<EdObject>>(new Set());
@@ -86,6 +93,8 @@ export class EditorInternal implements Editor {
   private _cameraFocusPoint = new CellSink(new Vec2(0, 0));
 
   private _cameraZoomExponent = new CellSink(1.0);
+
+  readonly tiles: Matrix<number>;
 
   readonly objects: ReadonlyArray<EdObject>;
 
@@ -100,6 +109,8 @@ export class EditorInternal implements Editor {
   readonly cameraZoom = this._cameraZoomExponent.map((z) => correctZoom(Math.pow(2, z)));
 
   private constructor(rezIndex: RezIndex, levelResources: LevelResources, wwd: World) {
+    this.levelResources = levelResources;
+
     const action = _.maxBy(wwd.planes, (p) => p.objects.length)!;
 
     this.imageSets = [
@@ -108,6 +119,8 @@ export class EditorInternal implements Editor {
       {prefix: decode(wwd.prefix3), expansion: decode(wwd.imageSet3)},
       {prefix: decode(wwd.prefix4), expansion: decode(wwd.imageSet4)}
     ];
+
+    this.tiles = new Matrix(action.tilesWide, action.tilesHigh, action.tiles);
 
     this.objects =
       action.objects.map((o) => new EdObject(

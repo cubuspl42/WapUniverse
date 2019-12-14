@@ -6,6 +6,7 @@ import * as _ from 'lodash';
 
 interface PlaneStats {
   name: string;
+  tilesSize: [number, number];
   objectsCount: number;
 }
 
@@ -42,6 +43,7 @@ program
             name: decode(world.name),
             planes: world.planes.map((p) => ({
               name: decode(p.name),
+              tilesSize: [p.tilesWide, p.tilesHigh],
               objectsCount: p.objects.length
             }))
           },
@@ -50,11 +52,7 @@ program
 
 
       const maxStats = _.sortBy(stats, (stats): number => {
-        const action = stats.world.planes.find((p) => p.name == "Action");
-        if (action == undefined) {
-          console.log(`No "Action" plane in ${stats.world.filePath}`)
-        }
-        return (action !== undefined) ? -action.objectsCount : 0;
+        return -_.max(stats.world.planes.map((p) => _.max(p.tilesSize)!))!;
       });
 
       const statsJson = JSON.stringify(maxStats, null, 2);

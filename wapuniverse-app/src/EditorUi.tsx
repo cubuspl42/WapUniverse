@@ -10,6 +10,7 @@ import {CellSink} from "./Cell";
 import {StreamSink} from "sodiumjs";
 import {edObjectBorder, edObjectSprite} from "./EdObjectUi";
 import {elementSize} from "./cellUtils";
+import {tileSprite} from "./TileUi";
 
 const zoomMultiplier = 0.01;
 const scrollMultiplier = 2;
@@ -84,6 +85,10 @@ export class EditorUi extends React.Component<EditorUiProps> {
           e.deltaY * scrollMultiplier,
         ));
       }
+    });
+
+    this.editor.tiles.forEachIndexed((i, j, t) => {
+      rootContainer.addChild(tileSprite(this.editor.levelResources, i, j, t));
     });
 
     this.editor.objects.forEach((o) => {
