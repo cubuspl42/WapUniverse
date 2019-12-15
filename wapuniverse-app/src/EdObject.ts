@@ -6,8 +6,7 @@ import {Rectangle} from "./Rectangle";
 import {EditorInternal} from "./Editor";
 import {Maybe, None, Some} from "./Maybe";
 import {Cell, CellSink} from "./Cell";
-
-type Texture = PIXI.Texture;
+import {Texture} from "./renderer/Renderer";
 
 interface ImageData {
   readonly imageSetId: String;

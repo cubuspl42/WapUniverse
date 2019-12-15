@@ -4,13 +4,14 @@ import './Editor.css';
 import {Editor} from "./Editor";
 import {AreaSelection} from "./AreaSelection";
 import * as PIXI from 'pixi.js';
-import * as pu from "./pixiUtils";
 import {Vec2} from "./Vec2";
 import {CellSink} from "./Cell";
 import {StreamSink} from "sodiumjs";
-import {edObjectBorder, edObjectSprite} from "./EdObjectUi";
+import {edObjectSprite} from "./EdObjectUi";
 import {elementSize} from "./cellUtils";
 import {tileSprite} from "./TileUi";
+import {Container, Context, Node} from "./renderer/Renderer";
+import * as frp from "./frp/Set";
 
 const zoomMultiplier = 0.01;
 const scrollMultiplier = 2;
@@ -28,28 +29,33 @@ export class EditorUi extends React.Component<EditorUiProps> {
     return this.props.editor;
   }
 
-  private application: PIXI.Application | null = null;
+  // private application: PIXI.Application | null = null;
 
   private divElement: HTMLDivElement | null = null;
 
   componentDidMount() {
     const parent = this.divElement!;
-    const application = pu.autoResizingPixiApplication(parent);
-    const stage = application.stage;
+
+    const context = new Context({
+      parent: parent,
+    });
+
+    // const application = pu.autoResizingPixiApplication(parent);
+    // const stage = application.stage;
 
     const parentSize = elementSize(parent);
     const offset = parentSize.map((s) => s.div(2).toPixiPoint());
     const focusPoint = this.editor.cameraFocusPoint.map((f) => f.neg().toPixiPoint());
 
-    const rootContainer = pu.container({
-      x: offset.map((f) => f.x),
-      y: offset.map((f) => f.y),
-      scale: this.editor.cameraZoom.map((z) => {
-        console.log(`z: ${z}`);
-        return new PIXI.Point(z, z);
-      }),
-      pivot: focusPoint,
-    });
+    // const rootContainer = new Container({
+    //   x: offset.map((f) => f.x),
+    //   y: offset.map((f) => f.y),
+    //   scale: this.editor.cameraZoom.map((z) => {
+    //     console.log(`z: ${z}`);
+    //     return new PIXI.Point(z, z);
+    //   }),
+    //   pivot: focusPoint,
+    // });
 
     const borderTexture = PIXI.Texture.from("border.png");
 
@@ -87,25 +93,37 @@ export class EditorUi extends React.Component<EditorUiProps> {
       }
     });
 
+    const rootChildren = new Set<Node>();
     this.editor.tiles.forEachIndexed((i, j, t) => {
-      rootContainer.addChild(tileSprite(this.editor.levelResources, i, j, t));
+      rootChildren.add(tileSprite(this.editor.levelResources, i, j, t));
     });
 
     this.editor.objects.forEach((o) => {
-      rootContainer.addChild(edObjectSprite(o));
+      rootChildren.add(edObjectSprite(o));
     });
 
-    this.editor.objects.forEach((o) => {
-      rootContainer.addChild(edObjectBorder(o, borderTexture));
+    // this.editor.objects.forEach((o) => {
+    //   rootChildren.add(edObjectBorder(o, borderTexture));
+    // });
+
+    const root = new Container({
+      x: offset.map((f) => f.x),
+      y: offset.map((f) => f.y),
+      scale: this.editor.cameraZoom.map((z) => {
+        console.log(`z: ${z}`);
+        return new PIXI.Point(z, z);
+      }),
+      pivot: focusPoint,
+      children: new frp.Set(rootChildren),
     });
 
-    stage.addChild(rootContainer);
+    context.setRoot(root);
 
-    this.application = application;
+    // this.application = application;
   }
 
   componentWillUnmount() {
-    this.application!.destroy(true);
+    // this.application!.destroy(true);
   }
 
   render() {
@@ -161,16 +179,16 @@ interface AreaSelectionRectangleProps {
   areaSelection: AreaSelection;
 }
 
-export function AreaSelectionRectangle(
-  {areaSelection}: AreaSelectionRectangleProps
-): PIXI.DisplayObject {
-  const rectangle = areaSelection.rectangle;
-  return pu.graphicsRectangle({
-    x: rectangle.map((r) => r.xMin),
-    y: rectangle.map((r) => r.yMin),
-    width: rectangle.map((r) => r.width),
-    height: rectangle.map((r) => r.height),
-    strokeWidth: 1,
-    strokeColor: 0x00FFF0,
-  });
-}
+// export function AreaSelectionRectangle(
+//   {areaSelection}: AreaSelectionRectangleProps
+// ): PIXI.DisplayObject {
+//   const rectangle = areaSelection.rectangle;
+//   return pu.graphicsRectangle({
+//     x: rectangle.map((r) => r.xMin),
+//     y: rectangle.map((r) => r.yMin),
+//     width: rectangle.map((r) => r.width),
+//     height: rectangle.map((r) => r.height),
+//     strokeWidth: 1,
+//     strokeColor: 0x00FFF0,
+//   });
+// }
