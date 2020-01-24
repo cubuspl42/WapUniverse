@@ -1,6 +1,6 @@
 import * as PIXI from "pixi.js";
 import * as frp from "../frp/Set";
-import {Cell} from "../Cell";
+import {Cell} from "../frp/Cell";
 
 
 function link<T>(cell: Cell<T> | T | undefined, set: (value: T) => void): void {

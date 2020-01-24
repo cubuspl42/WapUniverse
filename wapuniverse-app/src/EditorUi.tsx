@@ -5,7 +5,7 @@ import {Editor} from "./Editor";
 import {AreaSelection} from "./AreaSelection";
 import * as PIXI from 'pixi.js';
 import {Vec2} from "./Vec2";
-import {CellSink} from "./Cell";
+import {CellSink} from "./frp/Cell";
 import {StreamSink} from "sodiumjs";
 import {edObjectSprite} from "./EdObjectUi";
 import {elementSize} from "./cellUtils";
