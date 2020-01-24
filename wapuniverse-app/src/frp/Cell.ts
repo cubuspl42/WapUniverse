@@ -1,9 +1,8 @@
-import {Stream} from "sodiumjs";
-import {useEffect, useMemo, useState} from "react";
+import * as sd from "sodiumjs";
 
 type Listener<T> = (value: T) => void;
 
-export abstract class Cell<T> {
+abstract class _Cell<T> {
   private readonly listeners = new Set<Listener<T>>();
 
   get refCount(): number {
@@ -41,30 +40,30 @@ export abstract class Cell<T> {
     return this.listen(f);
   }
 
-  map<R>(f: (value: T) => R): Cell<R> {
-    return new MappedCell(this, f);
+  map<R>(f: (value: T) => R): _Cell<R> {
+    return new _MappedCell(this, f);
   }
 
-  flatMap<R>(f: (value: T) => Cell<R>): Cell<R> {
-    return new FlatMappedCell(this, f);
+  flatMap<R>(f: (value: T) => _Cell<R>): _Cell<R> {
+    return new _FlatMappedCell(this, f);
   }
 
-  lift<T1, R>(cell1: Cell<T1>, f: (a: T, b: T1) => R): Cell<R> {
-    return new LiftedCell(this, cell1, f);
+  lift<T1, R>(cell1: _Cell<T1>, f: (a: T, b: T1) => R): _Cell<R> {
+    return new _LiftedCell(this, cell1, f);
   }
 
-  static switchC<T>(cell: Cell<Cell<T>>): Cell<T> {
+  static switchC<T>(cell: _Cell<_Cell<T>>): _Cell<T> {
     return cell.flatMap((a) => a);
   }
 }
 
-class MappedCell<T, R> extends Cell<R> {
-  private readonly source: Cell<T>;
+class _MappedCell<T, R> extends _Cell<R> {
+  private readonly source: _Cell<T>;
   private readonly f: (value: T) => R;
   private unsubscribe?: () => void;
   private value: R;
 
-  constructor(source: Cell<T>, f: (value: T) => R) {
+  constructor(source: _Cell<T>, f: (value: T) => R) {
     super();
     this.source = source;
     this.f = f;
@@ -90,14 +89,14 @@ class MappedCell<T, R> extends Cell<R> {
   }
 }
 
-class FlatMappedCell<T, R> extends Cell<R> {
-  private readonly source: Cell<T>;
-  private readonly f: (value: T) => Cell<R>;
+class _FlatMappedCell<T, R> extends _Cell<R> {
+  private readonly source: _Cell<T>;
+  private readonly f: (value: T) => _Cell<R>;
   private unsubscribe?: () => void;
-  private nested: Cell<R>;
+  private nested: _Cell<R>;
   private unsubscribeNested?: () => void;
 
-  constructor(source: Cell<T>, f: (value: T) => Cell<R>) {
+  constructor(source: _Cell<T>, f: (value: T) => _Cell<R>) {
     super();
     this.source = source;
     this.f = f;
@@ -111,7 +110,7 @@ class FlatMappedCell<T, R> extends Cell<R> {
   }
 
   protected onFirstListenerSubscribed(): void {
-    const listenToNested = (nested: Cell<R>) => {
+    const listenToNested = (nested: _Cell<R>) => {
       this.unsubscribeNested = nested.listen((value) => {
         this.emit(value);
       });
@@ -137,9 +136,9 @@ class FlatMappedCell<T, R> extends Cell<R> {
   }
 }
 
-class LiftedCell<T1, T2, R> extends Cell<R> {
-  private readonly source1: Cell<T1>;
-  private readonly source2: Cell<T2>;
+class _LiftedCell<T1, T2, R> extends _Cell<R> {
+  private readonly source1: _Cell<T1>;
+  private readonly source2: _Cell<T2>;
 
   private readonly f: (value1: T1, value2: T2) => R;
   private unsubscribe1?: () => void;
@@ -148,8 +147,8 @@ class LiftedCell<T1, T2, R> extends Cell<R> {
   private value: R;
 
   constructor(
-    source1: Cell<T1>,
-    source2: Cell<T2>,
+    source1: _Cell<T1>,
+    source2: _Cell<T2>,
     f: (value1: T1, value2: T2) => R
   ) {
     super();
@@ -187,12 +186,12 @@ class LiftedCell<T1, T2, R> extends Cell<R> {
   }
 }
 
-export class CellSink<T> extends Cell<T> {
-  private readonly stream?: Stream<T>;
+class _CellSink<T> extends _Cell<T> {
+  private readonly stream?: sd.Stream<T>;
   private value: T;
   private unsubscribe?: () => void;
 
-  constructor(initialValue: T, stream?: Stream<T>) {
+  constructor(initialValue: T, stream?: sd.Stream<T>) {
     super();
     this.stream = stream;
     this.value = initialValue;
@@ -225,19 +224,4 @@ export class CellSink<T> extends Cell<T> {
   }
 }
 
-type CellProvider<T> = () => Cell<T>;
-
-export function useCell<T>(cell: Cell<T> | CellProvider<T>): T {
-  const cell_ = useMemo<Cell<T>>(
-    cell instanceof Cell ? () => {
-      return cell;
-    } : cell, []);
-
-  const [value, setValue] = useState(cell_.sample());
-
-  useEffect(() => {
-    return cell_.listen(setValue);
-  }, []);
-
-  return value;
-}
+// export {Cell, CellSink} from "sodiumjs";

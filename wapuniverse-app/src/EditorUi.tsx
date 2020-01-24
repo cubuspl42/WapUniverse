@@ -5,7 +5,7 @@ import {Editor} from "./Editor";
 import {AreaSelection} from "./AreaSelection";
 import * as PIXI from 'pixi.js';
 import {Vec2} from "./Vec2";
-import {CellSink} from "./frp/Cell";
+import {Cell, CellSink} from "./frp";
 import {StreamSink} from "sodiumjs";
 import {edObjectSprite} from "./EdObjectUi";
 import {elementSize} from "./cellUtils";
@@ -64,7 +64,7 @@ export class EditorUi extends React.Component<EditorUiProps> {
 
       const origin = new Vec2(e.clientX, e.clientY);
       const destinationS = new StreamSink<Vec2>();
-      const destination = new CellSink(origin, destinationS);
+      const destination = new Cell(origin, destinationS);
       const areaSelection = this.editor.startAreaSelection(origin, destination);
 
       const onPointerMove = (e: PointerEvent) => {

@@ -2,7 +2,7 @@ import {Rectangle} from "./Rectangle";
 import {EdObject} from "./EdObject";
 import {Vec2} from "./Vec2";
 import {EditorInternal} from "./Editor";
-import {Cell} from "./frp/Cell";
+import {Cell} from "./frp";
 
 export class AreaSelection {
   private readonly _editor: EditorInternal;

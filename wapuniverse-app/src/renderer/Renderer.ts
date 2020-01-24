@@ -1,7 +1,6 @@
 import * as PIXI from "pixi.js";
 import * as frp from "../frp/Set";
-import {Cell} from "../frp/Cell";
-
+import {Cell} from "../frp";
 
 function link<T>(cell: Cell<T> | T | undefined, set: (value: T) => void): void {
   if (cell instanceof Cell) {

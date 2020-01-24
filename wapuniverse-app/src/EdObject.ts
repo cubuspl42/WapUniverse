@@ -5,7 +5,7 @@ import {AreaSelection} from "./AreaSelection";
 import {Rectangle} from "./Rectangle";
 import {EditorInternal} from "./Editor";
 import {Maybe, None, Some} from "./Maybe";
-import {Cell, CellSink} from "./frp/Cell";
+import {Cell, CellSink} from "./frp";
 import {Texture} from "./renderer/Renderer";
 
 interface ImageData {

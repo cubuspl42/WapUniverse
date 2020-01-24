@@ -1,4 +1,4 @@
-import {CellSink} from "./Cell";
+import {CellSink} from "./frp";
 import {expect} from 'chai';
 
 it('Cell.map', () => {
@@ -7,7 +7,7 @@ it('Cell.map', () => {
 
   const source = new CellSink(1);
 
-  expect(source.refCount).to.be.equal(0);
+  expect(source.getVertex__().refCount()).to.be.equal(0);
 
   const mapped = source.map((i) => {
     inputs.push(i);
@@ -16,8 +16,8 @@ it('Cell.map', () => {
 
   expect(inputs).to.be.deep.equal([1]);
   expect(mapped.sample()).to.be.equal("s1");
-  expect(source.refCount).to.be.equal(0);
-  expect(mapped.refCount).to.be.equal(0);
+  expect(source.getVertex__().refCount()).to.be.equal(0);
+  expect(mapped.getVertex__().refCount()).to.be.equal(0);
 
   const unsubscribe = mapped.listen((value) => {
     outputs.push(value);
@@ -26,8 +26,8 @@ it('Cell.map', () => {
   expect(inputs).to.be.deep.equal([1]);
   expect(outputs).to.be.deep.equal([]);
   expect(mapped.sample()).to.be.equal("s1");
-  expect(source.refCount).to.be.equal(1);
-  expect(mapped.refCount).to.be.equal(1);
+  expect(source.getVertex__().refCount()).to.be.equal(1);
+  expect(mapped.getVertex__().refCount()).to.be.equal(1);
 
   source.send(2);
 
@@ -52,8 +52,8 @@ it('Cell.map', () => {
   expect(inputs).to.be.deep.equal([1, 2, 3]);
   expect(outputs).to.be.deep.equal(["s2", "s3"]);
   expect(mapped.sample()).to.be.equal("s3");
-  expect(source.refCount).to.be.equal(0);
-  expect(mapped.refCount).to.be.equal(0);
+  expect(source.getVertex__().refCount()).to.be.equal(0);
+  expect(mapped.getVertex__().refCount()).to.be.equal(0);
 });
 
 it('Cell.flatMap', () => {
@@ -67,10 +67,10 @@ it('Cell.flatMap', () => {
 
   const source = new CellSink(1);
 
-  expect(source.refCount).to.be.equal(0);
-  expect(nested1.refCount).to.be.equal(0);
-  expect(nested2.refCount).to.be.equal(0);
-  expect(nested3.refCount).to.be.equal(0);
+  expect(source.getVertex__().refCount()).to.be.equal(0);
+  expect(nested1.getVertex__().refCount()).to.be.equal(0);
+  expect(nested2.getVertex__().refCount()).to.be.equal(0);
+  expect(nested3.getVertex__().refCount()).to.be.equal(0);
 
   const flatMapped = source.flatMap((i) => {
     inputs.push(i);
@@ -79,9 +79,9 @@ it('Cell.flatMap', () => {
 
   expect(inputs).to.be.deep.equal([1]);
   expect(flatMapped.sample()).to.be.equal("1,1");
-  expect(source.refCount).to.be.equal(0);
-  expect(nested1.refCount).to.be.equal(0);
-  expect(flatMapped.refCount).to.be.equal(0);
+  expect(source.getVertex__().refCount()).to.be.equal(0);
+  expect(nested1.getVertex__().refCount()).to.be.equal(0);
+  expect(flatMapped.getVertex__().refCount()).to.be.equal(0);
 
   const unsubscribe = flatMapped.listen((value) => {
     outputs.push(value);
@@ -90,9 +90,9 @@ it('Cell.flatMap', () => {
   expect(inputs).to.be.deep.equal([1]);
   expect(outputs).to.be.deep.equal([]);
   expect(flatMapped.sample()).to.be.equal("1,1");
-  expect(source.refCount).to.be.equal(1);
-  expect(nested1.refCount).to.be.equal(1);
-  expect(flatMapped.refCount).to.be.equal(1);
+  expect(source.getVertex__().refCount()).to.be.equal(1);
+  expect(nested1.getVertex__().refCount()).to.be.equal(1);
+  expect(flatMapped.getVertex__().refCount()).to.be.equal(1);
 
   nested1.send("1,2");
 
@@ -111,9 +111,9 @@ it('Cell.flatMap', () => {
   expect(inputs).to.be.deep.equal([1, 2]);
   expect(outputs).to.be.deep.equal(["1,2", "1,3", "2,1"]);
   expect(flatMapped.sample()).to.be.equal("2,1");
-  expect(source.refCount).to.be.equal(1);
-  expect(nested1.refCount).to.be.equal(0);
-  expect(nested2.refCount).to.be.equal(1);
+  expect(source.getVertex__().refCount()).to.be.equal(1);
+  expect(nested1.getVertex__().refCount()).to.be.equal(0);
+  expect(nested2.getVertex__().refCount()).to.be.equal(1);
 
   nested2.send("2,2");
 
@@ -138,11 +138,11 @@ it('Cell.flatMap', () => {
   expect(inputs).to.be.deep.equal([1, 2, 3]);
   expect(outputs).to.be.deep.equal(["1,2", "1,3", "2,1", "2,2", "3,1"]);
   expect(flatMapped.sample()).to.be.equal("3,1");
-  expect(source.refCount).to.be.equal(0);
-  expect(nested1.refCount).to.be.equal(0);
-  expect(nested2.refCount).to.be.equal(0);
-  expect(nested3.refCount).to.be.equal(0);
-  expect(flatMapped.refCount).to.be.equal(0);
+  expect(source.getVertex__().refCount()).to.be.equal(0);
+  expect(nested1.getVertex__().refCount()).to.be.equal(0);
+  expect(nested2.getVertex__().refCount()).to.be.equal(0);
+  expect(nested3.getVertex__().refCount()).to.be.equal(0);
+  expect(flatMapped.getVertex__().refCount()).to.be.equal(0);
 });
 
 it('Cell.flatMap (same nested returned twice)', () => {
@@ -186,9 +186,9 @@ it('Cell.lift', () => {
 
   expect(inputs).to.be.deep.equal([[1, "a"]]);
   expect(lifted.sample()).to.be.equal("1a");
-  expect(source1.refCount).to.be.equal(0);
-  expect(source2.refCount).to.be.equal(0);
-  expect(lifted.refCount).to.be.equal(0);
+  expect(source1.getVertex__().refCount()).to.be.equal(0);
+  expect(source2.getVertex__().refCount()).to.be.equal(0);
+  expect(lifted.getVertex__().refCount()).to.be.equal(0);
 
   const unsubscribe = lifted.listen((value) => {
     outputs.push(value);
@@ -197,9 +197,9 @@ it('Cell.lift', () => {
   expect(inputs).to.be.deep.equal([[1, "a"]]);
   expect(outputs).to.be.deep.equal([]);
   expect(lifted.sample()).to.be.equal("1a");
-  expect(source1.refCount).to.be.equal(1);
-  expect(source2.refCount).to.be.equal(1);
-  expect(lifted.refCount).to.be.equal(1);
+  expect(source1.getVertex__().refCount()).to.be.equal(1);
+  expect(source2.getVertex__().refCount()).to.be.equal(1);
+  expect(lifted.getVertex__().refCount()).to.be.equal(1);
 
   source1.send(2);
 
@@ -218,9 +218,9 @@ it('Cell.lift', () => {
   expect(inputs).to.be.deep.equal([[1, "a"], [2, "a"], [2, "b"]]);
   expect(outputs).to.be.deep.equal(["2a", "2b"]);
   expect(lifted.sample()).to.be.equal("2b");
-  expect(source1.refCount).to.be.equal(0);
-  expect(source2.refCount).to.be.equal(0);
-  expect(lifted.refCount).to.be.equal(0);
+  expect(source1.getVertex__().refCount()).to.be.equal(0);
+  expect(source2.getVertex__().refCount()).to.be.equal(0);
+  expect(lifted.getVertex__().refCount()).to.be.equal(0);
 });
 
 
