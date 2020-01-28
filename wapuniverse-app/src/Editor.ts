@@ -109,6 +109,8 @@ export class EditorInternal implements Editor {
   readonly cameraZoom = this._cameraZoomExponent.map((z) => correctZoom(Math.pow(2, z)));
 
   private constructor(rezIndex: RezIndex, levelResources: LevelResources, wwd: World) {
+    console.log("EditorInternal.constructor");
+
     this.levelResources = levelResources;
 
     const action = _.maxBy(wwd.planes, (p) => p.objects.length)!;

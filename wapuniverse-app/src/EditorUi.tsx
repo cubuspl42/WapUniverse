@@ -5,8 +5,8 @@ import {Editor} from "./Editor";
 import {AreaSelection} from "./AreaSelection";
 import * as PIXI from 'pixi.js';
 import {Vec2} from "./Vec2";
-import {Cell, CellSink} from "./frp";
-import {StreamSink} from "sodiumjs";
+import {Cell, CellSink, eventStream} from "./frp";
+import {Stream, StreamSink} from "sodiumjs";
 import {edObjectSprite} from "./EdObjectUi";
 import {elementSize} from "./cellUtils";
 import {tileSprite} from "./TileUi";
@@ -34,6 +34,8 @@ export class EditorUi extends React.Component<EditorUiProps> {
   private divElement: HTMLDivElement | null = null;
 
   componentDidMount() {
+    console.log("EditorUi.componentDidMount");
+
     const parent = this.divElement!;
 
     const context = new Context({
@@ -92,6 +94,10 @@ export class EditorUi extends React.Component<EditorUiProps> {
         ));
       }
     });
+
+    eventStream(parent, "mousedown")
+      .filter((e) => e.button === 2);
+
 
     const rootChildren = new Set<Node>();
     this.editor.tiles.forEachIndexed((i, j, t) => {
