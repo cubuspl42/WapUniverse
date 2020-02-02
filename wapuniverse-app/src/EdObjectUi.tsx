@@ -20,7 +20,7 @@ export function edObjectSprite(
     y: y,
     texture: texture,
     // alpha: isHovered.map<number>(h => h ? 1 : 0.5),
-    tint: isHovered.map<number>(h => h ? 0xff0000 : 0xffffff),
+    overlay: isHovered,
     interactive: true,
   });
 

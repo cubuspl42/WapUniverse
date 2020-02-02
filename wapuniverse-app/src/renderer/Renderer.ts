@@ -2,6 +2,7 @@ import * as PIXI from "pixi.js";
 import * as frp from "../frp/Set";
 import { Cell } from "../frp";
 import { Maybe } from "../Maybe";
+import {OutlineFilter} from '@pixi/filter-outline';
 
 function link<T>(cell: Cell<T> | T | undefined, set: (value: T) => void): void {
   if (cell instanceof Cell) {
@@ -111,6 +112,7 @@ export interface SpriteParams {
   texture: Cell<Maybe<Texture>> | Maybe<Texture>;
   alpha?: Cell<number> | number;
   tint?: Cell<number> | number;
+  overlay?: Cell<boolean> | boolean;
   interactive?: boolean;
 }
 
@@ -122,13 +124,15 @@ export class Sprite extends Node {
 
     const sprite = new PIXI.Sprite();
     const spriteAny = sprite as any;
+    const outlineFilter = new OutlineFilter(3, 0xff0000);
+    outlineFilter.padding = 6;
 
     link(params.x, (v) => sprite.x = v);
     link(params.y, (v) => sprite.y = v);
     linkMaybe(params.texture, (v) => spriteAny.texture = v && v._pixiTexture);
     link(params.alpha, (v) => sprite.alpha = v);
-
     link(params.tint, (v) => spriteAny.tint = v);
+    link(params.overlay, (v) => spriteAny.filters = v ? [outlineFilter] : []);
 
     if (params.interactive !== undefined) sprite.interactive = params.interactive;
 

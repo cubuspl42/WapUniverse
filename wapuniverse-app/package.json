@@ -5,6 +5,7 @@
   "dependencies": {
     "@inlet/react-pixi": "^1.2.0",
     "@material-ui/core": "^3.9.4",
+    "@pixi/filter-outline": "^3.0.3",
     "@thi.ng/iterators": "^5.1.9",
     "@types/commander": "^2.12.2",
     "@types/glob": "^7.1.1",
