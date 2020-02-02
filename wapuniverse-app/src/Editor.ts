@@ -1,14 +1,14 @@
-import {fetchRezIndex, RezIndex} from "./rezIndex";
-import {LevelResources} from "./LevelResources";
-import {Cell, CellSink} from "./frp";
-import {Vec2} from "./Vec2";
-import {EdObject} from "./EdObject";
-import {AreaSelection} from "./AreaSelection";
-import {readWorld, World} from "./wwd";
-import {Maybe, None, Some} from "./Maybe";
-import {clamp} from "./utils";
+import { fetchRezIndex, RezIndex } from "./rezIndex";
+import { LevelResources } from "./LevelResources";
+import { Cell, CellSink } from "./frp";
+import { Vec2 } from "./Vec2";
+import { EdObject } from "./EdObject";
+import { AreaSelection } from "./AreaSelection";
+import { readWorld, World } from "./wwd";
+import { Maybe, None, Some } from "./Maybe";
+import { clamp } from "./utils";
 import * as _ from 'lodash';
-import {Matrix} from "./Matrix";
+import { Matrix } from "./Matrix";
 
 const zoomMin = 0.1;
 const zoomExponentMin = Math.log2(zoomMin);
@@ -114,10 +114,10 @@ export class EditorInternal implements Editor {
     const action = _.maxBy(wwd.planes, (p) => p.objects.length)!;
 
     this.imageSets = [
-      {prefix: decode(wwd.prefix1), expansion: decode(wwd.imageSet1)},
-      {prefix: decode(wwd.prefix2), expansion: decode(wwd.imageSet2)},
-      {prefix: decode(wwd.prefix3), expansion: decode(wwd.imageSet3)},
-      {prefix: decode(wwd.prefix4), expansion: decode(wwd.imageSet4)}
+      { prefix: decode(wwd.prefix1), expansion: decode(wwd.imageSet1) },
+      { prefix: decode(wwd.prefix2), expansion: decode(wwd.imageSet2) },
+      { prefix: decode(wwd.prefix3), expansion: decode(wwd.imageSet3) },
+      { prefix: decode(wwd.prefix4), expansion: decode(wwd.imageSet4) }
     ];
 
     this.tiles = new Matrix(action.tilesWide, action.tilesHigh, action.tiles);
@@ -177,8 +177,10 @@ export class EditorInternal implements Editor {
 
   scroll(delta: Vec2): void {
     const currentFocusPoint = this.cameraFocusPoint.sample();
+    console.log(`currentFocusPoint: ${currentFocusPoint} refCount=${this.cameraFocusPoint.getVertex__().refCount()}`);
     const currentZoom = this.cameraZoom.sample();
     const newFocusPoint = currentFocusPoint.sub(delta.div(currentZoom)).floor();
+    console.log(`newFocusPoint: ${newFocusPoint}`);
     // console.log(`newFocusPoint: ${newFocusPoint}`);
     this._cameraFocusPoint.send(newFocusPoint);
   }

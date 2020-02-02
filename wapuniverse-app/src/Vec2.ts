@@ -4,6 +4,8 @@ export class Vec2 {
   readonly x: number;
   readonly y: number;
 
+  static readonly zero = new Vec2(0, 0);
+
   constructor(x: number, y: number) {
     this.x = x;
     this.y = y;
