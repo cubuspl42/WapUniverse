@@ -69,7 +69,7 @@ export class EdObject {
 
     const position = new CellSink(initialPosition);
 
-    const i = new CellSink(-1);
+    const i = new CellSink(wwdObject.i);
 
     function getImageData(imageSetId: string, i: number): Maybe<GameImage> {
       return editor.getRezImage(imageSetId, i).flatMap((rezImage) => getGameImage(rezImage));
