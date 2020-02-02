@@ -26,6 +26,8 @@ export class EdObject {
 
   readonly position: Cell<Vec2>;
 
+  readonly correctedPosition: Cell<Vec2>;
+
   readonly i: CellSink<number>;
 
   readonly image: Cell<GameImage>;
@@ -64,10 +66,12 @@ export class EdObject {
     function calculateBoundingBox(position: Vec2, gameImage: GameImage): Rectangle {
       const offset = gameImage.offset; // FIXME: Position means center
       const size = gameImage.size;
-      return new Rectangle(position.x, position.y, size.width, size.height);
+      const rectPosition = position.sub(size.div(2)).add(offset);
+      return new Rectangle(position, size);
     }
 
     const position = new CellSink(initialPosition);
+
     const i = new CellSink(-1);
 
     function getImageData(imageSetId: string, i: number): Maybe<GameImage> {
@@ -84,8 +88,10 @@ export class EdObject {
         .flatMap(is => getImageData(is, i))
         .orElse(() => getImageData("GAME_IMAGES_POWERUPS_EXTRALIFE", -1).get()));
 
-    const boundingBox = position.lift(image, (p: Vec2, gi: GameImage) =>
-      calculateBoundingBox(p, gi));
+    const correctedPosition = position.lift(image, (p, i) => p.add(i.offset));
+
+    const boundingBox = correctedPosition.lift(image, (p: Vec2, gi: GameImage) =>
+      new Rectangle(p.sub(gi.size.div(2)), gi.size));
 
     const falseCell = new CellSink<boolean>(false);
 
@@ -99,6 +105,7 @@ export class EdObject {
 
     this._editor = editor;
     this.position = position;
+    this.correctedPosition = correctedPosition;
     this.i = i;
     this.image = image;
     this.boundingBox = boundingBox;

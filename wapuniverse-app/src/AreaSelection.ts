@@ -1,8 +1,8 @@
-import {Rectangle} from "./Rectangle";
-import {EdObject} from "./EdObject";
-import {Vec2} from "./Vec2";
-import {EditorInternal} from "./Editor";
-import {Cell} from "./frp";
+import { Rectangle } from "./Rectangle";
+import { EdObject } from "./EdObject";
+import { Vec2 } from "./Vec2";
+import { EditorInternal } from "./Editor";
+import { Cell } from "./frp";
 
 export class AreaSelection {
   private readonly _editor: EditorInternal;
@@ -22,8 +22,7 @@ export class AreaSelection {
     this._editor = editor;
     this._onDone = onDone;
     const area = destination.map(d => {
-      return new Rectangle(
-        origin.x, origin.y, d.x - origin.x, d.y - origin.y);
+      return new Rectangle(origin, d.sub(origin));
     });
     this.rectangle = area;
     const objectsInArea = area.map((area) => {
@@ -32,7 +31,7 @@ export class AreaSelection {
         return area.overlaps(boundingBox);
       })) as ReadonlySet<EdObject>;
     });
-    objectsInArea.listen(() => {}); // for .sample()
+    objectsInArea.listen(() => { }); // for .sample()
     this.objectsInArea = objectsInArea;
   }
 
