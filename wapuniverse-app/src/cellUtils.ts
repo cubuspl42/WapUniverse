@@ -5,7 +5,8 @@ export function elementSize(element: HTMLElement): Cell<Vec2> {
   const cell = new CellSink(new Vec2(element.offsetWidth, element.offsetHeight));
 
   new ResizeObserver(() => {
-    cell.send(new Vec2(element.offsetWidth, element.offsetHeight))
+    const size = new Vec2(element.offsetWidth, element.offsetHeight);
+    cell.send(size);
   }).observe(element);
 
   return cell;

@@ -20,11 +20,14 @@ export class LateCellLoop<T> {
   private readonly cellSink: CellSink<Cell<T>>;
 
   get cell(): Cell<T> {
-    return Cell.switchC(this.cellSink);
+    const c = Cell.switchC(this.cellSink);
+    c.listen(() => { });
+    return c;
   }
 
   constructor(initValue: T) {
-    this.cellSink = new CellSink(new Cell(initValue));
+    const sink = new CellSink(new Cell(initValue));
+    this.cellSink = sink;
   }
 
   lateLoop(cell: Cell<T>) {

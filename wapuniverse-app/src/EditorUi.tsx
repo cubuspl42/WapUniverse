@@ -50,7 +50,9 @@ export const EditorUi = ({ editor }: EditorUiProps) => {
 
   const ref = useCallback((parent: HTMLDivElement) => {
     console.log("EditorUi useCallback callback");
-    m.parentSizeLoop.lateLoop(elementSize(parent));
+    const parentSize = elementSize(parent);
+
+    m.parentSizeLoop.lateLoop(parentSize);
 
     parent.addEventListener("pointerdown", (e) => {
       console.log("pointerdown");
@@ -99,9 +101,6 @@ export const EditorUi = ({ editor }: EditorUiProps) => {
       editor.objects.forEach((o) => {
         rootChildren.add(edObjectSprite(o));
       });
-
-      console.log(`m.focusPoint.refCount = ${m.focusPoint.getVertex__().refCount()}`);
-      console.log(`editor.cameraFocusPoint.refCount = ${editor.cameraFocusPoint.getVertex__().refCount()}`);
 
       const root = new Container({
         x: m.offset.map((f) => f.x),
