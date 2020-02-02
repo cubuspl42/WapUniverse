@@ -132,6 +132,9 @@ export class EditorInternal implements Editor {
       ));
 
     console.log(`Object count: ${this.objects.length}`);
+
+    this._cameraFocusPoint.listen(() => {});
+    this._cameraZoomExponent.listen(() => {});
   }
 
   static async create(): Promise<Editor> {
