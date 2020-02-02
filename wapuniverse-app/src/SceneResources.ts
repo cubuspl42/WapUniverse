@@ -11,7 +11,7 @@ export class SceneResources {
     this.textureMap = new Map(textureMapEntries);
   }
 
-  getGameImage(pidPath: string): Maybe<Texture> {
+  getTexture(pidPath: string): Maybe<Texture> {
     return Maybe.ofUndefined(this.textureMap.get(pidPath));
   }
 }

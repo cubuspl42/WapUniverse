@@ -51,14 +51,6 @@ export class EdObject {
     initialImageSet: string,
     id: number,
   ) {
-    function getRezImage(imageSetId: string, i: number): Maybe<RezImage> {
-      const rezImageSet = rezIndex.imageSets[imageSetId];
-      if (!rezImageSet) return new None();
-      const pidFileName = rezImageSet.frames[i];
-      if (!pidFileName) return new None();
-      return new Some(rezImageSet.sprites[pidFileName]);
-    }
-
     function getGameImage(rezImage: RezImage): Maybe<GameImage> {
       return levelResources.getGameImage(rezImage.path);
     }
@@ -75,7 +67,7 @@ export class EdObject {
     const i = new CellSink(-1);
 
     function getImageData(imageSetId: string, i: number): Maybe<GameImage> {
-      return getRezImage(imageSetId, i).flatMap((rezImage) => getGameImage(rezImage));
+      return editor.getRezImage(imageSetId, i).flatMap((rezImage) => getGameImage(rezImage));
     }
 
     const shortImageSetId = new CellSink(initialImageSet);

@@ -9,6 +9,8 @@ export abstract class Maybe<T> {
 
   abstract isSome(): boolean;
 
+  abstract filter<R>(f: (value: T) => boolean): Maybe<T>;
+
   static test<T>(b: Boolean, value: () => T): Maybe<T> {
     return b ? new Some(value()) : new None();
   }
@@ -68,6 +70,12 @@ export class Some<T> extends Maybe<T> {
   get(): T {
     return this.value;
   }
+
+  filter<R>(f: (value: T) => boolean): Maybe<T> {
+    if (f(this.value)) {
+      return this;
+    } else return new None();
+  }
 }
 
 export class None<T> implements Maybe<T> {
@@ -89,5 +97,9 @@ export class None<T> implements Maybe<T> {
 
   get(): T {
     throw new TypeError("Tried to call get() on None");
+  }
+
+  filter<R>(f: (value: T) => boolean): Maybe<T> {
+    return this;
   }
 }

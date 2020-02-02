@@ -98,7 +98,7 @@ export const EditorUi = ({ editor }: EditorUiProps) => {
 
       const rootChildren = new Set<Node>();
       editor.tiles.forEachIndexed((i, j, t) => {
-        rootChildren.add(tileSprite(res, i, j, t));
+        rootChildren.add(tileSprite(editor, res, i, j, t));
       });
 
       editor.objects.forEach((o) => {

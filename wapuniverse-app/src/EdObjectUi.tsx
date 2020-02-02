@@ -12,7 +12,7 @@ export function edObjectSprite(
   const boundingBox = object.boundingBox;
   const x = boundingBox.map((b) => b.xMin);
   const y = boundingBox.map((b) => b.yMin);
-  const texture =  object.image.map((i) => res.getGameImage(i.pidPath));
+  const texture =  object.image.map((i) => res.getTexture(i.pidPath));
   const isHovered = object.isHovered;
 
   const sprite = new Sprite({

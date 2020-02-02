@@ -1,4 +1,4 @@
-import { fetchRezIndex, RezIndex } from "./rezIndex";
+import { fetchRezIndex, RezIndex, RezImage } from "./rezIndex";
 import { LevelResources } from "./LevelResources";
 import { Cell, CellSink } from "./frp";
 import { Vec2 } from "./Vec2";
@@ -16,6 +16,8 @@ const zoomMax = 3;
 const zoomExponentMax = Math.log2(zoomMax);
 
 const zoomValues = [0.25, 0.5, 0.75, 1, 1.5, 2, 2.5, 3];
+
+export const levelIndex = 1;
 
 function correctZoom(inputValue: number): number {
   // return _.minBy(zoomValues, (z) => Math.abs(inputValue - z))!;
@@ -48,6 +50,8 @@ export interface Editor {
 
   readonly cameraZoom: Cell<number>;
 
+  getTileRezImage(tileId: number): Maybe<RezImage>;
+
   startAreaSelection(origin: Vec2, destination: Cell<Vec2>): AreaSelection;
 
   zoom(delta: number): void;
@@ -56,7 +60,7 @@ export interface Editor {
 }
 
 async function fetchWwd() {
-  const wwd = await fetch("WORLD14.WWD");
+  const wwd = await fetch("WORLD.WWD");
   const blob = await wwd.blob();
   const arrayBuffer = await blob.arrayBuffer();
   return readWorld(arrayBuffer);
@@ -84,6 +88,8 @@ export function stopwatch<R>(s: string, f: () => R) {
 }
 
 export class EditorInternal implements Editor {
+  readonly rezIndex: RezIndex;
+
   readonly levelResources: LevelResources;
 
   private readonly _areaSelection = new CellSink<Maybe<AreaSelection>>(new None());
@@ -113,6 +119,8 @@ export class EditorInternal implements Editor {
 
     const action = _.maxBy(wwd.planes, (p) => p.objects.length)!;
 
+    this.rezIndex = rezIndex;
+
     this.imageSets = [
       { prefix: decode(wwd.prefix1), expansion: decode(wwd.imageSet1) },
       { prefix: decode(wwd.prefix2), expansion: decode(wwd.imageSet2) },
@@ -133,14 +141,14 @@ export class EditorInternal implements Editor {
 
     console.log(`Object count: ${this.objects.length}`);
 
-    this._cameraFocusPoint.listen(() => {});
-    this._cameraZoomExponent.listen(() => {});
+    this._cameraFocusPoint.listen(() => { });
+    this._cameraZoomExponent.listen(() => { });
   }
 
   static async create(): Promise<Editor> {
     const wwd = await fetchWwd();
     const rezIndex = await fetchRezIndex();
-    const resources = await LevelResources.load(rezIndex, 14);
+    const resources = await LevelResources.load(rezIndex, levelIndex);
     return new EditorInternal(rezIndex, resources, wwd);
   }
 
@@ -174,6 +182,22 @@ export class EditorInternal implements Editor {
 
     return Maybe.findSome(expandedPrefixes);
   }
+
+  getRezImage(imageSetId: string, i: number): Maybe<RezImage> {
+    const rezImageSet = this.rezIndex.imageSets[imageSetId];
+    if (!rezImageSet) return new None();
+    const pidFileName = rezImageSet.frames[i];
+    if (!pidFileName) return new None();
+    return new Some(rezImageSet.sprites[pidFileName]);
+  }
+
+  getTileRezImage(tileId: number): Maybe<RezImage> {
+    return new Some(tileId)
+      .filter((t) => t >= 0)
+      .flatMap((t) => this.getRezImage(`LEVEL${levelIndex}_TILES_ACTION`, tileId));
+  }
+
+  // levelIndex
 
   scroll(delta: Vec2): void {
     const currentFocusPoint = this.cameraFocusPoint.sample();
