@@ -4,7 +4,7 @@ import { Cell, CellSink } from "./frp";
 import { Vec2 } from "./Vec2";
 import { EdObject } from "./EdObject";
 import { AreaSelection } from "./AreaSelection";
-import { readWorld, World } from "./wwd";
+import { readWorld, World, copyObject } from "./wwd";
 import { Maybe, None, Some } from "./Maybe";
 import { clamp } from "./utils";
 import * as _ from 'lodash';
@@ -131,13 +131,17 @@ export class EditorInternal implements Editor {
     this.tiles = new Matrix(action.tilesWide, action.tilesHigh, action.tiles);
 
     this.objects =
-      action.objects.map((o) => new EdObject(
-        this,
-        rezIndex, levelResources, this.areaSelection,
-        new Vec2(o.x, o.y),
-        decode(o.imageSet),
-        o.id,
-      ));
+      action.objects.map((o) => {
+        const x = copyObject(o, { height: 2 });
+        return new EdObject(
+          this,
+          rezIndex, levelResources, this.areaSelection,
+          o,
+          new Vec2(o.x, o.y),
+          decode(o.imageSet),
+          o.id,
+        );
+      });
 
     console.log(`Object count: ${this.objects.length}`);
 

@@ -3,6 +3,7 @@ import * as frp from "../frp/Set";
 import { Cell } from "../frp";
 import { Maybe } from "../Maybe";
 import {OutlineFilter} from '@pixi/filter-outline';
+import { Vec2 } from "../Vec2";
 
 function link<T>(cell: Cell<T> | T | undefined, set: (value: T) => void): void {
   if (cell instanceof Cell) {
@@ -109,10 +110,12 @@ export interface SpriteProps {
 export interface SpriteParams {
   x: Cell<number> | number;
   y: Cell<number> | number;
+  pivot?: Cell<Vec2> | Vec2;
   texture: Cell<Maybe<Texture>> | Maybe<Texture>;
   alpha?: Cell<number> | number;
   tint?: Cell<number> | number;
   overlay?: Cell<boolean> | boolean;
+  scale?: Cell<Vec2> | Vec2;
   interactive?: boolean;
 }
 
@@ -129,10 +132,12 @@ export class Sprite extends Node {
 
     link(params.x, (v) => sprite.x = v);
     link(params.y, (v) => sprite.y = v);
+    link(params.pivot, (v) => sprite.pivot = v.toPixiPoint());
     linkMaybe(params.texture, (v) => spriteAny.texture = v && v._pixiTexture);
     link(params.alpha, (v) => sprite.alpha = v);
     link(params.tint, (v) => spriteAny.tint = v);
     link(params.overlay, (v) => spriteAny.filters = v ? [outlineFilter] : []);
+    link(params.scale, (v) => sprite.scale = v.toPixiPoint());
 
     if (params.interactive !== undefined) sprite.interactive = params.interactive;
 

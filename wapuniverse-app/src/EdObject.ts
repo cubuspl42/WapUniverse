@@ -7,6 +7,7 @@ import { EditorInternal } from "./Editor";
 import { Maybe, None, Some } from "./Maybe";
 import { Cell, CellSink } from "./frp";
 import { Texture } from "./renderer/Renderer";
+import { Object_, DrawFlags } from "./wwd";
 
 interface ImageData {
   readonly imageSetId: String;
@@ -23,6 +24,8 @@ export function getRandomInt(max: number) {
 
 export class EdObject {
   readonly _editor: EditorInternal;
+
+  readonly wwdObject: Object_;
 
   readonly position: Cell<Vec2>;
 
@@ -41,25 +44,27 @@ export class EdObject {
   readonly isSelected: Cell<boolean>;
 
   readonly id: number;
+  
+  get isMirrored(): boolean {
+    return (this.wwdObject.drawFlags & DrawFlags.Mirror) != 0;
+  }
+
+  get isInverted(): boolean {
+    return (this.wwdObject.drawFlags & DrawFlags.Invert) != 0;
+  }
 
   constructor(
     editor: EditorInternal,
     rezIndex: RezIndex,
     levelResources: LevelResources,
     areaSelection: Cell<Maybe<AreaSelection>>,
+    wwdObject: Object_,
     initialPosition: Vec2,
     initialImageSet: string,
     id: number,
   ) {
     function getGameImage(rezImage: RezImage): Maybe<GameImage> {
       return levelResources.getGameImage(rezImage.path);
-    }
-
-    function calculateBoundingBox(position: Vec2, gameImage: GameImage): Rectangle {
-      const offset = gameImage.offset; // FIXME: Position means center
-      const size = gameImage.size;
-      const rectPosition = position.sub(size.div(2)).add(offset);
-      return new Rectangle(position, size);
     }
 
     const position = new CellSink(initialPosition);
@@ -71,7 +76,6 @@ export class EdObject {
     }
 
     const shortImageSetId = new CellSink(initialImageSet);
-    // const shortImageSetId = new CellSink("GAME_EXTRALIFE");
 
     const imageSetId = shortImageSetId.map((s) => editor.expandShortImageSetId(s));
 
@@ -96,6 +100,7 @@ export class EdObject {
     const isSelected = editor.selectedObjects.map(s => s.has(this));
 
     this._editor = editor;
+    this.wwdObject = wwdObject;
     this.position = position;
     this.correctedPosition = correctedPosition;
     this.i = i;

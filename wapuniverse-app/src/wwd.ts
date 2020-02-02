@@ -1,6 +1,6 @@
-import {ByteString, DataStream} from "./DataStream";
+import { ByteString, DataStream } from "./DataStream";
 import * as pako from "pako";
-import {Rectangle} from "./Rectangle";
+import { Rectangle } from "./Rectangle";
 
 export function toArrayBuffer(buffer: Buffer) {
   return buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
@@ -115,7 +115,14 @@ export class Plane {
   }
 }
 
-export class Object_ {
+export enum DrawFlags {
+  NoDraw = 1 << 0,
+  Mirror = 1 << 1,
+  Invert = 1 << 2,
+  Flash = 1 << 3,
+}
+
+export interface Object_ {
   readonly id: number;
   readonly name: ByteString;
   readonly logic: ByteString;
@@ -169,117 +176,15 @@ export class Object_ {
   readonly hitTypeFlags: number;
   readonly xMoveRes: number;
   readonly yMoveRes: number;
+}
 
-  constructor(
-    id: number,
-    name: ByteString,
-    logic: ByteString,
-    imageSet: ByteString,
-    animation: ByteString,
-    x: number,
-    y: number,
-    z: number,
-    i: number,
-    addFlags: number,
-    dynamicFlags: number,
-    drawFlags: number,
-    userFlags: number,
-    score: number,
-    points: number,
-    powerup: number,
-    damage: number,
-    smarts: number,
-    health: number,
-    moveRect: Rectangle,
-    hitRect: Rectangle,
-    attackRect: Rectangle,
-    clipRect: Rectangle,
-    userRect1: Rectangle,
-    userRect2: Rectangle,
-    userValue1: number,
-    userValue2: number,
-    userValue3: number,
-    userValue4: number,
-    userValue5: number,
-    userValue6: number,
-    userValue7: number,
-    userValue8: number,
-    xMin: number,
-    yMin: number,
-    xMax: number,
-    yMax: number,
-    speedX: number,
-    speedY: number,
-    xTweak: number,
-    yTweak: number,
-    counter: number,
-    speed: number,
-    width: number,
-    height: number,
-    direction: number,
-    faceDir: number,
-    timeDelay: number,
-    frameDelay: number,
-    objectType: number,
-    hitTypeFlags: number,
-    xMoveRes: number,
-    yMoveRes: number,
-  ) {
-    this.id = id;
-    this.name = name;
-    this.logic = logic;
-    this.imageSet = imageSet;
-    this.animation = animation;
-    this.x = x;
-    this.y = y;
-    this.z = z;
-    this.i = i;
-    this.addFlags = addFlags;
-    this.dynamicFlags = dynamicFlags;
-    this.drawFlags = drawFlags;
-    this.userFlags = userFlags;
-    this.score = score;
-    this.points = points;
-    this.powerup = powerup;
-    this.damage = damage;
-    this.smarts = smarts;
-    this.health = health;
-    this.moveRect = moveRect;
-    this.hitRect = hitRect;
-    this.attackRect = attackRect;
-    this.clipRect = clipRect;
-    this.userRect1 = userRect1;
-    this.userRect2 = userRect2;
-    this.userValue1 = userValue1;
-    this.userValue2 = userValue2;
-    this.userValue3 = userValue3;
-    this.userValue4 = userValue4;
-    this.userValue5 = userValue5;
-    this.userValue6 = userValue6;
-    this.userValue7 = userValue7;
-    this.userValue8 = userValue8;
-    this.xMin = xMin;
-    this.yMin = yMin;
-    this.xMax = xMax;
-    this.yMax = yMax;
-    this.speedX = speedX;
-    this.speedY = speedY;
-    this.xTweak = xTweak;
-    this.yTweak = yTweak;
-    this.counter = counter;
-    this.speed = speed;
-    this.width = width;
-    this.height = height;
-    this.direction = direction;
-    this.faceDir = faceDir;
-    this.timeDelay = timeDelay;
-    this.frameDelay = frameDelay;
-    this.objectType = objectType;
-    this.hitTypeFlags = hitTypeFlags;
-    this.xMoveRes = xMoveRes;
-    this.yMoveRes = yMoveRes;
-  }
-
+export function copyObject<TPartial extends Partial<Object_>>(
+  obj: Object_, patch: TPartial
+): Object_ {
+  return {
+    ...obj,
+    ...patch,
+  };
 }
 
 enum WwdHeaderFlags {
@@ -637,7 +542,7 @@ function readObject(stream: DataStream): Object_ {
   const imageSet = stream.readByteString(imageSetLen);
   const animation = stream.readByteString(animationLen);
 
-  return new Object_(
+  return {
     id,
     name,
     logic,
@@ -691,5 +596,5 @@ function readObject(stream: DataStream): Object_ {
     hitTypeFlags,
     xMoveRes,
     yMoveRes,
-  );
+  };
 }

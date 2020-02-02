@@ -4,16 +4,23 @@ import * as PIXI from 'pixi.js';
 import { Node, Sprite } from "./renderer/Renderer";
 import { SceneResources } from './SceneResources';
 import { Maybe } from './Maybe';
+import { Vec2 } from './Vec2';
 
 export function edObjectSprite(
   res: SceneResources,
   object: EdObject,
 ): Node {
   const boundingBox = object.boundingBox;
-  const x = boundingBox.map((b) => b.xMin);
-  const y = boundingBox.map((b) => b.yMin);
-  const texture =  object.image.map((i) => res.getTexture(i.pidPath));
+  // const x = boundingBox.map((b) => b.xMin);
+  // const y = boundingBox.map((b) => b.yMin);
+
+  const x = object.correctedPosition.map((p) => p.x);
+  const y = object.correctedPosition.map((p) => p.y);
+  const texture = object.image.map((i) => res.getTexture(i.pidPath));
   const isHovered = object.isHovered;
+
+  const scaleX = object.isMirrored ? -1 : 1;
+  const scaleY = object.isInverted ? -1 : 1;
 
   const sprite = new Sprite({
     x: x,
@@ -21,6 +28,8 @@ export function edObjectSprite(
     texture: texture,
     // alpha: isHovered.map<number>(h => h ? 1 : 0.5),
     overlay: isHovered,
+    pivot: object.image.map((gi) => gi.size.div(2)),
+    scale: new Vec2(scaleX, scaleY),
     interactive: true,
   });
 
