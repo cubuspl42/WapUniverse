@@ -4,6 +4,14 @@ export class Vec2 {
   readonly x: number;
   readonly y: number;
 
+  get width(): number {
+    return Math.abs(this.x);
+  }
+
+  get height(): number {
+    return Math.abs(this.y);
+  }
+
   static readonly zero = new Vec2(0, 0);
 
   constructor(x: number, y: number) {
@@ -53,4 +61,5 @@ export class Vec2 {
   toPixiPoint(): PIXI.Point {
     return new PIXI.Point(this.x, this.y);
   }
+
 }

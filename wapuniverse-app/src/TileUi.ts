@@ -1,5 +1,6 @@
-import {LevelResources} from "./LevelResources";
-import {Node, Nothing, Sprite} from "./renderer/Renderer";
+import { LevelResources } from "./LevelResources";
+import { Node, Nothing, Sprite } from "./renderer/Renderer";
+import { SceneResources } from "./SceneResources";
 
 const tileWidth = 64;
 const tileHeight = 64;
@@ -11,23 +12,16 @@ function pad(n: number, width: number) {
 }
 
 export function tileSprite(
-  levelResources: LevelResources,
+  res: SceneResources,
   i: number,
   j: number,
   tileId: number,
 ): Node {
-  const texture = levelResources.getTexture(`LEVEL14/TILES/ACTION/${pad(tileId, 3)}.PID`);
+  const texture = res.getGameImage(`LEVEL14/TILES/ACTION/${pad(tileId, 3)}.PID`);
 
-  const displayObject = texture
-    .map((texture) => {
-      const sprite = new Sprite({
-        x: j * tileWidth,
-        y: i * tileHeight,
-        texture: texture,
-      });
-      return sprite as Node;
-    })
-    .orElse(() => new Nothing());
-
-  return displayObject;
+  return new Sprite({
+    x: j * tileWidth,
+    y: i * tileHeight,
+    texture: texture,
+  });
 }

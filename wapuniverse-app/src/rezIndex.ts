@@ -1,17 +1,17 @@
 import yaml from "js-yaml";
 
-export interface Image {
+export interface RezImage {
   offset: [number, number]; // [int, int]
   path: string; // path to PID file inside REZ
 }
 
-export interface ImageSet {
+export interface RezImageSet {
   frames: { [frameIndex: number]: string } // -> pidFileName
-  sprites: { [pidFileName: string]: Image }
+  sprites: { [pidFileName: string]: RezImage }
 }
 
 export interface RezIndex {
-  imageSets: { [imageSetId: string]: ImageSet };
+  imageSets: { [imageSetId: string]: RezImageSet };
 }
 
 export async function fetchRezIndex() {

@@ -1,16 +1,16 @@
-import {Vec2} from "./Vec2";
-import {Image, RezIndex} from "./rezIndex";
-import {LevelResources} from "./LevelResources";
-import {AreaSelection} from "./AreaSelection";
-import {Rectangle} from "./Rectangle";
-import {EditorInternal} from "./Editor";
-import {Maybe, None, Some} from "./Maybe";
-import {Cell, CellSink} from "./frp";
-import {Texture} from "./renderer/Renderer";
+import { Vec2 } from "./Vec2";
+import { RezImage, RezIndex } from "./rezIndex";
+import { LevelResources, GameImage } from "./LevelResources";
+import { AreaSelection } from "./AreaSelection";
+import { Rectangle } from "./Rectangle";
+import { EditorInternal } from "./Editor";
+import { Maybe, None, Some } from "./Maybe";
+import { Cell, CellSink } from "./frp";
+import { Texture } from "./renderer/Renderer";
 
 interface ImageData {
   readonly imageSetId: String;
-  readonly rezImage: Image;
+  readonly rezImage: RezImage;
   readonly texture: Texture;
 }
 
@@ -28,7 +28,7 @@ export class EdObject {
 
   readonly i: CellSink<number>;
 
-  readonly texture: Cell<Texture>;
+  readonly image: Cell<GameImage>;
 
   readonly boundingBox: Cell<Rectangle>;
 
@@ -49,7 +49,7 @@ export class EdObject {
     initialImageSet: string,
     id: number,
   ) {
-    function getRezImage(imageSetId: string, i: number): Maybe<Image> {
+    function getRezImage(imageSetId: string, i: number): Maybe<RezImage> {
       const rezImageSet = rezIndex.imageSets[imageSetId];
       if (!rezImageSet) return new None();
       const pidFileName = rezImageSet.frames[i];
@@ -57,30 +57,21 @@ export class EdObject {
       return new Some(rezImageSet.sprites[pidFileName]);
     }
 
-    function getTexture(rezImage: Image): Maybe<Texture> {
-      return levelResources.getTexture(rezImage.path);
+    function getGameImage(rezImage: RezImage): Maybe<GameImage> {
+      return levelResources.getGameImage(rezImage.path);
     }
 
-    function calculateBoundingBox(position: Vec2, rezImage: Image, texture: Texture): Rectangle {
-      const [offsetX, offsetY] = rezImage.offset; // FIXME: Position means center
-      return new Rectangle(position.x, position.y, texture.width, texture.height);
+    function calculateBoundingBox(position: Vec2, gameImage: GameImage): Rectangle {
+      const offset = gameImage.offset; // FIXME: Position means center
+      const size = gameImage.size;
+      return new Rectangle(position.x, position.y, size.width, size.height);
     }
 
     const position = new CellSink(initialPosition);
     const i = new CellSink(-1);
 
-    function getImageData(imageSetId: string, i: number): Maybe<ImageData> {
-      return getRezImage(imageSetId, i).flatMap(
-        (rezImage) => getTexture(rezImage).map(
-          (texture) => {
-            return {
-              imageSetId: imageSetId,
-              rezImage: rezImage,
-              texture: texture,
-            };
-          },
-        ),
-      );
+    function getImageData(imageSetId: string, i: number): Maybe<GameImage> {
+      return getRezImage(imageSetId, i).flatMap((rezImage) => getGameImage(rezImage));
     }
 
     const shortImageSetId = new CellSink(initialImageSet);
@@ -88,15 +79,13 @@ export class EdObject {
 
     const imageSetId = shortImageSetId.map((s) => editor.expandShortImageSetId(s));
 
-    const imageData = imageSetId.lift(i,
+    const image = imageSetId.lift(i,
       (isM, i) => isM
         .flatMap(is => getImageData(is, i))
         .orElse(() => getImageData("GAME_IMAGES_POWERUPS_EXTRALIFE", -1).get()));
 
-    const texture = imageData.map((id) => id.texture);
-
-    const boundingBox = position.lift(imageData, (p: Vec2, id: ImageData) =>
-      calculateBoundingBox(p, id.rezImage, id.texture));
+    const boundingBox = position.lift(image, (p: Vec2, gi: GameImage) =>
+      calculateBoundingBox(p, gi));
 
     const falseCell = new CellSink<boolean>(false);
 
@@ -111,7 +100,7 @@ export class EdObject {
     this._editor = editor;
     this.position = position;
     this.i = i;
-    this.texture = texture;
+    this.image = image;
     this.boundingBox = boundingBox;
     this.isHovered = new CellSink<boolean>(false);
     this.isInSelectionArea = isInSelectionArea;

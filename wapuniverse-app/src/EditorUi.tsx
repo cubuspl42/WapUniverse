@@ -13,6 +13,7 @@ import { tileSprite } from "./TileUi";
 import { Container, Context, Node } from "./renderer/Renderer";
 import * as frp from "./frp/Set";
 import { Scene } from './renderer/Scene';
+import { SceneResources } from './SceneResources';
 
 const zoomMultiplier = 0.01;
 const scrollMultiplier = 2;
@@ -93,13 +94,15 @@ export const EditorUi = ({ editor }: EditorUiProps) => {
     <Scene buildRoot={(context: Context) => {
       console.log("buildRoot");
 
+      const res = new SceneResources(editor.levelResources);
+
       const rootChildren = new Set<Node>();
       editor.tiles.forEachIndexed((i, j, t) => {
-        rootChildren.add(tileSprite(editor.levelResources, i, j, t));
+        rootChildren.add(tileSprite(res, i, j, t));
       });
 
       editor.objects.forEach((o) => {
-        rootChildren.add(edObjectSprite(o));
+        rootChildren.add(edObjectSprite(res, o));
       });
 
       const root = new Container({

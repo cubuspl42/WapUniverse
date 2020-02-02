@@ -1,13 +1,17 @@
 import './Editor.css';
-import {EdObject} from "./EdObject";
+import { EdObject } from "./EdObject";
 import * as PIXI from 'pixi.js';
-import {Node, Sprite} from "./renderer/Renderer";
+import { Node, Sprite } from "./renderer/Renderer";
+import { SceneResources } from './SceneResources';
 
-export function edObjectSprite(object: EdObject): Node {
+export function edObjectSprite(
+  res: SceneResources,
+  object: EdObject,
+): Node {
   const boundingBox = object.boundingBox;
   const x = boundingBox.map((b) => b.xMin);
   const y = boundingBox.map((b) => b.yMin);
-  const texture = object.texture;
+  const texture =  object.image.map((i) => res.getGameImage(i.pidPath));
   const isHovered = object.isHovered;
 
   const sprite = new Sprite({

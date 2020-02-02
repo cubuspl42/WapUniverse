@@ -1,6 +1,7 @@
 import * as PIXI from "pixi.js";
 import * as frp from "../frp/Set";
-import {Cell} from "../frp";
+import { Cell } from "../frp";
+import { Maybe } from "../Maybe";
 
 function link<T>(cell: Cell<T> | T | undefined, set: (value: T) => void): void {
   if (cell instanceof Cell) {
@@ -17,7 +18,7 @@ interface ContextProps {
 export class Context {
   readonly _stage: PIXI.Container;
 
-  constructor({parent}: ContextProps) {
+  constructor({ parent }: ContextProps) {
     const pixiApplication = new PIXI.Application({
       resizeTo: parent,
     });
@@ -69,6 +70,12 @@ export class Texture {
     );
   }
 
+  static fromImage(img: HTMLImageElement): Texture {
+    const baseTexture = PIXI.BaseTexture.from(img);
+    const pixiTexture = new PIXI.Texture(baseTexture);
+    return new Texture(pixiTexture);
+  }
+
   get width(): number {
     return this._pixiTexture.width;
   }
@@ -94,7 +101,7 @@ export interface SpriteProps {
 export interface SpriteParams {
   x: Cell<number> | number;
   y: Cell<number> | number;
-  texture: Cell<Texture> | Texture;
+  texture: Cell<Maybe<Texture>> | Maybe<Texture>;
   alpha?: Cell<number> | number;
   tint?: Cell<number> | number;
   interactive?: boolean;
@@ -107,10 +114,13 @@ export class Sprite extends Node {
     super();
 
     const sprite = new PIXI.Sprite();
+    const spriteAny = sprite as any;
 
     link(params.x, (v) => sprite.x = v);
     link(params.y, (v) => sprite.y = v);
-    link(params.texture, (v) => sprite.texture = v._pixiTexture);
+    link(params.texture, (v) => spriteAny.texture =
+      v.map((t) => <PIXI.Texture | null>t._pixiTexture)
+        .orElse(() => null));
     link(params.alpha, (v) => sprite.alpha = v);
 
     if (params.interactive !== undefined) sprite.interactive = params.interactive;
