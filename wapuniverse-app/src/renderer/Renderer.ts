@@ -11,6 +11,13 @@ function link<T>(cell: Cell<T> | T | undefined, set: (value: T) => void): void {
   }
 }
 
+function linkMaybe<T>(cell: Cell<Maybe<T>> | Maybe<T> | undefined, set: (value: T | null) => void): void {
+  link(cell, (v) => set(
+    v.map((t) => <T | null>t)
+      .orElse(() => null)
+  ));
+}
+
 interface ContextProps {
   parent: HTMLElement;
 }
@@ -118,10 +125,10 @@ export class Sprite extends Node {
 
     link(params.x, (v) => sprite.x = v);
     link(params.y, (v) => sprite.y = v);
-    link(params.texture, (v) => spriteAny.texture =
-      v.map((t) => <PIXI.Texture | null>t._pixiTexture)
-        .orElse(() => null));
+    linkMaybe(params.texture, (v) => spriteAny.texture = v && v._pixiTexture);
     link(params.alpha, (v) => sprite.alpha = v);
+
+    link(params.tint, (v) => spriteAny.tint = v);
 
     if (params.interactive !== undefined) sprite.interactive = params.interactive;
 

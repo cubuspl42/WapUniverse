@@ -3,6 +3,7 @@ import { EdObject } from "./EdObject";
 import * as PIXI from 'pixi.js';
 import { Node, Sprite } from "./renderer/Renderer";
 import { SceneResources } from './SceneResources';
+import { Maybe } from './Maybe';
 
 export function edObjectSprite(
   res: SceneResources,
@@ -18,7 +19,8 @@ export function edObjectSprite(
     x: x,
     y: y,
     texture: texture,
-    alpha: isHovered.map<number>(h => h ? 1 : 0.5),
+    // alpha: isHovered.map<number>(h => h ? 1 : 0.5),
+    tint: isHovered.map<number>(h => h ? 0xff0000 : 0xffffff),
     interactive: true,
   });
 
