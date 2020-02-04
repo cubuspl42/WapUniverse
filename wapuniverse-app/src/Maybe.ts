@@ -9,7 +9,9 @@ export abstract class Maybe<T> {
 
   abstract isSome(): boolean;
 
-  abstract filter<R>(f: (value: T) => boolean): Maybe<T>;
+  abstract filter(f: (value: T) => boolean): Maybe<T>;
+
+  abstract fold<R>(none: () => R, some: (a: T) => R): R;
 
   static test<T>(b: Boolean, value: () => T): Maybe<T> {
     return b ? new Some(value()) : new None();
@@ -71,11 +73,19 @@ export class Some<T> extends Maybe<T> {
     return this.value;
   }
 
-  filter<R>(f: (value: T) => boolean): Maybe<T> {
+  filter(f: (value: T) => boolean): Maybe<T> {
     if (f(this.value)) {
       return this;
     } else return new None();
   }
+
+  fold<R>(_mapNone: () => R, mapSome: (a: T) => R): R {
+    throw new Some(mapSome(this.value));
+  }
+}
+
+export function some<T>(value: T): Maybe<T> {
+  return new Some(value);
 }
 
 export class None<T> implements Maybe<T> {
@@ -99,7 +109,15 @@ export class None<T> implements Maybe<T> {
     throw new TypeError("Tried to call get() on None");
   }
 
-  filter<R>(f: (value: T) => boolean): Maybe<T> {
+  filter(f: (value: T) => boolean): Maybe<T> {
     return this;
   }
+
+  fold<R>(mapNone: () => R, _mapSome: (a: T) => R): R {
+    return mapNone();
+  }
+}
+
+export function none<T>(): Maybe<T> {
+  return new None();
 }
