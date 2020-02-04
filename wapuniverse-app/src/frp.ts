@@ -1,4 +1,4 @@
-import { Cell, CellSink } from "sodiumjs";
+import { Cell, CellSink, Stream } from "sodiumjs";
 
 declare module "sodiumjs" {
   export interface Cell<A> {
@@ -32,6 +32,27 @@ export class LateCellLoop<T> {
 
   lateLoop(cell: Cell<T>) {
     this.cellSink.send(cell);
+  }
+}
+
+export class LateStreamLoop<T> {
+  private readonly sink: CellSink<Stream<T>>;
+
+  get stream(): Stream<T> {
+    const c = Cell.switchS(this.sink);
+    c.listen(() => { });
+    return c;
+  }
+
+  constructor() {
+    const sink = new CellSink(new Stream<T>());
+    this.sink = sink;
+    sink.listen(() => {});
+  }
+
+  lateLoop(stream: Stream<T>) {
+    this.sink.send(stream);
+    stream.listen(() => {});
   }
 }
 

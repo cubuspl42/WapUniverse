@@ -1,6 +1,6 @@
 import { fetchRezIndex, RezIndex, RezImage } from "./rezIndex";
 import { LevelResources } from "./LevelResources";
-import { Cell, CellSink } from "./frp";
+import { Cell, CellSink, LateStreamLoop } from "./frp";
 import { Vec2 } from "./Vec2";
 import { EdObject } from "./EdObject";
 import { AreaSelection } from "./AreaSelection";
@@ -9,6 +9,7 @@ import { Maybe, None, Some } from "./Maybe";
 import { clamp } from "./utils";
 import * as _ from 'lodash';
 import { Matrix } from "./Matrix";
+import { StreamLoop, CellLoop } from "sodiumjs";
 
 const zoomMin = 0.1;
 const zoomExponentMin = Math.log2(zoomMin);
@@ -29,6 +30,10 @@ function decode(s: Uint8Array): string {
   return new TextDecoder().decode(s);
 }
 
+export interface CameraDrag {
+  readonly pointerPosition: Cell<Vec2>;
+}
+
 export class App {
   readonly _editor = new CellSink(EditorInternal.create());
 
@@ -46,6 +51,10 @@ export interface Editor {
 
   readonly areaSelection: Cell<Maybe<AreaSelection>>;
 
+  readonly moveCamera: LateStreamLoop<Vec2>;
+
+  readonly zoomCamera: LateStreamLoop<number>;
+
   readonly cameraFocusPoint: Cell<Vec2>;
 
   readonly cameraZoom: Cell<number>;
@@ -53,10 +62,6 @@ export interface Editor {
   getTileRezImage(tileId: number): Maybe<RezImage>;
 
   startAreaSelection(origin: Vec2, destination: Cell<Vec2>): AreaSelection;
-
-  zoom(delta: number): void;
-
-  scroll(delta: Vec2): void;
 }
 
 async function fetchWwd() {
@@ -96,10 +101,6 @@ export class EditorInternal implements Editor {
 
   private readonly _selectedObjects = new CellSink<ReadonlySet<EdObject>>(new Set());
 
-  private _cameraFocusPoint = new CellSink(new Vec2(0, 0));
-
-  private _cameraZoomExponent = new CellSink(1.0);
-
   readonly tiles: Matrix<number>;
 
   readonly objects: ReadonlyArray<EdObject>;
@@ -110,9 +111,15 @@ export class EditorInternal implements Editor {
 
   readonly selectedObjects = this._selectedObjects as Cell<ReadonlySet<EdObject>>;
 
-  readonly cameraFocusPoint = this._cameraFocusPoint as Cell<Vec2>;
+  readonly moveCamera = new LateStreamLoop<Vec2>();
 
-  readonly cameraZoom = this._cameraZoomExponent.map((z) => correctZoom(Math.pow(2, z)));
+  readonly zoomCamera = new LateStreamLoop<number>();
+
+  // readonly dragCamera = new CellLoop<Maybe<CameraDrag>>();
+
+  readonly cameraFocusPoint: Cell<Vec2>;
+
+  readonly cameraZoom: Cell<number>;
 
   private constructor(rezIndex: RezIndex, levelResources: LevelResources, wwd: World) {
     this.levelResources = levelResources;
@@ -145,8 +152,14 @@ export class EditorInternal implements Editor {
 
     console.log(`Object count: ${this.objects.length}`);
 
-    this._cameraFocusPoint.listen(() => { });
-    this._cameraZoomExponent.listen(() => { });
+    this.cameraFocusPoint = this.moveCamera.stream.accum(Vec2.zero, (focusPoint, delta) => {
+      return focusPoint.add(delta);
+    });
+
+    const cameraZoomExponent = this.zoomCamera.stream.accum(1, (delta, exponent) => {
+      return clamp(exponent - delta, zoomExponentMin, zoomExponentMax);
+    });
+    this.cameraZoom = cameraZoomExponent.map((z) => correctZoom(Math.pow(2, z)));
   }
 
   static async create(): Promise<Editor> {
@@ -199,24 +212,5 @@ export class EditorInternal implements Editor {
     return new Some(tileId)
       .filter((t) => t >= 0)
       .flatMap((t) => this.getRezImage(`LEVEL${levelIndex}_TILES_ACTION`, tileId));
-  }
-
-  // levelIndex
-
-  scroll(delta: Vec2): void {
-    const currentFocusPoint = this.cameraFocusPoint.sample();
-    console.log(`currentFocusPoint: ${currentFocusPoint} refCount=${this.cameraFocusPoint.getVertex__().refCount()}`);
-    const currentZoom = this.cameraZoom.sample();
-    const newFocusPoint = currentFocusPoint.sub(delta.div(currentZoom)).floor();
-    console.log(`newFocusPoint: ${newFocusPoint}`);
-    // console.log(`newFocusPoint: ${newFocusPoint}`);
-    this._cameraFocusPoint.send(newFocusPoint);
-  }
-
-  zoom(delta: number): void {
-    const currentZoomExponent = this._cameraZoomExponent.sample();
-    const newZoomExponent = clamp(currentZoomExponent - delta, zoomExponentMin, zoomExponentMax);
-    // console.log(`newZoomExponent: ${newZoomExponent}`);
-    this._cameraZoomExponent.send(newZoomExponent);
   }
 }

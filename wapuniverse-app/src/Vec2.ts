@@ -54,6 +54,10 @@ export class Vec2 {
     );
   }
 
+  scale(a: number): Vec2 {
+    return new Vec2(this.x * a, this.y * a);
+  }
+
   toString(): string {
     return `(${this.x}, ${this.y})`;
   }
