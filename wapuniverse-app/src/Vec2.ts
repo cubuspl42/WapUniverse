@@ -54,8 +54,12 @@ export class Vec2 {
     );
   }
 
-  scale(a: number): Vec2 {
+  mulS(a: number): Vec2 {
     return new Vec2(this.x * a, this.y * a);
+  }
+
+  divS(a: number): Vec2 {
+    return new Vec2(this.x / a, this.y / a);
   }
 
   toString(): string {

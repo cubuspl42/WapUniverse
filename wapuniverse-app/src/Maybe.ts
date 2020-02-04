@@ -80,7 +80,7 @@ export class Some<T> extends Maybe<T> {
   }
 
   fold<R>(_mapNone: () => R, mapSome: (a: T) => R): R {
-    throw new Some(mapSome(this.value));
+    return mapSome(this.value);
   }
 }
 

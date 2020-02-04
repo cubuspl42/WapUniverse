@@ -1,15 +1,15 @@
 import { fetchRezIndex, RezIndex, RezImage } from "./rezIndex";
 import { LevelResources } from "./LevelResources";
-import { Cell, CellSink, LateStreamLoop } from "./frp";
+import { Cell, CellSink, LateStreamLoop, LateCellLoop } from "./frp";
 import { Vec2 } from "./Vec2";
 import { EdObject } from "./EdObject";
 import { AreaSelection } from "./AreaSelection";
 import { readWorld, World, copyObject } from "./wwd";
-import { Maybe, None, Some } from "./Maybe";
+import { Maybe, None, Some, none } from "./Maybe";
 import { clamp } from "./utils";
 import * as _ from 'lodash';
 import { Matrix } from "./Matrix";
-import { StreamLoop, CellLoop } from "sodiumjs";
+import { StreamLoop, CellLoop, Operational, Transaction, lambda1 } from "sodiumjs";
 
 const zoomMin = 0.1;
 const zoomExponentMin = Math.log2(zoomMin);
@@ -54,6 +54,8 @@ export interface Editor {
   readonly moveCamera: LateStreamLoop<Vec2>;
 
   readonly zoomCamera: LateStreamLoop<number>;
+
+  readonly dragCamera: LateCellLoop<Maybe<CameraDrag>>;
 
   readonly cameraFocusPoint: Cell<Vec2>;
 
@@ -115,7 +117,7 @@ export class EditorInternal implements Editor {
 
   readonly zoomCamera = new LateStreamLoop<number>();
 
-  // readonly dragCamera = new CellLoop<Maybe<CameraDrag>>();
+  readonly dragCamera = new LateCellLoop(none<CameraDrag>());
 
   readonly cameraFocusPoint: Cell<Vec2>;
 
@@ -152,14 +154,59 @@ export class EditorInternal implements Editor {
 
     console.log(`Object count: ${this.objects.length}`);
 
-    this.cameraFocusPoint = this.moveCamera.stream.accum(Vec2.zero, (focusPoint, delta) => {
-      return focusPoint.add(delta);
+
+    const buildCameraCircuit = () => Transaction.run(() => {
+      const focusPointLoop = new CellLoop<Vec2>();
+
+      const buildFreeCircuit = (focusPoint0: Vec2) => {
+        return this.moveCamera.stream.accum(focusPoint0, (focusPoint, delta) => {
+          return focusPoint.add(delta);
+        });
+      }
+
+      const buildDraggedCircuit = (cameraDrag: CameraDrag, focusPoint0: Vec2) => {
+        // Initial pointer position, viewport camera space
+        const pointerPosition0 = cameraDrag.pointerPosition.sample();
+        // Anchor, world space
+        const anchor = focusPoint0.add(pointerPosition0.divS(this.cameraZoom.sample()));
+        console.log(`focusPoint0: ${focusPoint0} pointerPosition0: ${pointerPosition0}`);
+
+        return cameraDrag.pointerPosition.lift(this.cameraZoom,
+          (pointerPosition, zoom) => {
+            console.log(`anchor: ${anchor} pointerPosition: ${pointerPosition} zoom: ${zoom}`);
+            return anchor.sub(pointerPosition.divS(zoom));
+          }
+        );
+      }
+
+      const focusPoint = Cell.switchC(this.dragCamera.cell.map(lambda1((mbCameraDrag) => {
+        const focusPoint0 = focusPointLoop.sample();
+        return mbCameraDrag.fold(
+          () => buildFreeCircuit(focusPoint0),
+          (cameraDrag) => buildDraggedCircuit(cameraDrag, focusPoint0),
+        );
+      }, [focusPointLoop])));
+
+      const focusPointOut = Operational.value(focusPoint).hold(Vec2.zero);
+
+      focusPointLoop.loop(focusPointOut);
+
+      return focusPointOut;
     });
 
-    const cameraZoomExponent = this.zoomCamera.stream.accum(1, (delta, exponent) => {
-      return clamp(exponent - delta, zoomExponentMin, zoomExponentMax);
-    });
-    this.cameraZoom = cameraZoomExponent.map((z) => correctZoom(Math.pow(2, z)));
+    this.cameraFocusPoint = buildCameraCircuit();
+    this.cameraFocusPoint.listen((a) => console.log(`cameraFocusPoint listen: ${a}`));
+
+    const buildZoomCircuit = () => {
+      const cameraZoomExponent = this.zoomCamera.stream.accum(1, (delta, exponent) => {
+        return clamp(exponent - delta, zoomExponentMin, zoomExponentMax);
+      });
+
+      return cameraZoomExponent.map((z) => correctZoom(Math.pow(2, z)));
+    }
+
+    this.cameraZoom = buildZoomCircuit();
+    this.cameraZoom.listen((a) => console.log(`cameraZoom listen: ${a}`));
   }
 
   static async create(): Promise<Editor> {
