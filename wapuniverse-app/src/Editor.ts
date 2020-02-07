@@ -1,15 +1,15 @@
-import { fetchRezIndex, RezIndex, RezImage } from "./rezIndex";
-import { LevelResources } from "./LevelResources";
-import { Cell, CellSink, LateStreamLoop, LateCellLoop } from "./frp";
-import { Vec2 } from "./Vec2";
-import { EdObject } from "./EdObject";
-import { AreaSelection } from "./AreaSelection";
-import { readWorld, World, copyObject } from "./wwd";
-import { Maybe, None, Some, none } from "./Maybe";
-import { clamp } from "./utils";
+import {fetchRezIndex, RezIndex, RezImage} from "./rezIndex";
+import {LevelResources} from "./LevelResources";
+import {Cell, CellSink, LateStreamLoop, LateCellLoop} from "./frp";
+import {Vec2} from "./Vec2";
+import {EdObject} from "./EdObject";
+import {AreaSelection} from "./AreaSelection";
+import {readWorld, World, copyObject} from "./wwd";
+import {Maybe, None, Some, none} from "./Maybe";
+import {clamp} from "./utils";
 import * as _ from 'lodash';
-import { Matrix } from "./Matrix";
-import { StreamLoop, CellLoop, Operational, Transaction, lambda1 } from "sodiumjs";
+import {Matrix} from "./Matrix";
+import {StreamLoop, CellLoop, Operational, Transaction, lambda1} from "sodiumjs";
 
 const zoomMin = 0.1;
 const zoomExponentMin = Math.log2(zoomMin);
@@ -18,7 +18,7 @@ const zoomExponentMax = Math.log2(zoomMax);
 
 const zoomValues = [0.25, 0.5, 0.75, 1, 1.5, 2, 2.5, 3];
 
-export const levelIndex = 1;
+const levelIndexRegex = /\d+/;
 
 function correctZoom(inputValue: number): number {
   // return _.minBy(zoomValues, (z) => Math.abs(inputValue - z))!;
@@ -67,7 +67,7 @@ export interface Editor {
 }
 
 async function fetchWwd() {
-  const wwd = await fetch("WORLD.WWD");
+  const wwd = await fetch("ClawEdit/RETAIL08.WWD");
   const blob = await wwd.blob();
   const arrayBuffer = await blob.arrayBuffer();
   return readWorld(arrayBuffer);
@@ -94,6 +94,14 @@ export function stopwatch<R>(s: string, f: () => R) {
   return r;
 }
 
+function findLevelIndex(name: String) {
+  const levelIndexMatch = name.match(/\d+/);
+  if (levelIndexMatch == null) throw Error("Level index not present in world name");
+
+  const levelIndex = parseInt(levelIndexMatch[0], 10);
+  return levelIndex;
+}
+
 export class EditorInternal implements Editor {
   readonly rezIndex: RezIndex;
 
@@ -102,6 +110,8 @@ export class EditorInternal implements Editor {
   private readonly _areaSelection = new CellSink<Maybe<AreaSelection>>(new None());
 
   private readonly _selectedObjects = new CellSink<ReadonlySet<EdObject>>(new Set());
+
+  readonly levelIndex: number;
 
   readonly tiles: Matrix<number>;
 
@@ -123,25 +133,34 @@ export class EditorInternal implements Editor {
 
   readonly cameraZoom: Cell<number>;
 
-  private constructor(rezIndex: RezIndex, levelResources: LevelResources, wwd: World) {
+  private constructor(
+    rezIndex: RezIndex,
+    levelResources: LevelResources,
+    levelIndex: number,
+    wwd: World,
+  ) {
     this.levelResources = levelResources;
+    this.rezIndex = rezIndex;
+
+    const levelIndexMatch = decode(wwd.name).match(/\d+/);
+    if (levelIndexMatch == null) throw Error("Level index not present in world name");
 
     const action = _.maxBy(wwd.planes, (p) => p.objects.length)!;
 
-    this.rezIndex = rezIndex;
+    this.levelIndex = levelIndex;
 
     this.imageSets = [
-      { prefix: decode(wwd.prefix1), expansion: decode(wwd.imageSet1) },
-      { prefix: decode(wwd.prefix2), expansion: decode(wwd.imageSet2) },
-      { prefix: decode(wwd.prefix3), expansion: decode(wwd.imageSet3) },
-      { prefix: decode(wwd.prefix4), expansion: decode(wwd.imageSet4) }
+      {prefix: decode(wwd.prefix1), expansion: decode(wwd.imageSet1)},
+      {prefix: decode(wwd.prefix2), expansion: decode(wwd.imageSet2)},
+      {prefix: decode(wwd.prefix3), expansion: decode(wwd.imageSet3)},
+      {prefix: decode(wwd.prefix4), expansion: decode(wwd.imageSet4)}
     ];
 
     this.tiles = new Matrix(action.tilesWide, action.tilesHigh, action.tiles);
 
     this.objects =
       action.objects.map((o) => {
-        const x = copyObject(o, { height: 2 });
+        const x = copyObject(o, {height: 2});
         return new EdObject(
           this,
           rezIndex, levelResources, this.areaSelection,
@@ -154,7 +173,6 @@ export class EditorInternal implements Editor {
 
     console.log(`Object count: ${this.objects.length}`);
 
-
     const buildCameraCircuit = () => Transaction.run(() => {
       const focusPointLoop = new CellLoop<Vec2>();
 
@@ -162,7 +180,7 @@ export class EditorInternal implements Editor {
         return this.moveCamera.stream.accum(focusPoint0, (focusPoint, delta) => {
           return focusPoint.add(delta);
         });
-      }
+      };
 
       const buildDraggedCircuit = (cameraDrag: CameraDrag, focusPoint0: Vec2) => {
         // Initial pointer position, viewport camera space
@@ -177,7 +195,7 @@ export class EditorInternal implements Editor {
             return anchor.sub(pointerPosition.divS(zoom));
           }
         );
-      }
+      };
 
       const focusPoint = Cell.switchC(this.dragCamera.cell.map(lambda1((mbCameraDrag) => {
         const focusPoint0 = focusPointLoop.sample();
@@ -203,7 +221,7 @@ export class EditorInternal implements Editor {
       });
 
       return cameraZoomExponent.map((z) => correctZoom(Math.pow(2, z)));
-    }
+    };
 
     this.cameraZoom = buildZoomCircuit();
     this.cameraZoom.listen((a) => console.log(`cameraZoom listen: ${a}`));
@@ -212,8 +230,9 @@ export class EditorInternal implements Editor {
   static async create(): Promise<Editor> {
     const wwd = await fetchWwd();
     const rezIndex = await fetchRezIndex();
+    const levelIndex = findLevelIndex(decode(wwd.name));
     const resources = await LevelResources.load(rezIndex, levelIndex);
-    return new EditorInternal(rezIndex, resources, wwd);
+    return new EditorInternal(rezIndex, resources, levelIndex, wwd);
   }
 
   startAreaSelection(origin: Vec2, destination: Cell<Vec2>): AreaSelection {
@@ -258,6 +277,6 @@ export class EditorInternal implements Editor {
   getTileRezImage(tileId: number): Maybe<RezImage> {
     return new Some(tileId)
       .filter((t) => t >= 0)
-      .flatMap((t) => this.getRezImage(`LEVEL${levelIndex}_TILES_ACTION`, tileId));
+      .flatMap((t) => this.getRezImage(`LEVEL${this.levelIndex}_TILES_ACTION`, tileId));
   }
 }
