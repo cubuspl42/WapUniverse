@@ -114,7 +114,7 @@ export interface SpriteParams {
   texture: Cell<Maybe<Texture>> | Maybe<Texture>;
   alpha?: Cell<number> | number;
   tint?: Cell<number> | number;
-  overlay?: Cell<boolean> | boolean;
+  outline?: Cell<boolean> | boolean;
   scale?: Cell<Vec2> | Vec2;
   interactive?: boolean;
 }
@@ -136,7 +136,7 @@ export class Sprite extends Node {
     linkMaybe(params.texture, (v) => spriteAny.texture = v && v._pixiTexture);
     link(params.alpha, (v) => sprite.alpha = v);
     link(params.tint, (v) => spriteAny.tint = v);
-    link(params.overlay, (v) => spriteAny.filters = v ? [outlineFilter] : []);
+    link(params.outline, (v) => spriteAny.filters = v ? [outlineFilter] : []);
     link(params.scale, (v) => sprite.scale = v.toPixiPoint());
 
     if (params.interactive !== undefined) sprite.interactive = params.interactive;
