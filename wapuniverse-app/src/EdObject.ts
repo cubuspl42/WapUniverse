@@ -3,7 +3,7 @@ import { RezImage, RezIndex } from "./rezIndex";
 import { LevelResources, GameImage } from "./LevelResources";
 import { AreaSelection } from "./AreaSelection";
 import { Rectangle } from "./Rectangle";
-import { EditorInternal } from "./Editor";
+import { Editor } from "./Editor";
 import { Maybe, None, Some } from "./Maybe";
 import { Cell, CellSink } from "./frp";
 import { Texture } from "./renderer/Renderer";
@@ -23,7 +23,7 @@ export function getRandomInt(max: number) {
 }
 
 export class EdObject {
-  readonly _editor: EditorInternal;
+  readonly _editor: Editor;
 
   readonly wwdObject: Object_;
 
@@ -54,7 +54,7 @@ export class EdObject {
   }
 
   constructor(
-    editor: EditorInternal,
+    editor: Editor,
     rezIndex: RezIndex,
     levelResources: LevelResources,
     areaSelection: Cell<Maybe<AreaSelection>>,

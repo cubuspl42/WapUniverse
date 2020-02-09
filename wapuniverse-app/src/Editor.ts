@@ -1,15 +1,15 @@
-import {fetchRezIndex, RezIndex, RezImage} from "./rezIndex";
-import {LevelResources} from "./LevelResources";
-import {Cell, CellSink, LateStreamLoop, LateCellLoop} from "./frp";
-import {Vec2} from "./Vec2";
-import {EdObject} from "./EdObject";
-import {AreaSelection} from "./AreaSelection";
-import {readWorld, World, copyObject} from "./wwd";
-import {Maybe, None, Some, none} from "./Maybe";
-import {clamp} from "./utils";
+import { fetchRezIndex, RezIndex, RezImage } from "./rezIndex";
+import { LevelResources } from "./LevelResources";
+import { Cell, CellSink, LateStreamLoop, LateCellLoop } from "./frp";
+import { Vec2 } from "./Vec2";
+import { EdObject } from "./EdObject";
+import { AreaSelection } from "./AreaSelection";
+import { readWorld, World, copyObject } from "./wwd";
+import { Maybe, None, Some, none } from "./Maybe";
+import { clamp } from "./utils";
 import * as _ from 'lodash';
-import {Matrix} from "./Matrix";
-import {StreamLoop, CellLoop, Operational, Transaction, lambda1} from "sodiumjs";
+import { Matrix } from "./Matrix";
+import { StreamLoop, CellLoop, Operational, Transaction, lambda1 } from "sodiumjs";
 
 const zoomMin = 0.1;
 const zoomExponentMin = Math.log2(zoomMin);
@@ -35,35 +35,9 @@ export interface CameraDrag {
 }
 
 export class App {
-  readonly _editor = new CellSink(EditorInternal.create());
+  readonly _editor = new CellSink(Editor.create());
 
   readonly editor = this._editor as Cell<Promise<Editor>>;
-}
-
-export interface Editor {
-  readonly levelResources: LevelResources;
-
-  readonly selectedObjects: Cell<ReadonlySet<EdObject>>;
-
-  readonly tiles: Matrix<number>;
-
-  readonly objects: ReadonlyArray<EdObject>;
-
-  readonly areaSelection: Cell<Maybe<AreaSelection>>;
-
-  readonly moveCamera: LateStreamLoop<Vec2>;
-
-  readonly zoomCamera: LateStreamLoop<number>;
-
-  readonly dragCamera: LateCellLoop<Maybe<CameraDrag>>;
-
-  readonly cameraFocusPoint: Cell<Vec2>;
-
-  readonly cameraZoom: Cell<number>;
-
-  getTileRezImage(tileId: number): Maybe<RezImage>;
-
-  startAreaSelection(origin: Vec2, destination: Cell<Vec2>): AreaSelection;
 }
 
 async function fetchWwd() {
@@ -102,7 +76,7 @@ function findLevelIndex(name: String) {
   return levelIndex;
 }
 
-export class EditorInternal implements Editor {
+export class Editor {
   readonly rezIndex: RezIndex;
 
   readonly levelResources: LevelResources;
@@ -150,17 +124,17 @@ export class EditorInternal implements Editor {
     this.levelIndex = levelIndex;
 
     this.imageSets = [
-      {prefix: decode(wwd.prefix1), expansion: decode(wwd.imageSet1)},
-      {prefix: decode(wwd.prefix2), expansion: decode(wwd.imageSet2)},
-      {prefix: decode(wwd.prefix3), expansion: decode(wwd.imageSet3)},
-      {prefix: decode(wwd.prefix4), expansion: decode(wwd.imageSet4)}
+      { prefix: decode(wwd.prefix1), expansion: decode(wwd.imageSet1) },
+      { prefix: decode(wwd.prefix2), expansion: decode(wwd.imageSet2) },
+      { prefix: decode(wwd.prefix3), expansion: decode(wwd.imageSet3) },
+      { prefix: decode(wwd.prefix4), expansion: decode(wwd.imageSet4) }
     ];
 
     this.tiles = new Matrix(action.tilesWide, action.tilesHigh, action.tiles);
 
     this.objects =
       action.objects.map((o) => {
-        const x = copyObject(o, {height: 2});
+        const x = copyObject(o, { height: 2 });
         return new EdObject(
           this,
           rezIndex, levelResources, this.areaSelection,
@@ -232,7 +206,7 @@ export class EditorInternal implements Editor {
     const rezIndex = await fetchRezIndex();
     const levelIndex = findLevelIndex(decode(wwd.name));
     const resources = await LevelResources.load(rezIndex, levelIndex);
-    return new EditorInternal(rezIndex, resources, levelIndex, wwd);
+    return new Editor(rezIndex, resources, levelIndex, wwd);
   }
 
   startAreaSelection(origin: Vec2, destination: Cell<Vec2>): AreaSelection {

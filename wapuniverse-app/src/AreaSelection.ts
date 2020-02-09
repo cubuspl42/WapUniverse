@@ -1,11 +1,11 @@
 import { Rectangle } from "./Rectangle";
 import { EdObject } from "./EdObject";
 import { Vec2 } from "./Vec2";
-import { EditorInternal } from "./Editor";
+import { Editor } from "./Editor";
 import { Cell } from "./frp";
 
 export class AreaSelection {
-  private readonly _editor: EditorInternal;
+  private readonly _editor: Editor;
 
   readonly rectangle: Cell<Rectangle>;
 
@@ -14,7 +14,7 @@ export class AreaSelection {
   private readonly _onDone: () => void;
 
   constructor(
-    editor: EditorInternal,
+    editor: Editor,
     origin: Vec2,
     destination: Cell<Vec2>,
     objects: ReadonlyArray<EdObject>, onDone: () => void
