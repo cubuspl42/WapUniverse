@@ -4,12 +4,14 @@ import { Cell, CellSink, LateStreamLoop, LateCellLoop } from "../frp";
 import { Vec2 } from "../Vec2";
 import { EdObject } from "./EdObject";
 import { AreaSelection } from "../AreaSelection";
-import { readWorld, World, copyObject } from "../wwd";
+import * as wwd from "../wwd";
 import { Maybe, None, Some, none } from "../Maybe";
 import { clamp } from "../utils";
-import * as _ from 'lodash';
+import _ from 'lodash';
 import { Matrix } from "../Matrix";
 import { StreamLoop, CellLoop, Operational, Transaction, lambda1 } from "sodiumjs";
+import { World } from "./World";
+import { decode } from "../utils/utils";
 
 const zoomMin = 0.1;
 const zoomExponentMin = Math.log2(zoomMin);
@@ -25,11 +27,6 @@ function correctZoom(inputValue: number): number {
   return inputValue;
 }
 
-
-function decode(s: Uint8Array): string {
-  return new TextDecoder().decode(s);
-}
-
 export interface CameraDrag {
   readonly pointerPosition: Cell<Vec2>;
 }
@@ -41,15 +38,10 @@ export class App {
 }
 
 async function fetchWwd() {
-  const wwd = await fetch("ClawEdit/RETAIL08.WWD");
-  const blob = await wwd.blob();
+  const world = await fetch("ClawEdit/RETAIL08.WWD");
+  const blob = await world.blob();
   const arrayBuffer = await blob.arrayBuffer();
-  return readWorld(arrayBuffer);
-}
-
-interface PrefixEntry {
-  readonly prefix: string;
-  readonly expansion: string;
+  return wwd.readWorld(arrayBuffer);
 }
 
 export function stopwatch_<R>(s: string, f: () => R) {
@@ -85,13 +77,7 @@ export class Editor {
 
   private readonly _selectedObjects = new CellSink<ReadonlySet<EdObject>>(new Set());
 
-  readonly levelIndex: number;
-
-  readonly tiles: Matrix<number>;
-
-  readonly objects: ReadonlyArray<EdObject>;
-
-  readonly imageSets: ReadonlyArray<PrefixEntry>;
+  readonly world: World;
 
   readonly areaSelection = this._areaSelection as Cell<Maybe<AreaSelection>>;
 
@@ -111,41 +97,12 @@ export class Editor {
     rezIndex: RezIndex,
     levelResources: LevelResources,
     levelIndex: number,
-    wwd: World,
+    wwdWorld: wwd.World,
   ) {
     this.levelResources = levelResources;
     this.rezIndex = rezIndex;
 
-    const levelIndexMatch = decode(wwd.name).match(/\d+/);
-    if (levelIndexMatch == null) throw Error("Level index not present in world name");
-
-    const action = _.maxBy(wwd.planes, (p) => p.objects.length)!;
-
-    this.levelIndex = levelIndex;
-
-    this.imageSets = [
-      { prefix: decode(wwd.prefix1), expansion: decode(wwd.imageSet1) },
-      { prefix: decode(wwd.prefix2), expansion: decode(wwd.imageSet2) },
-      { prefix: decode(wwd.prefix3), expansion: decode(wwd.imageSet3) },
-      { prefix: decode(wwd.prefix4), expansion: decode(wwd.imageSet4) }
-    ];
-
-    this.tiles = new Matrix(action.tilesWide, action.tilesHigh, action.tiles);
-
-    this.objects =
-      action.objects.map((o) => {
-        const x = copyObject(o, { height: 2 });
-        return new EdObject(
-          this,
-          rezIndex, levelResources, this.areaSelection,
-          o,
-          new Vec2(o.x, o.y),
-          decode(o.imageSet),
-          o.id,
-        );
-      });
-
-    console.log(`Object count: ${this.objects.length}`);
+    this.world = new World(this, wwdWorld, levelIndex);
 
     const buildCameraCircuit = () => Transaction.run(() => {
       const focusPointLoop = new CellLoop<Vec2>();
@@ -209,48 +166,24 @@ export class Editor {
     return new Editor(rezIndex, resources, levelIndex, wwd);
   }
 
-  startAreaSelection(origin: Vec2, destination: Cell<Vec2>): AreaSelection {
-    const areaSelection = new AreaSelection(
-      this,
-      origin,
-      destination,
-      this.objects,
-      () => {
-        this._areaSelection.send(new None());
-      }
-    );
-    this._areaSelection.send(new Some(areaSelection));
+  // startAreaSelection(origin: Vec2, destination: Cell<Vec2>): AreaSelection {
+  //   const areaSelection = new AreaSelection(
+  //     this,
+  //     origin,
+  //     destination,
+  //     this.objects,
+  //     () => {
+  //       this._areaSelection.send(new None());
+  //     }
+  //   );
+  //   this._areaSelection.send(new Some(areaSelection));
 
-    return areaSelection;
-  }
+  //   return areaSelection;
+  // }
 
   selectObjects(objects: ReadonlySet<EdObject>) {
     this._selectedObjects.send(objects);
   }
 
-  expandShortImageSetId(shortImageSetId: String): Maybe<string> {
-    function expandPrefix(prefixEntry: PrefixEntry): Maybe<string> {
-      const sanitizedExpansion = prefixEntry.expansion.replace('\\', '_');
-      return Maybe.test(shortImageSetId.startsWith(prefixEntry.prefix),
-        () => shortImageSetId.replace(prefixEntry.prefix, sanitizedExpansion));
-    }
 
-    const expandedPrefixes = this.imageSets.map(expandPrefix);
-
-    return Maybe.findSome(expandedPrefixes);
-  }
-
-  getRezImage(imageSetId: string, i: number): Maybe<RezImage> {
-    const rezImageSet = this.rezIndex.imageSets[imageSetId];
-    if (!rezImageSet) return new None();
-    const pidFileName = rezImageSet.frames[i];
-    if (!pidFileName) return new None();
-    return new Some(rezImageSet.sprites[pidFileName]);
-  }
-
-  getTileRezImage(tileId: number): Maybe<RezImage> {
-    return new Some(tileId)
-      .filter((t) => t >= 0)
-      .flatMap((t) => this.getRezImage(`LEVEL${this.levelIndex}_TILES_ACTION`, tileId));
-  }
 }

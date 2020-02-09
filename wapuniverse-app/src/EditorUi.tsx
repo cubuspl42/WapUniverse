@@ -15,6 +15,7 @@ import * as frp from "./frp/Set";
 import { Scene } from './renderer/Scene';
 import { SceneResources } from './SceneResources';
 import { some, none, Maybe } from './Maybe';
+import { planeNode } from './PlaneUi';
 
 const zoomMultiplier = 0.01;
 const scrollMultiplier = 2;
@@ -46,6 +47,8 @@ function eventStream<K extends keyof HTMLElementEventMap>(
 }
 
 export const EditorUi = ({ editor }: EditorUiProps) => {
+  const world = editor.world;
+
   const m = useMemo(() => {
     return Transaction.run(() => {
       console.log("EditorUi useMemo callback");
@@ -56,9 +59,7 @@ export const EditorUi = ({ editor }: EditorUiProps) => {
 
       parentSize.listen((p) => console.log(`parentSize.listen [memo] p = ${p}`));
 
-
       const offset = parentSize.map((s) => s.div(2));
-
 
       offset.listen((p) => console.log(`offset.listen [memo] p = ${p}`));
 
@@ -83,27 +84,27 @@ export const EditorUi = ({ editor }: EditorUiProps) => {
 
     m.parentSizeLoop.lateLoop(parentSize);
 
-    parent.addEventListener("pointerdown", (e) => {
-      console.log("pointerdown");
+    // parent.addEventListener("pointerdown", (e) => {
+    //   console.log("pointerdown");
 
-      const origin = new Vec2(e.clientX, e.clientY);
-      const destinationS = new StreamSink<Vec2>();
-      const destination = new Cell(origin, destinationS);
-      const areaSelection = editor.startAreaSelection(origin, destination);
+    //   const origin = new Vec2(e.clientX, e.clientY);
+    //   const destinationS = new StreamSink<Vec2>();
+    //   const destination = new Cell(origin, destinationS);
+    //   const areaSelection = editor.startAreaSelection(origin, destination);
 
-      const onPointerMove = (e: PointerEvent) => {
-        destinationS.send(new Vec2(e.x, e.y));
-      };
+    //   const onPointerMove = (e: PointerEvent) => {
+    //     destinationS.send(new Vec2(e.x, e.y));
+    //   };
 
-      const onPointerUp = () => {
-        areaSelection.commit();
-        parent.removeEventListener("pointermove", onPointerMove);
-        parent.removeEventListener("pointerup", onPointerUp);
-      };
+    //   const onPointerUp = () => {
+    //     areaSelection.commit();
+    //     parent.removeEventListener("pointermove", onPointerMove);
+    //     parent.removeEventListener("pointerup", onPointerUp);
+    //   };
 
-      parent.addEventListener("pointermove", onPointerMove);
-      parent.addEventListener("pointerup", onPointerUp);
-    });
+    //   parent.addEventListener("pointermove", onPointerMove);
+    //   parent.addEventListener("pointerup", onPointerUp);
+    // });
 
     const onWheel = eventStream(parent, "wheel");
     const onWheelCtrl = onWheel.filter((e) => e.ctrlKey);
@@ -175,13 +176,8 @@ export const EditorUi = ({ editor }: EditorUiProps) => {
       const res = new SceneResources(editor.levelResources);
 
       const rootChildren = new Set<Node>();
-      editor.tiles.forEachIndexed((i, j, t) => {
-        rootChildren.add(tileSprite(editor, res, i, j, t));
-      });
 
-      editor.objects.forEach((o) => {
-        rootChildren.add(edObjectSprite(res, o));
-      });
+      world.planes.forEach((p) => rootChildren.add(planeNode(res, p)));
 
       const root = new Container({
         x: m.offset.map((f) => f.x),
@@ -193,10 +189,6 @@ export const EditorUi = ({ editor }: EditorUiProps) => {
         pivot: m.focusPoint,
         children: new frp.Set(rootChildren),
       });
-
-      console.log(`m.focusPoint.refCount = ${m.focusPoint.getVertex__().refCount()}`);
-      console.log(`editor.cameraFocusPoint.refCount = ${editor.cameraFocusPoint.getVertex__().refCount()}`);
-      console.log(`----`);
 
       return root;
     }} />

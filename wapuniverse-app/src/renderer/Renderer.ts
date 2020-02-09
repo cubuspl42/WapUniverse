@@ -157,10 +157,10 @@ export class Sprite extends Node {
 }
 
 export interface ContainerParams {
-  x: Cell<number> | number;
-  y: Cell<number> | number;
-  pivot: Cell<PIXI.Point> | PIXI.Point;
-  scale: Cell<PIXI.Point> | PIXI.Point;
+  x?: Cell<number> | number;
+  y?: Cell<number> | number;
+  pivot?: Cell<PIXI.Point> | PIXI.Point;
+  scale?: Cell<PIXI.Point> | PIXI.Point;
   children: frp.Set<Node>;
 }
 

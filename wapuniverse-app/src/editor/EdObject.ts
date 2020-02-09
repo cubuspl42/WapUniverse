@@ -8,6 +8,8 @@ import { Maybe, None, Some } from "../Maybe";
 import { Cell, CellSink } from "../frp";
 import { Texture } from "../renderer/Renderer";
 import { Object_, DrawFlags } from "../wwd";
+import { Plane } from "./Plane";
+import { World } from "./World";
 
 interface ImageData {
   readonly imageSetId: String;
@@ -23,7 +25,7 @@ export function getRandomInt(max: number) {
 }
 
 export class EdObject {
-  readonly _editor: Editor;
+  readonly plane: Plane;
 
   readonly wwdObject: Object_;
 
@@ -44,7 +46,15 @@ export class EdObject {
   readonly isSelected: Cell<boolean>;
 
   readonly id: number;
-  
+
+  get world(): World {
+    return this.plane.world;
+  }
+
+  get editor(): Editor {
+    return this.world.editor;
+  }
+
   get isMirrored(): boolean {
     return (this.wwdObject.drawFlags & DrawFlags.Mirror) != 0;
   }
@@ -54,7 +64,7 @@ export class EdObject {
   }
 
   constructor(
-    editor: Editor,
+    plane: Plane,
     rezIndex: RezIndex,
     levelResources: LevelResources,
     areaSelection: Cell<Maybe<AreaSelection>>,
@@ -63,6 +73,9 @@ export class EdObject {
     initialImageSet: string,
     id: number,
   ) {
+    const world = plane.world;
+    const editor = plane.editor;
+
     function getGameImage(rezImage: RezImage): Maybe<GameImage> {
       return levelResources.getGameImage(rezImage.path);
     }
@@ -72,12 +85,12 @@ export class EdObject {
     const i = new CellSink(wwdObject.i);
 
     function getImageData(imageSetId: string, i: number): Maybe<GameImage> {
-      return editor.getRezImage(imageSetId, i).flatMap((rezImage) => getGameImage(rezImage));
+      return world.getRezImage(imageSetId, i).flatMap((rezImage) => getGameImage(rezImage));
     }
 
     const shortImageSetId = new CellSink(initialImageSet);
 
-    const imageSetId = shortImageSetId.map((s) => editor.expandShortImageSetId(s));
+    const imageSetId = shortImageSetId.map((s) => world.expandShortImageSetId(s));
 
     const image = imageSetId.lift(i,
       (isM, i) => isM
@@ -99,7 +112,7 @@ export class EdObject {
 
     const isSelected = editor.selectedObjects.map(s => s.has(this));
 
-    this._editor = editor;
+    this.plane = plane;
     this.wwdObject = wwdObject;
     this.position = position;
     this.correctedPosition = correctedPosition;

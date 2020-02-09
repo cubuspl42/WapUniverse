@@ -2,6 +2,7 @@ import { LevelResources } from "./LevelResources";
 import { Node, Nothing, Sprite } from "./renderer/Renderer";
 import { SceneResources } from "./SceneResources";
 import { Editor } from "./editor/Editor";
+import { World } from "./editor/World";
 
 const tileWidth = 64;
 const tileHeight = 64;
@@ -13,13 +14,13 @@ function pad(n: number, width: number) {
 }
 
 export function tileSprite(
-  editor: Editor,
+  world: World,
   res: SceneResources,
   i: number,
   j: number,
   tileId: number,
 ): Node {
-  const rezImage = editor.getTileRezImage(tileId);
+  const rezImage = world.getTileRezImage(tileId);
   const texture = rezImage.flatMap((ri) => res.getTexture(ri.path));
 
   return new Sprite({
