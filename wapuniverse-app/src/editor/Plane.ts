@@ -6,10 +6,14 @@ import { Editor } from "./Editor";
 import { Vec2 } from "../Vec2";
 import { decode } from "../utils/utils";
 import { World } from "./World";
+import { Maybe, some } from "../Maybe";
+import { RezImage } from "../rezIndex";
 
 
 export class Plane {
     readonly world: World;
+
+    readonly tilesImageSet: string;
 
     readonly tiles: Matrix<number>;
 
@@ -24,6 +28,8 @@ export class Plane {
         wwdPlane: wwd.Plane,
     ) {
         this.world = world;
+
+        this.tilesImageSet = decode(wwdPlane.imageSets[0]);
 
         this.tiles = new Matrix(wwdPlane.tilesWide, wwdPlane.tilesHigh, wwdPlane.tiles);
 
@@ -44,5 +50,12 @@ export class Plane {
 
         console.log(`Object count: ${this.objects.length}`);
 
+    }
+
+    getTileRezImage(tileId: number): Maybe<RezImage> {
+        const world = this.world;
+        return some(tileId)
+            .filter((t) => t >= 0)
+            .flatMap((t) => world.getRezImage(`LEVEL${world.levelIndex}_TILES_${this.tilesImageSet}`, tileId));
     }
 }

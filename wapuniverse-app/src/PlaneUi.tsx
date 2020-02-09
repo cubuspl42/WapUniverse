@@ -12,7 +12,7 @@ export const planeNode = (
 ) => {
   const rootChildren = new Set<Node>();
   plane.tiles.forEachIndexed((i, j, t) => {
-    rootChildren.add(tileSprite(plane.world, res, i, j, t));
+    rootChildren.add(tileSprite(plane, res, i, j, t));
   });
 
   plane.objects.forEach((o) => {

@@ -29,7 +29,7 @@ export class World {
         //     const levelIndexMatch = decode(wwdWorld.name).match(/\d+/);
         //     if (levelIndexMatch == null) throw Error("Level index not present in world name");
 
-        const action = _.maxBy(wwdWorld.planes, (p) => p.objects.length)!;
+        // const action = _.maxBy(wwdWorld.planes, (p) => p.objects.length)!;
 
         this.editor = editor;
 
@@ -42,8 +42,7 @@ export class World {
             { prefix: decode(wwdWorld.prefix4), expansion: decode(wwdWorld.imageSet4) }
         ];
 
-        this.planes = [new Plane(this, action)];
-
+        this.planes = wwdWorld.planes.map((p) => new Plane(this, p));
     }
 
     expandShortImageSetId(shortImageSetId: String): Maybe<string> {
@@ -64,11 +63,5 @@ export class World {
         const pidFileName = rezImageSet.frames[i];
         if (!pidFileName) return none();
         return some(rezImageSet.sprites[pidFileName]);
-    }
-
-    getTileRezImage(tileId: number): Maybe<RezImage> {
-        return some(tileId)
-            .filter((t) => t >= 0)
-            .flatMap((t) => this.getRezImage(`LEVEL${this.levelIndex}_TILES_ACTION`, tileId));
     }
 }
