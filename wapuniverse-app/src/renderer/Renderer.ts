@@ -2,7 +2,7 @@ import * as PIXI from "pixi.js";
 import * as frp from "../frp/Set";
 import { Cell } from "../frp";
 import { Maybe } from "../Maybe";
-import {OutlineFilter} from '@pixi/filter-outline';
+import { OutlineFilter } from '@pixi/filter-outline';
 import { Vec2 } from "../Vec2";
 
 function link<T>(cell: Cell<T> | T | undefined, set: (value: T) => void): void {
@@ -142,6 +142,10 @@ export class Sprite extends Node {
     if (params.interactive !== undefined) sprite.interactive = params.interactive;
 
     this._displayObject = sprite;
+  }
+  
+  onPointerDown(callback: () => void) {
+    this._displayObject.on("pointerdown", callback);
   }
 
   onPointerOver(callback: () => void) {

@@ -12,6 +12,9 @@ import { Matrix } from "../Matrix";
 import { StreamLoop, CellLoop, Operational, Transaction, lambda1 } from "sodiumjs";
 import { World } from "./World";
 import { decode } from "../utils/utils";
+import { Plane } from "./Plane";
+import { ActivePlaneEditor } from "./ActivePlaneEditor";
+import {LazyGetter} from 'lazy-get-decorator';
 
 const zoomMin = 0.1;
 const zoomExponentMin = Math.log2(zoomMin);
@@ -56,7 +59,7 @@ export function stopwatch<R>(s: string, f: () => R) {
   const a = Date.now();
   const r = f();
   const b = Date.now();
-  console.log(`${s} - Elapsed: ${b - a}`);
+  console.log(`${s} - Elapsed: ${b - a} ms`);
   return r;
 }
 
@@ -75,13 +78,13 @@ export class Editor {
 
   private readonly _areaSelection = new CellSink<Maybe<AreaSelection>>(new None());
 
-  private readonly _selectedObjects = new CellSink<ReadonlySet<EdObject>>(new Set());
-
   readonly world: World;
 
   readonly areaSelection = this._areaSelection as Cell<Maybe<AreaSelection>>;
 
-  readonly selectedObjects = this._selectedObjects as Cell<ReadonlySet<EdObject>>;
+  readonly activePlane: Cell<Plane>;
+
+  readonly activePlaneEditor: Cell<ActivePlaneEditor>;
 
   readonly moveCamera = new LateStreamLoop<Vec2>();
 
@@ -102,7 +105,12 @@ export class Editor {
     this.levelResources = levelResources;
     this.rezIndex = rezIndex;
 
-    this.world = new World(this, wwdWorld, levelIndex);
+    const world = new World(this, wwdWorld, levelIndex);
+
+    this.world = world;
+
+    this.activePlane = new Cell(world.planes[1]);
+    this.activePlaneEditor = this.activePlane.map((p) => new ActivePlaneEditor(p));
 
     const buildCameraCircuit = () => Transaction.run(() => {
       const focusPointLoop = new CellLoop<Vec2>();
@@ -180,10 +188,4 @@ export class Editor {
 
   //   return areaSelection;
   // }
-
-  selectObjects(objects: ReadonlySet<EdObject>) {
-    this._selectedObjects.send(objects);
-  }
-
-
 }

@@ -17,6 +17,7 @@
     "@types/react-dom": "16.8.4",
     "commander": "^4.1.0",
     "js-yaml": "^3.13.1",
+    "lazy-get-decorator": "^2.2.0",
     "lodash": "^4.17.15",
     "pako": "^1.0.11",
     "pixi.js": "^5.2.1",

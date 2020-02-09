@@ -5,6 +5,7 @@ import { Node, Sprite } from "./renderer/Renderer";
 import { SceneResources } from './SceneResources';
 import { Maybe } from './Maybe';
 import { Vec2 } from './Vec2';
+import { StreamSink } from 'sodiumjs';
 
 export function edObjectSprite(
   res: SceneResources,
@@ -27,10 +28,17 @@ export function edObjectSprite(
     y: y,
     texture: texture,
     // alpha: isHovered.map<number>(h => h ? 1 : 0.5),
-    outline: isHovered,
+    outline: object.isSelected,
     pivot: object.image.map((gi) => gi.size.div(2)),
     scale: new Vec2(scaleX, scaleY),
     interactive: true,
+  });
+
+
+  const onPointerDown = new StreamSink<void>();
+  object.selectLate.lateLoop(onPointerDown);
+  sprite.onPointerDown(() => {
+    onPointerDown.send();
   });
 
   sprite.onPointerOver(() => {

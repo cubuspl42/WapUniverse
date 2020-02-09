@@ -37,7 +37,7 @@ export class AreaSelection {
 
   commit() {
     const objects = this.objectsInArea.sample();
-    this._editor.selectObjects(objects);
+    // this._editor.selectObjects(objects);
     this._onDone();
   }
 }

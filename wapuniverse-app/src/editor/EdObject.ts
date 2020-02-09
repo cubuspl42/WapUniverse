@@ -1,13 +1,14 @@
-import { Vec2 } from "../Vec2";
-import { RezImage, RezIndex } from "../rezIndex";
-import { LevelResources, GameImage } from "../LevelResources";
+import { LazyGetter } from 'lazy-get-decorator';
 import { AreaSelection } from "../AreaSelection";
+import { Cell, CellSink, LateStreamLoop } from "../frp";
+import { GameImage, LevelResources } from "../LevelResources";
+import { Maybe } from "../Maybe";
 import { Rectangle } from "../Rectangle";
-import { Editor } from "./Editor";
-import { Maybe, None, Some } from "../Maybe";
-import { Cell, CellSink } from "../frp";
 import { Texture } from "../renderer/Renderer";
-import { Object_, DrawFlags } from "../wwd";
+import { RezImage, RezIndex } from "../rezIndex";
+import { Vec2 } from "../Vec2";
+import { DrawFlags, Object_ } from "../wwd";
+import { Editor } from "./Editor";
 import { Plane } from "./Plane";
 import { World } from "./World";
 
@@ -43,9 +44,13 @@ export class EdObject {
 
   readonly isInSelectionArea: Cell<boolean>;
 
-  readonly isSelected: Cell<boolean>;
-
   readonly id: number;
+
+  readonly selectLate = new LateStreamLoop<void>();
+
+  readonly select = this.selectLate.stream;
+
+  readonly onSelected = this.select.map(() => this);
 
   get world(): World {
     return this.plane.world;
@@ -61,6 +66,13 @@ export class EdObject {
 
   get isInverted(): boolean {
     return (this.wwdObject.drawFlags & DrawFlags.Invert) != 0;
+  }
+
+  @LazyGetter()
+  get isSelected(): Cell<boolean> {
+    return this.editor.activePlaneEditor
+      .flatMap((ape) => ape.selectedObject)
+      .map((o) => o === this);
   }
 
   constructor(
@@ -110,8 +122,6 @@ export class EdObject {
       .orElse(() => falseCell)
     );
 
-    const isSelected = editor.selectedObjects.map(s => s.has(this));
-
     this.plane = plane;
     this.wwdObject = wwdObject;
     this.position = position;
@@ -121,7 +131,6 @@ export class EdObject {
     this.boundingBox = boundingBox;
     this.isHovered = new CellSink<boolean>(false);
     this.isInSelectionArea = isInSelectionArea;
-    this.isSelected = isSelected;
     this.id = id;
   }
 }
