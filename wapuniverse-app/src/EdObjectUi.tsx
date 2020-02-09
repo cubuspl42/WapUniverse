@@ -1,5 +1,5 @@
 import './Editor.css';
-import { EdObject } from "./EdObject";
+import { EdObject } from "./editor/EdObject";
 import * as PIXI from 'pixi.js';
 import { Node, Sprite } from "./renderer/Renderer";
 import { SceneResources } from './SceneResources';

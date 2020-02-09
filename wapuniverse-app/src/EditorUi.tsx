@@ -1,7 +1,7 @@
 import React, { useRef, useMemo, useCallback } from 'react';
 
 import './Editor.css';
-import { Editor, CameraDrag } from "./Editor";
+import { Editor, CameraDrag } from "./editor/Editor";
 import { AreaSelection } from "./AreaSelection";
 import * as PIXI from 'pixi.js';
 import { Vec2 } from "./Vec2";

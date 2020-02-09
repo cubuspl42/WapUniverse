@@ -1,13 +1,13 @@
-import { Vec2 } from "./Vec2";
-import { RezImage, RezIndex } from "./rezIndex";
-import { LevelResources, GameImage } from "./LevelResources";
-import { AreaSelection } from "./AreaSelection";
-import { Rectangle } from "./Rectangle";
+import { Vec2 } from "../Vec2";
+import { RezImage, RezIndex } from "../rezIndex";
+import { LevelResources, GameImage } from "../LevelResources";
+import { AreaSelection } from "../AreaSelection";
+import { Rectangle } from "../Rectangle";
 import { Editor } from "./Editor";
-import { Maybe, None, Some } from "./Maybe";
-import { Cell, CellSink } from "./frp";
-import { Texture } from "./renderer/Renderer";
-import { Object_, DrawFlags } from "./wwd";
+import { Maybe, None, Some } from "../Maybe";
+import { Cell, CellSink } from "../frp";
+import { Texture } from "../renderer/Renderer";
+import { Object_, DrawFlags } from "../wwd";
 
 interface ImageData {
   readonly imageSetId: String;

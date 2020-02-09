@@ -3,7 +3,7 @@ import React from 'react';
 import './App.css';
 import 'typeface-roboto';
 import usePromise from "react-promise";
-import {App} from "./Editor";
+import {App} from "./editor/Editor";
 import {EditorUi} from "./EditorUi";
 import {useCell} from "./hooks";
 

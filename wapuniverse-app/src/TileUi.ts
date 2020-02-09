@@ -1,7 +1,7 @@
 import { LevelResources } from "./LevelResources";
 import { Node, Nothing, Sprite } from "./renderer/Renderer";
 import { SceneResources } from "./SceneResources";
-import { Editor } from "./Editor";
+import { Editor } from "./editor/Editor";
 
 const tileWidth = 64;
 const tileHeight = 64;

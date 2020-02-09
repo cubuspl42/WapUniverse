@@ -1,7 +1,7 @@
 import { Rectangle } from "./Rectangle";
-import { EdObject } from "./EdObject";
+import { EdObject } from "./editor/EdObject";
 import { Vec2 } from "./Vec2";
-import { Editor } from "./Editor";
+import { Editor } from "./editor/Editor";
 import { Cell } from "./frp";
 
 export class AreaSelection {

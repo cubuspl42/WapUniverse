@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 
 import './index.css';
 import { AppUi } from "./App";
-import { App } from "./Editor";
+import { App } from "./editor/Editor";
 import { Transaction } from 'sodiumjs';
 
 Transaction.run(() => {

@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {AppUi} from './App';
-import {App} from './Editor';
+import {App} from './editor/Editor';
 
 it('renders without crashing', () => {
   const div = document.createElement('div');

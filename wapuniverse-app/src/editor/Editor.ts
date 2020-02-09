@@ -1,14 +1,14 @@
-import { fetchRezIndex, RezIndex, RezImage } from "./rezIndex";
-import { LevelResources } from "./LevelResources";
-import { Cell, CellSink, LateStreamLoop, LateCellLoop } from "./frp";
-import { Vec2 } from "./Vec2";
+import { fetchRezIndex, RezIndex, RezImage } from "../rezIndex";
+import { LevelResources } from "../LevelResources";
+import { Cell, CellSink, LateStreamLoop, LateCellLoop } from "../frp";
+import { Vec2 } from "../Vec2";
 import { EdObject } from "./EdObject";
-import { AreaSelection } from "./AreaSelection";
-import { readWorld, World, copyObject } from "./wwd";
-import { Maybe, None, Some, none } from "./Maybe";
-import { clamp } from "./utils";
+import { AreaSelection } from "../AreaSelection";
+import { readWorld, World, copyObject } from "../wwd";
+import { Maybe, None, Some, none } from "../Maybe";
+import { clamp } from "../utils";
 import * as _ from 'lodash';
-import { Matrix } from "./Matrix";
+import { Matrix } from "../Matrix";
 import { StreamLoop, CellLoop, Operational, Transaction, lambda1 } from "sodiumjs";
 
 const zoomMin = 0.1;
