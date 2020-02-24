@@ -152,7 +152,7 @@ export class Editor {
     });
 
     this.cameraFocusPoint = buildCameraCircuit();
-    this.cameraFocusPoint.listen((a) => console.log(`cameraFocusPoint listen: ${a}`));
+    // this.cameraFocusPoint.listen((a) => console.log(`cameraFocusPoint listen: ${a}`));
 
     const buildZoomCircuit = () => {
       const cameraZoomExponent = this.zoomCamera.stream.accum(1, (delta, exponent) => {

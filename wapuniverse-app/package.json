@@ -16,6 +16,8 @@
     "@types/react": "16.8.16",
     "@types/react-dom": "16.8.4",
     "commander": "^4.1.0",
+    "fastpriorityqueue": "^0.6.3",
+    "flatqueue": "^1.1.0",
     "js-yaml": "^3.13.1",
     "lazy-get-decorator": "^2.2.0",
     "lodash": "^4.17.15",
@@ -25,8 +27,9 @@
     "react-dom": "^16.12.0",
     "react-promise": "^3.0.2",
     "react-scripts": "3.0.1",
-    "sodiumjs": "file:../sodium-typescript",
-    "typeface-roboto": "0.0.54"
+    "sodiumjs": "file:../../sodium-typescript",
+    "typeface-roboto": "0.0.54",
+    "typescript-collections": "^1.3.3"
   },
   "scripts": {
     "start": "react-scripts start",

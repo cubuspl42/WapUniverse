@@ -17,5 +17,3 @@ export function useCell<T>(cell: Cell<T> | CellProvider<T>): T {
 
   return value;
 }
-
-export {Cell, CellSink} from "sodiumjs";
