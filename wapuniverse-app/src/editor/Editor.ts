@@ -113,7 +113,6 @@ export class Editor {
     this.activePlaneEditor = this.activePlane.map((p) => new ActivePlaneEditor(p));
 
     const buildCameraCircuit = () => Transaction.run(() => {
-      const focusPointLoop = new CellLoop<Vec2>();
 
       const buildFreeCircuit = (focusPoint0: Vec2) => {
         return this.moveCamera.stream.accum(focusPoint0, (focusPoint, delta) => {
@@ -135,6 +134,8 @@ export class Editor {
           }
         );
       };
+
+      const focusPointLoop = new CellLoop<Vec2>();
 
       const focusPoint = Cell.switchC(this.dragCamera.cell.map(lambda1((mbCameraDrag) => {
         const focusPoint0 = focusPointLoop.sample();

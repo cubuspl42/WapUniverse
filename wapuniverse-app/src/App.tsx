@@ -14,10 +14,18 @@ interface AppUiProps {
 export function AppUi({app}: AppUiProps) {
   const editorPromise = useCell(app.editor);
   const {value, error} = usePromise(editorPromise);
+  const stack = error && error.stack &&
+      error.stack.split("\n")
+      .map((l) => <span>{l}</span>)
+    || [];
   if (value !== undefined) {
     return <EditorUi editor={value}/>
   } else if (!!error) {
-    return <span>Error: {error.message}</span>
+    return <div>
+      <span>Error: {error.toString()}</span>
+      <span>Stack trace:</span>
+      <div>{stack}</div>
+    </div>
   } else {
     return <span>Loading...</span>
   }
