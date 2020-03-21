@@ -20,7 +20,8 @@
     "jsx": "preserve",
     "sourceMap": true,
     "noImplicitAny": true,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "baseUrl": "./src"
   },
   "include": [
     "src"

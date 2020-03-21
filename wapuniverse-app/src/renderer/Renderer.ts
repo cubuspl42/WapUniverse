@@ -1,6 +1,6 @@
 import * as PIXI from "pixi.js";
 import * as frp from "../frp/Set";
-import { Cell } from "../frp";
+import { Cell } from "sodium";
 import { Maybe } from "../Maybe";
 import { OutlineFilter } from '@pixi/filter-outline';
 import { Vec2 } from "../Vec2";

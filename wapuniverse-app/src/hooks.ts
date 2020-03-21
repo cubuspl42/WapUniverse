@@ -1,5 +1,5 @@
 import {useEffect, useMemo, useState} from "react";
-import {Cell} from "./frp";
+import {Cell} from "sodium";
 
 type CellProvider<T> = () => Cell<T>;
 
@@ -17,5 +17,3 @@ export function useCell<T>(cell: Cell<T> | CellProvider<T>): T {
 
   return value;
 }
-
-export {Cell, CellSink} from "sodiumjs";

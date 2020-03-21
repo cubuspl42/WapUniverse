@@ -1,6 +1,6 @@
 import { fetchRezIndex, RezIndex, RezImage } from "../rezIndex";
 import { LevelResources } from "../LevelResources";
-import { Cell, CellSink, LateStreamLoop, LateCellLoop } from "../frp";
+import { LateStreamLoop, LateCellLoop } from "../frp";
 import { Vec2 } from "../Vec2";
 import { EdObject } from "./EdObject";
 import { AreaSelection } from "../AreaSelection";
@@ -9,7 +9,7 @@ import { Maybe, None, Some, none } from "../Maybe";
 import { clamp } from "../utils";
 import _ from 'lodash';
 import { Matrix } from "../Matrix";
-import { StreamLoop, CellLoop, Operational, Transaction, lambda1 } from "sodiumjs";
+import {StreamLoop, CellLoop, Operational, Transaction, lambda1, Cell, CellSink} from "sodium";
 import { World } from "./World";
 import { decode } from "../utils/utils";
 import { Plane } from "./Plane";

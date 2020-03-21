@@ -1,7 +1,7 @@
-import { Cell } from "../frp";
+import { Cell } from "sodium";
 import { EdObject } from "./EdObject";
 import { Plane } from "./Plane";
-import { Stream } from "sodiumjs";
+import { Stream } from "sodium";
 import { stopwatch } from "./Editor";
 
 function orElseMany<T>(streams: Stream<T>[]) {

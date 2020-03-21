@@ -5,8 +5,8 @@ import { Editor, CameraDrag } from "./editor/Editor";
 import { AreaSelection } from "./AreaSelection";
 import * as PIXI from 'pixi.js';
 import { Vec2 } from "./Vec2";
-import { Cell, CellSink, LateCellLoop } from "./frp";
-import { StreamSink, Stream, Transaction, Operational } from "sodiumjs";
+import { Cell, CellSink } from "sodium";
+import { StreamSink, Stream, Transaction, Operational } from "sodium";
 import { edObjectSprite } from "./EdObjectUi";
 import { elementSize } from "./cellUtils";
 import { tileSprite } from "./TileUi";
@@ -16,6 +16,7 @@ import { Scene } from './renderer/Scene';
 import { SceneResources } from './SceneResources';
 import { some, none, Maybe } from './Maybe';
 import { planeNode } from './PlaneUi';
+import {LateCellLoop} from "./frp";
 
 const zoomMultiplier = 0.01;
 const scrollMultiplier = 2;

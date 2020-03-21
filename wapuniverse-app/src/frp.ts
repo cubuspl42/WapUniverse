@@ -1,4 +1,4 @@
-import { Cell, CellSink, Stream } from "sodiumjs";
+import { Cell, CellSink, Stream } from "sodium";
 
 declare module "sodiumjs" {
   export interface Cell<A> {
@@ -55,5 +55,3 @@ export class LateStreamLoop<T> {
     stream.listen(() => {});
   }
 }
-
-export { Cell, CellSink };

@@ -1,6 +1,6 @@
 import { LazyGetter } from 'lazy-get-decorator';
 import { AreaSelection } from "../AreaSelection";
-import { Cell, CellSink, LateStreamLoop } from "../frp";
+import { LateStreamLoop } from "../frp";
 import { GameImage, LevelResources } from "../LevelResources";
 import { Maybe } from "../Maybe";
 import { Rectangle } from "../Rectangle";
@@ -11,6 +11,7 @@ import { DrawFlags, Object_ } from "../wwd";
 import { Editor } from "./Editor";
 import { Plane } from "./Plane";
 import { World } from "./World";
+import {Cell, CellSink} from "../sodium";
 
 interface ImageData {
   readonly imageSetId: String;

@@ -1,4 +1,4 @@
-import {CellSink} from "./frp";
+import {CellSink} from "sodium";
 import {expect} from 'chai';
 
 it('Cell.map', () => {

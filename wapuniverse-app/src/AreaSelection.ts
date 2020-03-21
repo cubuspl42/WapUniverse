@@ -2,7 +2,7 @@ import { Rectangle } from "./Rectangle";
 import { EdObject } from "./editor/EdObject";
 import { Vec2 } from "./Vec2";
 import { Editor } from "./editor/Editor";
-import { Cell } from "./frp";
+import { Cell } from "sodium";
 
 export class AreaSelection {
   private readonly _editor: Editor;

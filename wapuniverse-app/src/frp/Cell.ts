@@ -1,4 +1,4 @@
-import * as sd from "sodiumjs";
+import * as sd from "sodium";
 
 type Listener<T> = (value: T) => void;
 
@@ -223,5 +223,3 @@ class _CellSink<T> extends _Cell<T> {
     }
   }
 }
-
-// export {Cell, CellSink} from "sodiumjs";
