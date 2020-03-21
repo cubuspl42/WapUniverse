@@ -131,9 +131,9 @@ export const EditorUi = ({ editor }: EditorUiProps) => {
         new Stream<Vec2>(),
         stream.map((e) => {
           const pageV = new Vec2(e.pageX, e.pageY);
-          console.log(`pageV: ${pageV}`);
+          // console.log(`pageV: ${pageV}`);
           return Operational.value(m.offset.map((o) => {
-            console.log(`o: ${o}`);
+            // console.log(`o: ${o}`);
             return pageV.sub(o);
           }));
         }),
