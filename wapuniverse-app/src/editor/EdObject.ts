@@ -11,7 +11,7 @@ import { DrawFlags, Object_ } from "../wwd";
 import { Editor } from "./Editor";
 import { Plane } from "./Plane";
 import { World } from "./World";
-import {Cell, CellSink} from "../sodium";
+import {Cell, CellSink, Unit} from "sodium";
 
 interface ImageData {
   readonly imageSetId: String;
@@ -47,7 +47,7 @@ export class EdObject {
 
   readonly id: number;
 
-  readonly selectLate = new LateStreamLoop<void>();
+  readonly selectLate = new LateStreamLoop<Unit>();
 
   readonly select = this.selectLate.stream;
 

@@ -8,4 +8,5 @@ export {
   lambda1,
   Cell,
   CellSink,
+  Unit,
 } from "sodiumjs";

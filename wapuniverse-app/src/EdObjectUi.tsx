@@ -1,11 +1,11 @@
 import './Editor.css';
-import { EdObject } from "./editor/EdObject";
+import {EdObject} from "./editor/EdObject";
 import * as PIXI from 'pixi.js';
-import { Node, Sprite } from "./renderer/Renderer";
-import { SceneResources } from './SceneResources';
-import { Maybe } from './Maybe';
-import { Vec2 } from './Vec2';
-import { StreamSink } from 'sodiumjs';
+import {Node, Sprite} from "./renderer/Renderer";
+import {SceneResources} from './SceneResources';
+import {Maybe} from './Maybe';
+import {Vec2} from './Vec2';
+import {StreamSink, Unit} from "./sodium";
 
 export function edObjectSprite(
   res: SceneResources,
@@ -35,10 +35,10 @@ export function edObjectSprite(
   });
 
 
-  const onPointerDown = new StreamSink<void>();
+  const onPointerDown = new StreamSink<Unit>();
   object.selectLate.lateLoop(onPointerDown);
   sprite.onPointerDown(() => {
-    onPointerDown.send();
+    onPointerDown.send(Unit.UNIT);
   });
 
   sprite.onPointerOver(() => {
