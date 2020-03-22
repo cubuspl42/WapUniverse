@@ -27,7 +27,7 @@ export class ActivePlaneEditor {
 
   constructor(plane: Plane) {
     this.plane = plane;
-    const selectObject = stopwatch("orElseMany", () => orElseMany(plane.objects.map((o) => o.onSelected)));
+    const selectObject = stopwatch("orElseMany", () => Stream.firstOf(plane.objects.map((o) => o.onSelected)));
     this.selectedObject = new Cell(plane.objects[0], selectObject);
   }
 }
