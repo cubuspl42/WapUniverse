@@ -1,21 +1,21 @@
-import React, { useRef, useMemo, useCallback } from 'react';
+import React, {useRef, useMemo, useCallback} from 'react';
 
 import './Editor.css';
-import { Editor, CameraDrag } from "./editor/Editor";
-import { AreaSelection } from "./AreaSelection";
+import {Editor, CameraDrag} from "./editor/Editor";
+import {AreaSelection} from "./AreaSelection";
 import * as PIXI from 'pixi.js';
-import { Vec2 } from "./Vec2";
-import { Cell, CellSink } from "sodium";
-import { StreamSink, Stream, Transaction, Operational } from "sodium";
-import { edObjectSprite } from "./EdObjectUi";
-import { elementSize } from "./cellUtils";
-import { tileSprite } from "./TileUi";
-import { Container, Context, Node } from "./renderer/Renderer";
+import {Vec2} from "./Vec2";
+import {Cell, CellSink} from "sodium";
+import {StreamSink, Stream, Transaction, Operational} from "sodium";
+import {edObjectSprite} from "./EdObjectUi";
+import {elementSize} from "./cellUtils";
+import {tileSprite} from "./TileUi";
+import {Container, Context, Node} from "./renderer/Renderer";
 import * as frp from "./frp/Set";
-import { Scene } from './renderer/Scene';
-import { SceneResources } from './SceneResources';
-import { some, none, Maybe } from './Maybe';
-import { planeNode } from './PlaneUi';
+import {Scene} from './renderer/Scene';
+import {SceneResources} from './SceneResources';
+import {some, none, Maybe} from './Maybe';
+import {planeNode} from './PlaneUi';
 import {LateCellLoop} from "./frp";
 
 const zoomMultiplier = 0.01;
@@ -39,15 +39,56 @@ function eventStream<K extends keyof HTMLElementEventMap>(
   element: HTMLElement, type: K
 ): Stream<HTMLElementEventMap[K]> {
   const sink = new StreamSink<HTMLElementEventMap[K]>();
-  sink.listen(() => { });
+  sink.listen(() => {
+  });
   element.addEventListener(type, (e) => {
     e.preventDefault();
+    if (type == "mousedown") Transaction.enableDebug(true);
     sink.send(e);
+    Transaction.enableDebug(false);
   }, false);
   return sink;
 }
 
-export const EditorUi = ({ editor }: EditorUiProps) => {
+interface MouseDragInteraction {
+  readonly position: Cell<Vec2>;
+}
+
+function pageV(e: MouseEvent): Vec2 {
+  return new Vec2(e.pageX, e.pageY)
+}
+
+function switcherK<A>(stream: Stream<Cell<A>>, initValue: A): Cell<A> {
+  return Cell.switchC(stream.hold(new Cell(initValue)));
+}
+
+function buildMouseDragCircuit(element: HTMLElement): Cell<Maybe<MouseDragInteraction>> {
+  function right(s: Stream<MouseEvent>) {
+    return s.filter((e) => e.button == 2);
+  }
+
+  function buildInteractionCircuit(e: MouseEvent): Cell<Maybe<MouseDragInteraction>> {
+    const onMouseRightUp = right(eventStream(element, "mouseup")).once();
+    return switcherK(
+      onMouseRightUp.map(buildIdleCircuit),
+      some({
+        position: eventStream(element, "mousemove").map(pageV).hold(pageV(e)),
+      }),
+    );
+  }
+
+  function buildIdleCircuit(): Cell<Maybe<MouseDragInteraction>> {
+    const onMouseRightDown = right(eventStream(element, "mousedown")).once();
+    return switcherK(
+      onMouseRightDown.map(buildInteractionCircuit),
+      none<MouseDragInteraction>(),
+    );
+  }
+
+  return buildIdleCircuit();
+}
+
+export const EditorUi = ({editor}: EditorUiProps) => {
   const world = editor.world;
 
   const m = useMemo(() => {
@@ -60,7 +101,7 @@ export const EditorUi = ({ editor }: EditorUiProps) => {
 
       parentSize.listen((p) => console.log(`parentSize.listen [memo] p = ${p}`));
 
-      const offset = parentSize.map((s) => s.div(2));
+      const offset = parentSize.map((s) => s.div(2)).rename("offset");
 
       offset.listen((p) => console.log(`offset.listen [memo] p = ${p}`));
 
@@ -113,7 +154,7 @@ export const EditorUi = ({ editor }: EditorUiProps) => {
 
     const deltaV = (e: WheelEvent): Vec2 => {
       return new Vec2(e.deltaX, e.deltaY);
-    }
+    };
 
     const sCameraDelta = onWheelNoCtrl.map((e) => {
       return deltaV(e).mulS(scrollMultiplier);
@@ -127,43 +168,15 @@ export const EditorUi = ({ editor }: EditorUiProps) => {
     editor.moveCamera.lateLoop(sCameraDelta);
     editor.zoomCamera.lateLoop(sZoomDelta);
 
-    function translate(stream: Stream<MouseEvent>): Stream<Vec2> {
-      return Cell.switchS(new Cell(
-        new Stream<Vec2>(),
-        stream.map((e) => {
-          const pageV = new Vec2(e.pageX, e.pageY);
-          // console.log(`pageV: ${pageV}`);
-          return Operational.value(m.offset.map((o) => {
-            // console.log(`o: ${o}`);
-            return pageV.sub(o);
-          }));
-        }),
-      ));
-    }
+    const mouseDrag = buildMouseDragCircuit(parent);
 
-    const onMouseDown = eventStream(parent, "mousedown");
-    onMouseDown.listen((e) => {
-      console.log(`onMouseDown listen`);
-      console.log(e);
-    });
-
-    const onMouseMove = eventStream(parent, "mousemove");
-    const onMouseUp = eventStream(parent, "mouseup");
-
-    const onMouseRightDown = translate(onMouseDown.filter((e) => e.button == 2));
-    const onMouseRightUp = translate(onMouseUp.filter((e) => e.button == 2));
-
-    const onMouseMoveP = translate(onMouseMove);
-
-    const onMouseRightDrag = onMouseRightDown.map((p) => {
-      console.log(`onMouseRightPressed callback`);
-      return some<CameraDrag>({
-        pointerPosition: onMouseMoveP.hold(p)
-      });
-    });
-    const onMouseRightDragStop = onMouseRightUp.map(() => none<CameraDrag>());
-
-    const cameraDrag = onMouseRightDragStop.orElse(onMouseRightDrag).hold(none());
+    const cameraDrag = mouseDrag.map((md) =>
+      md.map<CameraDrag>((d) => ({
+        pointerPosition: m.offset.lift(d.position,
+          (o, p) => p.sub(o)
+        ),
+      }))
+    );
 
     editor.dragCamera.lateLoop(cameraDrag);
   }, []);
@@ -192,7 +205,7 @@ export const EditorUi = ({ editor }: EditorUiProps) => {
       });
 
       return root;
-    }} />
+    }}/>
   </div>
 };
 

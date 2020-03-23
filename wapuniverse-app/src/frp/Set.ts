@@ -1,4 +1,4 @@
-import {Stream} from "./Stream";
+// import {Stream} from "./Stream";
 
 export function remove<T>(array: readonly T[], element: T) {
   return array.filter(e => e !== element)
@@ -47,7 +47,7 @@ class Set_<T> {
 
   constructor(
     initial: Set<T>,
-    changes: Stream<SetChange<T>> = Stream.never(),
+    // changes: Stream<SetChange<T>> = Stream.never(),
   ) {
     this.set = initial;
   }

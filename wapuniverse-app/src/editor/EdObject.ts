@@ -72,7 +72,7 @@ export class EdObject {
   @LazyGetter()
   get isSelected(): Cell<boolean> {
     return this.editor.activePlaneEditor
-      .flatMap((ape) => ape.selectedObject)
+      .flatMap((ape) => ape.selectedObject).rename("EdObject.isSelected/flatMap")
       .map((o) => o === this);
   }
 
@@ -121,7 +121,7 @@ export class EdObject {
       a.objectsInArea
         .map(o => o.has(this)))
       .orElse(() => falseCell)
-    );
+    ).rename("isInSelectionArea");
 
     this.plane = plane;
     this.wwdObject = wwdObject;

@@ -1,19 +1,19 @@
-import { fetchRezIndex, RezIndex, RezImage } from "../rezIndex";
-import { LevelResources } from "../LevelResources";
-import { LateStreamLoop, LateCellLoop } from "../frp";
-import { Vec2 } from "../Vec2";
-import { EdObject } from "./EdObject";
-import { AreaSelection } from "../AreaSelection";
+import {fetchRezIndex, RezIndex, RezImage} from "../rezIndex";
+import {LevelResources} from "../LevelResources";
+import {LateStreamLoop, LateCellLoop} from "../frp";
+import {Vec2} from "../Vec2";
+import {EdObject} from "./EdObject";
+import {AreaSelection} from "../AreaSelection";
 import * as wwd from "../wwd";
-import { Maybe, None, Some, none } from "../Maybe";
-import { clamp } from "../utils";
+import {Maybe, None, Some, none} from "../Maybe";
+import {clamp} from "../utils";
 import _ from 'lodash';
-import { Matrix } from "../Matrix";
+import {Matrix} from "../Matrix";
 import {StreamLoop, CellLoop, Operational, Transaction, lambda1, Cell, CellSink} from "sodium";
-import { World } from "./World";
-import { decode } from "../utils/utils";
-import { Plane } from "./Plane";
-import { ActivePlaneEditor } from "./ActivePlaneEditor";
+import {World} from "./World";
+import {decode} from "../utils/utils";
+import {Plane} from "./Plane";
+import {ActivePlaneEditor} from "./ActivePlaneEditor";
 import {LazyGetter} from 'lazy-get-decorator';
 
 const zoomMin = 0.1;
@@ -115,6 +115,8 @@ export class Editor {
     const buildCameraCircuit = () => Transaction.run(() => {
 
       const buildFreeCircuit = (focusPoint0: Vec2) => {
+        // console.log(`buildFreeCircuit`);
+
         return this.moveCamera.stream.accum(focusPoint0, (focusPoint, delta) => {
           return focusPoint.add(delta);
         });
@@ -125,11 +127,11 @@ export class Editor {
         const pointerPosition0 = cameraDrag.pointerPosition.sample();
         // Anchor, world space
         const anchor = focusPoint0.add(pointerPosition0.divS(this.cameraZoom.sample()));
-        console.log(`focusPoint0: ${focusPoint0} pointerPosition0: ${pointerPosition0}`);
+        // console.log(`buildDraggedCircuit: focusPoint0: ${focusPoint0} pointerPosition0: ${pointerPosition0}`);
 
         return cameraDrag.pointerPosition.lift(this.cameraZoom,
           (pointerPosition, zoom) => {
-            console.log(`anchor: ${anchor} pointerPosition: ${pointerPosition} zoom: ${zoom}`);
+            // console.log(`anchor: ${anchor} pointerPosition: ${pointerPosition} zoom: ${zoom}`);
             return anchor.sub(pointerPosition.divS(zoom));
           }
         );
@@ -143,7 +145,7 @@ export class Editor {
           () => buildFreeCircuit(focusPoint0),
           (cameraDrag) => buildDraggedCircuit(cameraDrag, focusPoint0),
         );
-      }, [focusPointLoop])));
+      }, [focusPointLoop]))).rename("dragCamera/switch");
 
       const focusPointOut = Operational.value(focusPoint).hold(Vec2.zero);
 
@@ -153,7 +155,7 @@ export class Editor {
     });
 
     this.cameraFocusPoint = buildCameraCircuit();
-    this.cameraFocusPoint.listen((a) => console.log(`cameraFocusPoint listen: ${a}`));
+    // this.cameraFocusPoint.listen((a) => console.log(`cameraFocusPoint listen: ${a}`));
 
     const buildZoomCircuit = () => {
       const cameraZoomExponent = this.zoomCamera.stream.accum(1, (delta, exponent) => {
