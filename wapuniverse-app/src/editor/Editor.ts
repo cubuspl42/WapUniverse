@@ -34,6 +34,11 @@ export interface CameraDrag {
   readonly pointerPosition: Cell<Vec2>;
 }
 
+
+export interface AreaSelectionInteraction {
+  readonly pointerPosition: Cell<Vec2>;
+}
+
 export class App {
   readonly _editor = new CellSink(Editor.create());
 
@@ -41,7 +46,7 @@ export class App {
 }
 
 async function fetchWwd() {
-  const world = await fetch("ClawEdit/RETAIL08.WWD");
+  const world = await fetch("TEST1.WWD");
   const blob = await world.blob();
   const arrayBuffer = await blob.arrayBuffer();
   return wwd.readWorld(arrayBuffer);
@@ -76,11 +81,7 @@ export class Editor {
 
   readonly levelResources: LevelResources;
 
-  private readonly _areaSelection = new CellSink<Maybe<AreaSelection>>(new None());
-
   readonly world: World;
-
-  readonly areaSelection = this._areaSelection as Cell<Maybe<AreaSelection>>;
 
   readonly activePlane: Cell<Plane>;
 
@@ -91,6 +92,10 @@ export class Editor {
   readonly zoomCamera = new LateStreamLoop<number>();
 
   readonly dragCamera = new LateCellLoop(none<CameraDrag>());
+
+  readonly selectArea = new LateCellLoop(none<AreaSelectionInteraction>());
+
+  readonly areaSelection: Cell<Maybe<AreaSelection>>;
 
   readonly cameraFocusPoint: Cell<Vec2>;
 
@@ -104,6 +109,16 @@ export class Editor {
   ) {
     this.levelResources = levelResources;
     this.rezIndex = rezIndex;
+
+    this.areaSelection = this.selectArea.cell.map((ma) => ma.map(
+      (a) => {
+        const p = this.cameraFocusPoint.lift3(this.cameraZoom, a.pointerPosition,
+          (c, z, p) =>
+            c.add(p.divS(z)),
+        );
+        return new AreaSelection(p, world.planes[1].objects);
+      },
+    ));
 
     const world = new World(this, wwdWorld, levelIndex);
 

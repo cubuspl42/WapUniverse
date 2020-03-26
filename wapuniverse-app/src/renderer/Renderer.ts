@@ -1,9 +1,9 @@
 import * as PIXI from "pixi.js";
 import * as frp from "../frp/Set";
-import { Cell } from "sodium";
-import { Maybe } from "../Maybe";
-import { OutlineFilter } from '@pixi/filter-outline';
-import { Vec2 } from "../Vec2";
+import {Cell} from "sodium";
+import {Maybe} from "../Maybe";
+import {OutlineFilter} from '@pixi/filter-outline';
+import {Vec2} from "../Vec2";
 
 function link<T>(cell: Cell<T> | T | undefined, set: (value: T) => void): void {
   if (cell instanceof Cell) {
@@ -27,7 +27,7 @@ interface ContextProps {
 export class Context {
   readonly _stage: PIXI.Container;
 
-  constructor({ parent }: ContextProps) {
+  constructor({parent}: ContextProps) {
     const pixiApplication = new PIXI.Application({
       resizeTo: parent,
     });
@@ -143,7 +143,7 @@ export class Sprite extends Node {
 
     this._displayObject = sprite;
   }
-  
+
   onPointerDown(callback: () => void) {
     this._displayObject.on("pointerdown", callback);
   }
@@ -159,6 +159,44 @@ export class Sprite extends Node {
   dispose(): void {
   }
 }
+
+export interface GraphicRectangleParams {
+  x: Cell<number>;
+  y: Cell<number>;
+  width: Cell<number>;
+  height: Cell<number>;
+}
+
+export class GraphicRectangle extends Node {
+  readonly _displayObject: PIXI.DisplayObject;
+
+  constructor(params: GraphicRectangleParams) {
+    super();
+
+    const graphics = new PIXI.Graphics;
+    graphics.alpha = 0.5;
+
+    link(params.x, (v) => graphics.x = v);
+    link(params.y, (v) => graphics.y = v);
+
+    params.width
+      .lift(params.height, (w, h): [number, number] => [w, h])
+      .listen(([w, h]) => {
+        graphics.clear();
+        graphics.beginFill(0xFFFF00);
+        graphics.lineStyle(5, 0xFF0000);
+        graphics.drawRect(0, 0, w, h);
+        // console.log('GraphicRectangle.listen', {w, h});
+      });
+
+    this._displayObject = graphics;
+    // this._displayObject = new PIXI.Container();
+  }
+
+  dispose(): void {
+  }
+}
+
 
 export interface ContainerParams {
   x?: Cell<number> | number;

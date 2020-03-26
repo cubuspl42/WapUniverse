@@ -1,7 +1,7 @@
 import React, {useRef, useMemo, useCallback} from 'react';
 
 import './Editor.css';
-import {Editor, CameraDrag} from "./editor/Editor";
+import {Editor, CameraDrag, AreaSelectionInteraction} from "./editor/Editor";
 import {AreaSelection} from "./AreaSelection";
 import * as PIXI from 'pixi.js';
 import {Vec2} from "./Vec2";
@@ -10,13 +10,14 @@ import {StreamSink, Stream, Transaction, Operational} from "sodium";
 import {edObjectSprite} from "./EdObjectUi";
 import {elementSize} from "./cellUtils";
 import {tileSprite} from "./TileUi";
-import {Container, Context, Node} from "./renderer/Renderer";
+import {Container, Context, GraphicRectangle, Node} from "./renderer/Renderer";
 import * as frp from "./frp/Set";
 import {Scene} from './renderer/Scene';
 import {SceneResources} from './SceneResources';
 import {some, none, Maybe} from './Maybe';
 import {planeNode} from './PlaneUi';
 import {LateCellLoop} from "./frp";
+import {Rectangle} from "./Rectangle";
 
 const zoomMultiplier = 0.01;
 const scrollMultiplier = 2;
@@ -43,9 +44,10 @@ function eventStream<K extends keyof HTMLElementEventMap>(
   });
   element.addEventListener(type, (e) => {
     e.preventDefault();
-    if (type == "mousedown") Transaction.enableDebug(true);
+    // if (type == "mousedown" && (e as any).button === 0) Transaction.enableDebug(true);
+    // if (type == "mousemove") Transaction.enableDebug(true);
     sink.send(e);
-    Transaction.enableDebug(false);
+    // Transaction.enableDebug(false);
   }, false);
   return sink;
 }
@@ -62,9 +64,9 @@ function switcherK<A>(stream: Stream<Cell<A>>, initValue: A): Cell<A> {
   return Cell.switchC(stream.hold(new Cell(initValue)));
 }
 
-function buildMouseDragCircuit(element: HTMLElement): Cell<Maybe<MouseDragInteraction>> {
+function buildMouseDragCircuit(element: HTMLElement, button: number): Cell<Maybe<MouseDragInteraction>> {
   function right(s: Stream<MouseEvent>) {
-    return s.filter((e) => e.button == 2);
+    return s.filter((e) => e.button == button);
   }
 
   function buildInteractionCircuit(e: MouseEvent): Cell<Maybe<MouseDragInteraction>> {
@@ -74,7 +76,7 @@ function buildMouseDragCircuit(element: HTMLElement): Cell<Maybe<MouseDragIntera
       some({
         position: eventStream(element, "mousemove").map(pageV).hold(pageV(e)),
       }),
-    );
+    ).rename("interactionCircuit");
   }
 
   function buildIdleCircuit(): Cell<Maybe<MouseDragInteraction>> {
@@ -82,7 +84,7 @@ function buildMouseDragCircuit(element: HTMLElement): Cell<Maybe<MouseDragIntera
     return switcherK(
       onMouseRightDown.map(buildInteractionCircuit),
       none<MouseDragInteraction>(),
-    );
+    ).rename("idleCircuit");
   }
 
   return buildIdleCircuit();
@@ -168,7 +170,7 @@ export const EditorUi = ({editor}: EditorUiProps) => {
     editor.moveCamera.lateLoop(sCameraDelta);
     editor.zoomCamera.lateLoop(sZoomDelta);
 
-    const mouseDrag = buildMouseDragCircuit(parent);
+    const mouseDrag = buildMouseDragCircuit(parent, 2);
 
     const cameraDrag = mouseDrag.map((md) =>
       md.map<CameraDrag>((d) => ({
@@ -179,6 +181,18 @@ export const EditorUi = ({editor}: EditorUiProps) => {
     );
 
     editor.dragCamera.lateLoop(cameraDrag);
+
+    const mouseDragLeft = buildMouseDragCircuit(parent, 0);
+
+    const selectArea = mouseDragLeft.map((md) =>
+      md.map<AreaSelectionInteraction>((d) => ({
+        pointerPosition: m.offset.lift(d.position,
+          (o, p) => p.sub(o)
+        ),
+      })),
+    );
+
+    editor.selectArea.lateLoop(selectArea);
   }, []);
 
   return <div
@@ -192,6 +206,18 @@ export const EditorUi = ({editor}: EditorUiProps) => {
       const rootChildren = new Set<Node>();
 
       world.planes.forEach((p) => rootChildren.add(planeNode(res, p)));
+
+      const r = editor.areaSelection.flatMap(ma =>
+        ma
+          .map(a => a.rectangle)
+          .orElse(() => new Cell(new Rectangle(Vec2.zero, Vec2.zero))),
+      );
+      rootChildren.add(new GraphicRectangle({
+        x: r.map(r => r.xMin),
+        y: r.map(r => r.yMin),
+        width: r.map(r => r.width),
+        height: r.map(r => r.height),
+      }));
 
       const root = new Container({
         x: m.offset.map((f) => f.x),
