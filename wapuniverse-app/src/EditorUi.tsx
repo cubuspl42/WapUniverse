@@ -40,14 +40,15 @@ function eventStream<K extends keyof HTMLElementEventMap>(
   element: HTMLElement, type: K
 ): Stream<HTMLElementEventMap[K]> {
   const sink = new StreamSink<HTMLElementEventMap[K]>();
+  sink.rename("eventStream/sink");
   sink.listen(() => {
   });
   element.addEventListener(type, (e) => {
     e.preventDefault();
     // if (type == "mousedown" && (e as any).button === 0) Transaction.enableDebug(true);
-    // if (type == "mousemove") Transaction.enableDebug(true);
+    // if (type == "mouseup") Transaction.enableDebug(true);
     sink.send(e);
-    // Transaction.enableDebug(false);
+    Transaction.enableDebug(false);
   }, false);
   return sink;
 }

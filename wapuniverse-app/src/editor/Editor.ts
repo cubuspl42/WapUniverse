@@ -46,7 +46,8 @@ export class App {
 }
 
 async function fetchWwd() {
-  const world = await fetch("TEST1.WWD");
+  const world = await fetch("ClawEdit/RETAIL08.WWD");
+  // const world = await fetch("TEST1.WWD");
   const blob = await world.blob();
   const arrayBuffer = await blob.arrayBuffer();
   return wwd.readWorld(arrayBuffer);

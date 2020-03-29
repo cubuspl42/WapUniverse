@@ -1,16 +1,16 @@
-import { LazyGetter } from 'lazy-get-decorator';
-import { AreaSelection } from "../AreaSelection";
-import { LateStreamLoop } from "../frp";
-import { GameImage, LevelResources } from "../LevelResources";
-import { Maybe } from "../Maybe";
-import { Rectangle } from "../Rectangle";
-import { Texture } from "../renderer/Renderer";
-import { RezImage, RezIndex } from "../rezIndex";
-import { Vec2 } from "../Vec2";
-import { DrawFlags, Object_ } from "../wwd";
-import { Editor } from "./Editor";
-import { Plane } from "./Plane";
-import { World } from "./World";
+import {LazyGetter} from 'lazy-get-decorator';
+import {AreaSelection} from "../AreaSelection";
+import {LateStreamLoop} from "../frp";
+import {GameImage, LevelResources} from "../LevelResources";
+import {Maybe} from "../Maybe";
+import {Rectangle} from "../Rectangle";
+import {Texture} from "../renderer/Renderer";
+import {RezImage, RezIndex} from "../rezIndex";
+import {Vec2} from "../Vec2";
+import {DrawFlags, Object_} from "../wwd";
+import {Editor} from "./Editor";
+import {Plane} from "./Plane";
+import {World} from "./World";
 import {Cell, CellSink, Unit} from "sodium";
 
 interface ImageData {
@@ -115,11 +115,13 @@ export class EdObject {
     const boundingBox = correctedPosition.lift(image, (p: Vec2, gi: GameImage) =>
       new Rectangle(p.sub(gi.size.div(2)), gi.size));
 
-    const falseCell = new CellSink<boolean>(false);
+    const falseCell = new Cell(false);
 
-    const isInSelectionArea = areaSelection.flatMap(aM => aM.map((a) =>
-      a.objectsInArea
-        .map(o => o.has(this)))
+    const isInSelectionArea = areaSelection.flatMap(aM => aM.map(
+      (a) => {
+        return a.objectsInArea
+          .map(o => o.has(this));
+      })
       .orElse(() => falseCell)
     ).rename("isInSelectionArea");
 
