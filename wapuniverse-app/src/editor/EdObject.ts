@@ -76,6 +76,11 @@ export class EdObject {
       .map((o) => o === this);
   }
 
+  @LazyGetter()
+  get isVisible(): Cell<boolean> {
+    return this.editor.visibleObjects.has(this);
+  }
+
   constructor(
     plane: Plane,
     rezIndex: RezIndex,

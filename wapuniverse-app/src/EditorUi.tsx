@@ -26,10 +26,6 @@ interface EditorUiProps {
   editor: Editor;
 }
 
-export function range(end: number): Array<number> {
-  return [...Array(end).keys()];
-}
-
 function streamCallback<T>(): [Stream<T>, (event: T) => void] {
   const sink = new StreamSink<T>();
   const callback = (event: T) => sink.send(event);
@@ -128,6 +124,7 @@ export const EditorUi = ({editor}: EditorUiProps) => {
     parentSize.listen((p) => console.log(`parentSize.listen p = ${p}`));
 
     m.parentSizeLoop.lateLoop(parentSize);
+    editor.viewportSize.lateLoop(parentSize);
 
     // parent.addEventListener("pointerdown", (e) => {
     //   console.log("pointerdown");
@@ -228,7 +225,7 @@ export const EditorUi = ({editor}: EditorUiProps) => {
           return new PIXI.Point(z, z);
         }),
         pivot: m.focusPoint,
-        children: new frp.Set(rootChildren),
+        children: frp.Set.hold(rootChildren),
       });
 
       return root;

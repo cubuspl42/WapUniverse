@@ -116,6 +116,7 @@ export interface SpriteParams {
   tint?: Cell<number> | number;
   outline?: Cell<boolean> | boolean;
   scale?: Cell<Vec2> | Vec2;
+  visible?: Cell<boolean> | boolean;
   interactive?: boolean;
 }
 
@@ -138,6 +139,7 @@ export class Sprite extends Node {
     link(params.tint, (v) => spriteAny.tint = v);
     link(params.outline, (v) => spriteAny.filters = v ? [outlineFilter] : []);
     link(params.scale, (v) => sprite.scale = v.toPixiPoint());
+    link(params.visible, (v) => sprite.visible = v);
 
     if (params.interactive !== undefined) sprite.interactive = params.interactive;
 

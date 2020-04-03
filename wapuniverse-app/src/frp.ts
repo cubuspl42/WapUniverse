@@ -1,5 +1,6 @@
 import { Cell, CellSink, Stream } from "sodium";
-
+export { Set } from "./frp/Set";
+export { Map } from "./frp/Map";
 // declare module "sodiumjs" {
 //   export interface Cell<A> {
 //     flatMap<R>(f: (value: A) => Cell<R>): Cell<R>;

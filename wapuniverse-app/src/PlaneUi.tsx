@@ -1,10 +1,10 @@
 import './Editor.css';
-import { Plane } from './editor/Plane';
-import { edObjectSprite } from "./EdObjectUi";
+import {Plane} from './editor/Plane';
+import {edObjectSprite} from "./EdObjectUi";
 import * as frp from "./frp/Set";
-import { Container, Node } from "./renderer/Renderer";
-import { SceneResources } from './SceneResources';
-import { tileSprite } from "./TileUi";
+import {Container, Node} from "./renderer/Renderer";
+import {SceneResources} from './SceneResources';
+import {tileSprite} from "./TileUi";
 
 export const planeNode = (
   res: SceneResources,
@@ -20,7 +20,7 @@ export const planeNode = (
   });
 
   const root = new Container({
-    children: new frp.Set(rootChildren),
+    children: frp.Set.hold(rootChildren),
   });
 
   return root;

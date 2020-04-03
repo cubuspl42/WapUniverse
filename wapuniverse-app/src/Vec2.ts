@@ -70,4 +70,15 @@ export class Vec2 {
     return new PIXI.Point(this.x, this.y);
   }
 
+  mulV(v: Vec2) {
+    return new Vec2(this.x * v.x, this.y * v.y);
+  }
+
+  divV(v: Vec2) {
+    return new Vec2(this.x / v.x, this.y / v.y);
+  }
+
+  inv(): Vec2 {
+    return new Vec2(1 / this.x, 1 / this.y);
+  }
 }

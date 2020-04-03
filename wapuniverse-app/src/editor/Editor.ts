@@ -15,6 +15,9 @@ import {decode} from "../utils/utils";
 import {Plane} from "./Plane";
 import {ActivePlaneEditor} from "./ActivePlaneEditor";
 import {LazyGetter} from 'lazy-get-decorator';
+import {GridEntry, GridIndex} from "../GridIndex";
+import * as frp from "frp";
+import {Rectangle} from "../Rectangle";
 
 const zoomMin = 0.1;
 const zoomExponentMin = Math.log2(zoomMin);
@@ -77,6 +80,34 @@ function findLevelIndex(name: String) {
   return levelIndex;
 }
 
+class Transform {
+  readonly translate: Vec2;
+  readonly scale: Vec2;
+
+  constructor(
+    translate: Vec2,
+    scale: Vec2,
+  ) {
+    this.translate = translate;
+    this.scale = scale;
+  }
+
+  transformV(v: Vec2): Vec2 {
+    return v.add(this.translate).mulV(this.scale);
+  }
+
+  transformR(r: Rectangle): Rectangle {
+    return r.map((v) => this.transformV(v));
+  }
+
+  invert(): Transform {
+    return new Transform(
+      this.translate.neg().mulV(this.scale),
+      this.scale.inv(),
+    );
+  }
+}
+
 export class Editor {
   readonly rezIndex: RezIndex;
 
@@ -94,6 +125,8 @@ export class Editor {
 
   readonly dragCamera = new LateCellLoop(none<CameraDrag>());
 
+  readonly viewportSize = new LateCellLoop(Vec2.zero);
+
   readonly selectArea = new LateCellLoop(none<AreaSelectionInteraction>());
 
   readonly areaSelection: Cell<Maybe<AreaSelection>>;
@@ -101,6 +134,10 @@ export class Editor {
   readonly cameraFocusPoint: Cell<Vec2>;
 
   readonly cameraZoom: Cell<number>;
+
+  readonly objectGridIndex: GridIndex<EdObject>;
+
+  readonly visibleObjects: frp.Set<EdObject>;
 
   private constructor(
     rezIndex: RezIndex,
@@ -183,6 +220,37 @@ export class Editor {
 
     this.cameraZoom = buildZoomCircuit();
     this.cameraZoom.listen((a) => console.log(`cameraZoom listen: ${a}`));
+
+    const cameraTransform = this.cameraFocusPoint.lift(this.cameraZoom,
+      (fp, z) => new Transform(fp.neg(), new Vec2(z, z)),
+    );
+
+    const invertedCameraTransform = cameraTransform.map((t) => t.invert());
+
+    const objectGridIndex = new GridIndex(frp.Set.hold(new Set(
+      world.planes
+        .flatMap(p => p.objects)
+        .map<GridEntry<EdObject>>(
+          o => ({
+            area: o.boundingBox,
+            element: o,
+          }),
+        )
+    )));
+
+    this.objectGridIndex = objectGridIndex;
+
+    const viewportRect = this.viewportSize.cell.map(
+      vs => new Rectangle(vs.neg().divS(2), vs),
+    );
+
+    const windowRect = viewportRect.lift(cameraTransform,
+      (vr, ct) => ct.transformR(vr),
+    );
+
+    const visibleObjects = objectGridIndex.query(windowRect);
+
+    this.visibleObjects = visibleObjects;
   }
 
   static async create(): Promise<Editor> {
