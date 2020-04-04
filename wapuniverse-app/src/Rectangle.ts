@@ -1,4 +1,4 @@
-import { Vec2 } from "./Vec2";
+import {Vec2} from "./Vec2";
 
 export class Rectangle {
   readonly xMin: number;
@@ -33,6 +33,11 @@ export class Rectangle {
     this.yMin = position.y;
     this.width = size.width;
     this.height = size.height;
+  }
+
+  static fromCenter(center: Vec2, size: Vec2) {
+    const size_ = size.abs();
+    return new Rectangle(size_.neg().divS(2), size_);
   }
 
   static fromBounds(left: number, top: number, right: number, bottom: number): Rectangle {

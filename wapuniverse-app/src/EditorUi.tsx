@@ -62,22 +62,26 @@ function switcherK<A>(stream: Stream<Cell<A>>, initValue: A): Cell<A> {
 }
 
 function buildMouseDragCircuit(element: HTMLElement, button: number): Cell<Maybe<MouseDragInteraction>> {
+  const mouseRightUp = right(eventStream(element, "mouseup"));
+  const mouseRightDown = right(eventStream(element, "mousedown"));
+  const mouseMove = eventStream(element, "mousemove");
+
   function right(s: Stream<MouseEvent>) {
     return s.filter((e) => e.button == button);
   }
 
   function buildInteractionCircuit(e: MouseEvent): Cell<Maybe<MouseDragInteraction>> {
-    const onMouseRightUp = right(eventStream(element, "mouseup")).once();
+    const onMouseRightUp = mouseRightUp.once();
     return switcherK(
       onMouseRightUp.map(buildIdleCircuit),
       some({
-        position: eventStream(element, "mousemove").map(pageV).hold(pageV(e)),
+        position: mouseMove.map(pageV).hold(pageV(e)),
       }),
     ).rename("interactionCircuit");
   }
 
   function buildIdleCircuit(): Cell<Maybe<MouseDragInteraction>> {
-    const onMouseRightDown = right(eventStream(element, "mousedown")).once();
+    const onMouseRightDown = mouseRightDown.once();
     return switcherK(
       onMouseRightDown.map(buildInteractionCircuit),
       none<MouseDragInteraction>(),

@@ -31,7 +31,7 @@ export function edObjectSprite(
     outline: object.isInSelectionArea,
     pivot: object.image.map((gi) => gi.size.div(2)),
     scale: new Vec2(scaleX, scaleY),
-    visible: object.isVisible,
+    // visible: object.isVisible,
     interactive: true,
   });
 

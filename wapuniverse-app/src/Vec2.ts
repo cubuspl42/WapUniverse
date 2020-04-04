@@ -54,6 +54,13 @@ export class Vec2 {
     );
   }
 
+  abs(): Vec2 {
+    return new Vec2(
+      Math.abs(this.x),
+      Math.abs(this.y),
+    );
+  }
+
   mulS(a: number): Vec2 {
     return new Vec2(this.x * a, this.y * a);
   }

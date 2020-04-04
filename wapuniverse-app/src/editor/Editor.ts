@@ -137,6 +137,8 @@ export class Editor {
 
   readonly objectGridIndex: GridIndex<EdObject>;
 
+  readonly windowRect: Cell<Rectangle>;
+
   readonly visibleObjects: frp.Set<EdObject>;
 
   private constructor(
@@ -241,12 +243,19 @@ export class Editor {
     this.objectGridIndex = objectGridIndex;
 
     const viewportRect = this.viewportSize.cell.map(
-      vs => new Rectangle(vs.neg().divS(2), vs),
+      vs => Rectangle.fromCenter(Vec2.zero, vs),
     );
 
-    const windowRect = viewportRect.lift(cameraTransform,
-      (vr, ct) => ct.transformR(vr),
+    const windowRect = viewportRect.lift(invertedCameraTransform,
+      (vr, ct) => {
+        const r = ct.transformR(vr);
+        // console.log({ct});
+        // console.log(`Viewport: ${vr}, window: ${r}`);
+        return r;
+      },
     );
+
+    this.windowRect = windowRect;
 
     const visibleObjects = objectGridIndex.query(windowRect);
 
