@@ -49,8 +49,9 @@ export class App {
 }
 
 async function fetchWwd() {
-  const world = await fetch("ClawEdit/RETAIL08.WWD");
+  const world = await fetch("ClawEdit/RETAIL03.WWD");
   // const world = await fetch("TEST1.WWD");
+  // const world = await fetch("Wreckage.wwd");
   const blob = await world.blob();
   const arrayBuffer = await blob.arrayBuffer();
   return wwd.readWorld(arrayBuffer);
@@ -210,7 +211,9 @@ export class Editor {
     });
 
     this.cameraFocusPoint = buildCameraCircuit();
-    // this.cameraFocusPoint.listen((a) => console.log(`cameraFocusPoint listen: ${a}`));
+    // this.cameraFocusPoint.listen((a) => {
+    //   console.log(`cameraFocusPoint listen: ${a}`);
+    // });
 
     const buildZoomCircuit = () => {
       const cameraZoomExponent = this.zoomCamera.stream.accum(1, (delta, exponent) => {

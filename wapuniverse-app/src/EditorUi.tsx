@@ -43,8 +43,9 @@ function eventStream<K extends keyof HTMLElementEventMap>(
     e.preventDefault();
     // if (type == "mousedown" && (e as any).button === 0) Transaction.enableDebug(true);
     // if (type == "mouseup") Transaction.enableDebug(true);
+    // if (Math.random() < 0.01) Transaction.enableDebug(true);
     sink.send(e);
-    Transaction.enableDebug(false);
+    // Transaction.enableDebug(false);
   }, false);
   return sink;
 }
@@ -142,14 +143,12 @@ export const EditorUi = ({editor}: EditorUiProps) => {
     //     destinationS.send(new Vec2(e.x, e.y));
     //   };
 
-    //   const onPointerUp = () => {
-    //     areaSelection.commit();
-    //     parent.removeEventListener("pointermove", onPointerMove);
-    //     parent.removeEventListener("pointerup", onPointerUp);
-    //   };
+    const onPointerDown = () => {
+      console.log(`Number of visible objects: ${editor.visibleObjects.sample().size}`);
+      console.log(`Number of visited vertices: ${Transaction.visitedVerticesCount}`);
+    };
 
-    //   parent.addEventListener("pointermove", onPointerMove);
-    //   parent.addEventListener("pointerup", onPointerUp);
+    parent.addEventListener("pointerdown", onPointerDown);
     // });
 
     const onWheel = eventStream(parent, "wheel");
