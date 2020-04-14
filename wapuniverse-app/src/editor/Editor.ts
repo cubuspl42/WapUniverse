@@ -9,7 +9,7 @@ import {Maybe, None, Some, none} from "../Maybe";
 import {clamp} from "../utils";
 import _ from 'lodash';
 import {Matrix} from "../Matrix";
-import {StreamLoop, CellLoop, Operational, Transaction, lambda1, Cell, CellSink} from "sodium";
+import {StreamLoop, CellLoop, Operational, Transaction, lambda1, Cell, CellSink, Stream} from "sodium";
 import {World} from "./World";
 import {decode} from "../utils/utils";
 import {Plane} from "./Plane";
@@ -142,6 +142,8 @@ export class Editor {
 
   readonly visibleObjects: frp.Set<EdObject>;
 
+  readonly selectedObjects: Cell<ReadonlySet<EdObject>>;
+
   private constructor(
     rezIndex: RezIndex,
     levelResources: LevelResources,
@@ -151,7 +153,7 @@ export class Editor {
     this.levelResources = levelResources;
     this.rezIndex = rezIndex;
 
-    this.areaSelection = this.selectArea.cell.map((ma) => ma.map(
+    const areaSelection = this.selectArea.cell.map((ma) => ma.map(
       (a) => {
         const p = this.cameraFocusPoint.lift3(this.cameraZoom, a.pointerPosition,
           (c, z, p) =>
@@ -160,6 +162,8 @@ export class Editor {
         return new AreaSelection(p, world.planes[1].objects);
       },
     ));
+
+    this.areaSelection = areaSelection;
 
     const world = new World(this, wwdWorld, levelIndex);
 
@@ -263,6 +267,17 @@ export class Editor {
     const visibleObjects = objectGridIndex.query(windowRect);
 
     this.visibleObjects = visibleObjects;
+
+    const selectObjects: Stream<ReadonlySet<EdObject>> =
+      Operational.updates(areaSelection)
+        .snapshot1(areaSelection)
+        .map((mas) =>
+          mas.map(
+            (as) => as.objectsInArea.sample()
+          ).orElse(() => new Set()),
+        );
+
+    this.selectedObjects = selectObjects.hold(new Set());
   }
 
   static async create(): Promise<Editor> {

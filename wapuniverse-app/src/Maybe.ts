@@ -9,6 +9,10 @@ export abstract class Maybe<T> {
 
   abstract isSome(): boolean;
 
+  isNone(): boolean {
+    return !this.isSome();
+  }
+
   abstract filter(f: (value: T) => boolean): Maybe<T>;
 
   abstract fold<R>(none: () => R, some: (a: T) => R): R;
@@ -88,7 +92,7 @@ export function some<T>(value: T): Maybe<T> {
   return new Some(value);
 }
 
-export class None<T> implements Maybe<T> {
+export class None<T> extends Maybe<T> {
   map<R>(f: (value: T) => R): None<R> {
     return new None<R>();
   }

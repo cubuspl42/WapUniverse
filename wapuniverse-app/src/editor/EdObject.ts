@@ -69,11 +69,17 @@ export class EdObject {
     return (this.wwdObject.drawFlags & DrawFlags.Invert) != 0;
   }
 
+  // @LazyGetter()
+  // get isSelected(): Cell<boolean> {
+  //   return this.editor.activePlaneEditor
+  //     .flatMap((ape) => ape.selectedObject).rename("EdObject.isSelected/flatMap")
+  //     .map((o) => o === this);
+  // }
+
   @LazyGetter()
   get isSelected(): Cell<boolean> {
-    return this.editor.activePlaneEditor
-      .flatMap((ape) => ape.selectedObject).rename("EdObject.isSelected/flatMap")
-      .map((o) => o === this);
+    return this.editor.selectedObjects
+      .map((so) => so.has(this));
   }
 
   @LazyGetter()

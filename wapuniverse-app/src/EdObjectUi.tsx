@@ -27,7 +27,7 @@ export function edObjectSprite(
     x: x,
     y: y,
     texture: texture,
-    // alpha: isHovered.map<number>(h => h ? 1 : 0.5),
+    alpha: object.isSelected.map<number>(s => s ? 1 : 0.6),
     outline: object.isInSelectionArea,
     pivot: object.image.map((gi) => gi.size.div(2)),
     scale: new Vec2(scaleX, scaleY),
