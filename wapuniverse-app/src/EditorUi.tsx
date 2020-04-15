@@ -56,8 +56,11 @@ interface MouseDragInteraction {
   readonly position: Cell<Vec2>;
 }
 
-function pageV(e: MouseEvent): Vec2 {
-  return new Vec2(e.pageX, e.pageY)
+function elementV(e: MouseEvent): Vec2 {
+  const rect = (e.target as HTMLElement).getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  return new Vec2(x, y);
 }
 
 function switcherK<A>(stream: Stream<Cell<A>>, initValue: A): Cell<A> {
@@ -78,7 +81,7 @@ function buildMouseDragCircuit(element: HTMLElement, button: number): Cell<Maybe
     return switcherK(
       onMouseRightUp.map(buildIdleCircuit),
       some({
-        position: mouseMove.map(pageV).hold(pageV(e)),
+        position: mouseMove.map(elementV).hold(elementV(e)),
       }),
     ).rename("interactionCircuit");
   }

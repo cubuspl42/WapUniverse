@@ -37,7 +37,7 @@ export const planeNode = (
 
   const root = new Container({
     // children: frp.Set.hold(rootChildren),
-    children: objectSprites.union(tileSprites),
+    children: tileSprites.union(objectSprites),
     // children: objectSprites,
     // children: tileSprites,
 
