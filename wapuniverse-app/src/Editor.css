@@ -1,3 +1,9 @@
 canvas {
   display: block;
 }
+
+#toolbar {
+  background-color: darkslategrey;
+  padding: 8px;
+}
+

@@ -9,7 +9,7 @@ import {Maybe, None, Some, none} from "../Maybe";
 import {clamp} from "../utils";
 import _ from 'lodash';
 import {Matrix} from "../Matrix";
-import {StreamLoop, CellLoop, Operational, Transaction, lambda1, Cell, CellSink, Stream} from "sodium";
+import {StreamLoop, CellLoop, Operational, Transaction, lambda1, Cell, CellSink, Stream, Unit} from "sodium";
 import {World} from "./World";
 import {decode} from "../utils/utils";
 import {Plane} from "./Plane";
@@ -18,6 +18,7 @@ import {LazyGetter} from 'lazy-get-decorator';
 import {GridEntry, GridIndex} from "../GridIndex";
 import * as frp from "frp";
 import {Rectangle} from "../Rectangle";
+import {StreamSink} from "sodiumjs";
 
 const zoomMin = 0.1;
 const zoomExponentMin = Math.log2(zoomMin);
@@ -110,6 +111,8 @@ class Transform {
 }
 
 export class Editor {
+  readonly deleteSelectedObjects = new StreamSink<Unit>();
+
   readonly rezIndex: RezIndex;
 
   readonly levelResources: LevelResources;
@@ -130,8 +133,6 @@ export class Editor {
 
   readonly selectArea = new LateCellLoop(none<AreaSelectionInteraction>());
 
-  readonly areaSelection: Cell<Maybe<AreaSelection>>;
-
   readonly cameraFocusPoint: Cell<Vec2>;
 
   readonly cameraZoom: Cell<number>;
@@ -142,7 +143,38 @@ export class Editor {
 
   readonly visibleObjects: frp.Set<EdObject>;
 
-  readonly selectedObjects: Cell<ReadonlySet<EdObject>>;
+  @LazyGetter()
+  get areaSelection(): Cell<Maybe<AreaSelection>> {
+    return this.selectArea.cell.map((ma) => ma.map(
+      (a) => {
+        const p = this.cameraFocusPoint.lift3(this.cameraZoom, a.pointerPosition,
+          (c, z, p) =>
+            c.add(p.divS(z)),
+        );
+        return new AreaSelection(p, Array.from(this.activePlane.sample().objects.sample()));
+      },
+    ));
+  }
+
+  @LazyGetter()
+  get selectedObjects(): Cell<ReadonlySet<EdObject>> {
+    const areaSelection = this.areaSelection;
+    const selectObjects: Stream<ReadonlySet<EdObject>> =
+      Operational.updates(areaSelection)
+        .snapshot1(areaSelection)
+        .map((mas) =>
+          mas.map(
+            (as) => as.objectsInArea.sample()
+          ).orElse(() => new Set()),
+        );
+
+    return selectObjects.hold(new Set());
+  }
+
+  @LazyGetter()
+  get deleteObjects(): Stream<ReadonlySet<EdObject>> {
+    return this.deleteSelectedObjects.snapshot1(this.selectedObjects);
+  }
 
   private constructor(
     rezIndex: RezIndex,
@@ -153,23 +185,13 @@ export class Editor {
     this.levelResources = levelResources;
     this.rezIndex = rezIndex;
 
-    const areaSelection = this.selectArea.cell.map((ma) => ma.map(
-      (a) => {
-        const p = this.cameraFocusPoint.lift3(this.cameraZoom, a.pointerPosition,
-          (c, z, p) =>
-            c.add(p.divS(z)),
-        );
-        return new AreaSelection(p, world.planes[1].objects);
-      },
-    ));
-
-    this.areaSelection = areaSelection;
-
     const world = new World(this, wwdWorld, levelIndex);
 
     this.world = world;
 
-    this.activePlane = new Cell(world.planes[1]);
+    const activePlane = world.planes[1];
+
+    this.activePlane = new Cell(activePlane);
     this.activePlaneEditor = this.activePlane.map((p) => new ActivePlaneEditor(p));
 
     const buildCameraCircuit = () => Transaction.run(() => {
@@ -236,16 +258,14 @@ export class Editor {
 
     const invertedCameraTransform = cameraTransform.map((t) => t.invert());
 
-    const objectGridIndex = new GridIndex(frp.Set.hold(new Set(
-      world.planes
-        .flatMap(p => p.objects)
-        .map<GridEntry<EdObject>>(
-          o => ({
-            area: o.boundingBox,
-            element: o,
-          }),
-        )
-    )));
+    const objectGridIndex = new GridIndex(
+      activePlane.objects.map<GridEntry<EdObject>>(
+        o => ({
+          area: o.boundingBox,
+          element: o,
+        }),
+      )
+    );
 
     this.objectGridIndex = objectGridIndex;
 
@@ -267,17 +287,6 @@ export class Editor {
     const visibleObjects = objectGridIndex.query(windowRect);
 
     this.visibleObjects = visibleObjects;
-
-    const selectObjects: Stream<ReadonlySet<EdObject>> =
-      Operational.updates(areaSelection)
-        .snapshot1(areaSelection)
-        .map((mas) =>
-          mas.map(
-            (as) => as.objectsInArea.sample()
-          ).orElse(() => new Set()),
-        );
-
-    this.selectedObjects = selectObjects.hold(new Set());
   }
 
   static async create(): Promise<Editor> {
@@ -286,6 +295,10 @@ export class Editor {
     const levelIndex = findLevelIndex(decode(wwd.name));
     const resources = await LevelResources.load(rezIndex, levelIndex);
     return new Editor(rezIndex, resources, levelIndex, wwd);
+  }
+
+  doDeleteSelectedObjects(): void {
+    this.deleteSelectedObjects.send(Unit.UNIT);
   }
 
   // startAreaSelection(origin: Vec2, destination: Cell<Vec2>): AreaSelection {

@@ -210,6 +210,7 @@ export interface ContainerParams {
 
 export class Container extends Node {
   constructor(params: ContainerParams) {
+    console.log("Container constructor");
     super();
 
     const pixiContainer = new PIXI.Container();
@@ -219,8 +220,9 @@ export class Container extends Node {
     link(params.pivot, (v) => pixiContainer.pivot = v);
     link(params.scale, (v) => pixiContainer.scale = v);
 
-    params.children.sample().forEach((node) => {
-      pixiContainer.addChild(node._displayObject);
+    params.children.cell.forEach((nodes) => {
+      pixiContainer.removeChildren();
+      nodes.forEach((node) => pixiContainer.addChild(node._displayObject));
     });
 
     this._displayObject = pixiContainer;

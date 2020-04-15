@@ -18,6 +18,8 @@ import {some, none, Maybe} from './Maybe';
 import {planeNode} from './PlaneUi';
 import {LateCellLoop} from "./frp";
 import {Rectangle} from "./Rectangle";
+import Button from '@material-ui/core/Button';
+import DeleteIcon from '@material-ui/icons/Delete';
 
 const zoomMultiplier = 0.01;
 const scrollMultiplier = 2;
@@ -120,10 +122,13 @@ export const EditorUi = ({editor}: EditorUiProps) => {
         // onMouseUp,
       }
     })
-  }, []);
+  }, [editor]);
 
   const ref = useCallback((parent: HTMLDivElement) => {
-    console.log("EditorUi useCallback callback");
+    console.log("EditorUi useCallback callback", parent);
+
+    // if (parent === null) return;
+
     const parentSize = elementSize(parent);
 
     parentSize.listen((p) => console.log(`parentSize.listen p = ${p}`));
@@ -194,45 +199,53 @@ export const EditorUi = ({editor}: EditorUiProps) => {
     );
 
     editor.selectArea.lateLoop(selectArea);
-  }, []);
+  }, [editor]);
 
-  return <div
-    ref={ref}
-  >
-    <Scene buildRoot={(context: Context) => {
-      console.log("buildRoot");
+  return <div>
+    <div id="toolbar">
+      <Button
+        variant="contained"
+        onClick={() => editor.doDeleteSelectedObjects()}
+      >
+        <DeleteIcon/>
+      </Button>
+    </div>
+    <div ref={ref}>
+      <Scene buildRoot={(context: Context) => {
+        console.log("buildRoot");
 
-      const res = new SceneResources(editor.levelResources);
+        const res = new SceneResources(editor.levelResources);
 
-      const rootChildren = new Set<Node>();
+        const rootChildren = new Set<Node>();
 
-      world.planes.forEach((p) => rootChildren.add(planeNode(res, p)));
+        world.planes.forEach((p) => rootChildren.add(planeNode(res, p)));
 
-      const r = editor.areaSelection.flatMap(ma =>
-        ma
-          .map(a => a.rectangle)
-          .orElse(() => new Cell(new Rectangle(Vec2.zero, Vec2.zero))),
-      );
-      rootChildren.add(new GraphicRectangle({
-        x: r.map(r => r.xMin),
-        y: r.map(r => r.yMin),
-        width: r.map(r => r.width),
-        height: r.map(r => r.height),
-      }));
+        const r = editor.areaSelection.flatMap(ma =>
+          ma
+            .map(a => a.rectangle)
+            .orElse(() => new Cell(new Rectangle(Vec2.zero, Vec2.zero))),
+        );
+        rootChildren.add(new GraphicRectangle({
+          x: r.map(r => r.xMin),
+          y: r.map(r => r.yMin),
+          width: r.map(r => r.width),
+          height: r.map(r => r.height),
+        }));
 
-      const root = new Container({
-        x: m.offset.map((f) => f.x),
-        y: m.offset.map((f) => f.y),
-        scale: editor.cameraZoom.map((z) => {
-          console.log(`z: ${z}`);
-          return new PIXI.Point(z, z);
-        }),
-        pivot: m.focusPoint,
-        children: frp.Set.hold(rootChildren),
-      });
+        const root = new Container({
+          x: m.offset.map((f) => f.x),
+          y: m.offset.map((f) => f.y),
+          scale: editor.cameraZoom.map((z) => {
+            console.log(`z: ${z}`);
+            return new PIXI.Point(z, z);
+          }),
+          pivot: m.focusPoint,
+          children: frp.Set.hold(rootChildren),
+        });
 
-      return root;
-    }}/>
+        return root;
+      }}/>
+    </div>
   </div>
 };
 

@@ -23,11 +23,11 @@ function orElseMany_<T>(streams: Stream<T>[], start: number, end: number): Strea
 export class ActivePlaneEditor {
   readonly plane: Plane;
 
-  readonly selectedObject: Cell<EdObject>;
+  // readonly selectedObject: Cell<EdObject>;
 
   constructor(plane: Plane) {
     this.plane = plane;
-    const selectObject = stopwatch("orElseMany", () => Stream.firstOf(plane.objects.map((o) => o.onSelected)));
-    this.selectedObject = new Cell(plane.objects[0], selectObject);
+    // const selectObject = stopwatch("orElseMany", () => Stream.firstOf(plane.objects.map((o) => o.onSelected)));
+    // this.selectedObject = new Cell(plane.objects[0], selectObject);
   }
 }

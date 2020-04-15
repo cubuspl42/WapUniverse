@@ -12,7 +12,6 @@ interface PrefixEntry {
 }
 
 export class World {
-
     readonly editor: Editor;
 
     readonly levelIndex: number;

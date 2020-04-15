@@ -32,12 +32,15 @@ export const planeNode = (
 
   console.log(`rootChildren.size: ${rootChildren.size}`);
 
-  plane.objects.forEach((o) => {
-    rootChildren.add(edObjectSprite(res, o));
-  });
+  const objectSprites = plane.objects.map((o) => edObjectSprite(res, o));
+  const tileSprites = frp.Set.hold(rootChildren);
 
   const root = new Container({
-    children: frp.Set.hold(rootChildren),
+    // children: frp.Set.hold(rootChildren),
+    children: objectSprites.union(tileSprites),
+    // children: objectSprites,
+    // children: tileSprites,
+
   });
 
   return root;

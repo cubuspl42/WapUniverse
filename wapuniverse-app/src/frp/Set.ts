@@ -10,20 +10,24 @@ export function remove<T>(array: readonly T[], element: T) {
 // export interface SetChange<T> {
 // }
 
-type SetListener<T> = (change: SetChange<T>) => void;
+// type SetListener<T> = (change: SetChange<T>) => void;
 
-type UnlistenFunction = () => void;
+// type UnlistenFunction = () => void;
 
-class SetChange<T> {
-  readonly remove: Set<T>;
-  readonly add: Set<T>;
+export class SetChange<T> {
+  readonly remove: ReadonlySet<T>;
+  readonly add: ReadonlySet<T>;
 
   constructor(
-    add: Set<T>,
-    remove: Set<T>,
+    add: ReadonlySet<T>,
+    remove: ReadonlySet<T>,
   ) {
     this.add = add;
     this.remove = remove;
+  }
+
+  static remove<T>(elements: ReadonlySet<T>) {
+    return new SetChange(new Set<T>(), elements);
   }
 }
 
@@ -54,6 +58,13 @@ class SetUtils {
     const newArray: B[] = [];
     s.forEach((a) => newArray.push(f(a)));
     return newArray;
+  }
+
+  static union<A>(s1: ReadonlySet<A>, s2: ReadonlySet<A>): ReadonlySet<A> {
+    const newSet = new Set<A>();
+    s1.forEach((e) => newSet.add(e));
+    s2.forEach((e) => newSet.add(e));
+    return newSet;
   }
 
   static unionA<A>(sets: readonly ReadonlySet<A>[]): ReadonlySet<A> {
@@ -92,8 +103,8 @@ class FrpSet<A> {
     throw new Error("Unimplemented");
   }
 
-  static flattenCJ<T>(cell: Cell<Set<T>>): FrpSet<T> {
-    throw new Error("Unimplemented");
+  static flattenCJ<T>(cell: Cell<ReadonlySet<T>>): FrpSet<T> {
+    return new FrpSet(cell);
   }
 
   static flattenC<T>(cell: Cell<FrpSet<T>>): FrpSet<T> {
@@ -157,6 +168,15 @@ class FrpSet<A> {
 
   has(element: A): Cell<boolean> {
     return this.cell.map((set) => set.has(element));
+  }
+
+  union(other: FrpSet<A>): FrpSet<A> {
+    return FrpSet.flattenCJ(this.cell.lift(other.cell,
+      (s1, s2) => {
+        console.log(`FrpSet.union lift callback`);
+        return SetUtils.union(s1, s2);
+      }),
+    );
   }
 }
 
