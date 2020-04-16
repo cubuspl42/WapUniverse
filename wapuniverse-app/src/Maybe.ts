@@ -13,6 +13,12 @@ export abstract class Maybe<T> {
     return !this.isSome();
   }
 
+  equals(other: Maybe<T>): boolean {
+    return Maybe.map2(this, other, (t, o) => t === o)
+      .orElse(() => false);
+  }
+
+
   abstract filter(f: (value: T) => boolean): Maybe<T>;
 
   abstract fold<R>(none: () => R, some: (a: T) => R): R;

@@ -1,11 +1,11 @@
 import React, {useRef, useMemo, useCallback} from 'react';
 
 import './Editor.css';
-import {Editor, CameraDrag, AreaSelectionInteraction} from "./editor/Editor";
+import {Editor, CameraDrag, AreaSelectionInteraction, ObjectMovingInteraction, Tool} from "./editor/Editor";
 import {AreaSelection} from "./AreaSelection";
 import * as PIXI from 'pixi.js';
 import {Vec2} from "./Vec2";
-import {Cell, CellSink} from "sodium";
+import {Cell, CellSink, lambda1} from "sodium";
 import {StreamSink, Stream, Transaction, Operational} from "sodium";
 import {edObjectSprite} from "./EdObjectUi";
 import {elementSize} from "./cellUtils";
@@ -20,6 +20,9 @@ import {LateCellLoop} from "./frp";
 import {Rectangle} from "./Rectangle";
 import Button from '@material-ui/core/Button';
 import DeleteIcon from '@material-ui/icons/Delete';
+import {OpenWith} from "@material-ui/icons";
+import ToggleButton from '@material-ui/lab/ToggleButton';
+import {useCell} from "./hooks";
 
 const zoomMultiplier = 0.01;
 const scrollMultiplier = 2;
@@ -193,16 +196,40 @@ export const EditorUi = ({editor}: EditorUiProps) => {
 
     const mouseDragLeft = buildMouseDragCircuit(parent, 0);
 
-    const selectArea = mouseDragLeft.map((md) =>
-      md.map<AreaSelectionInteraction>((d) => ({
-        pointerPosition: m.offset.lift(d.position,
-          (o, p) => p.sub(o)
-        ),
-      })),
-    );
+    const transformV = (v: Cell<Vec2>): Cell<Vec2> =>
+      m.offset.lift(v, (o, p) => p.sub(o));
+
+    // function filter<A>(ca: Cell<A>, test: (a: A) => boolean): Cell<Maybe<A>> {
+    //  return  Operational.updates(ca).filter(test).hold(ca.sample());
+    // }
+
+    const selectArea = mouseDragLeft.map(lambda1((mdi) =>
+      mdi
+        .filter(() => editor.tool.sample().isNone())
+        .map((di): AreaSelectionInteraction => ({
+          pointerPosition: transformV(di.position),
+        })), [editor.tool],
+    ));
 
     editor.selectArea.lateLoop(selectArea);
+
+    const moveObjects = mouseDragLeft.map(lambda1((mdi) =>
+      mdi
+        .filter(() => editor.tool.sample().fold(
+          () => false,
+          (t) => t === Tool.MOVE),
+        )
+        .map((di): ObjectMovingInteraction => ({
+          pointerPosition: transformV(di.position),
+        })), [editor.tool],
+    ));
+
+    editor.moveObjects.lateLoop(moveObjects);
   }, [editor]);
+
+  const tool = useCell(editor.tool);
+
+  console.log({tool, eq: tool.equals(some(Tool.MOVE))});
 
   return <div>
     <div id="toolbar">
@@ -212,6 +239,13 @@ export const EditorUi = ({editor}: EditorUiProps) => {
       >
         <DeleteIcon/>
       </Button>
+      <ToggleButton
+        value="check"
+        selected={tool === some(Tool.MOVE)}
+        onChange={() => editor.doSwitchMoveTool()}
+      >
+        <OpenWith/>
+      </ToggleButton>
     </div>
     <div ref={ref}>
       <Scene buildRoot={(context: Context) => {

@@ -5,7 +5,7 @@ import {Vec2} from "../Vec2";
 import {EdObject} from "./EdObject";
 import {AreaSelection} from "../AreaSelection";
 import * as wwd from "../wwd";
-import {Maybe, None, Some, none} from "../Maybe";
+import {Maybe, None, Some, none, some} from "../Maybe";
 import {clamp} from "../utils";
 import _ from 'lodash';
 import {Matrix} from "../Matrix";
@@ -41,6 +41,15 @@ export interface CameraDrag {
 
 export interface AreaSelectionInteraction {
   readonly pointerPosition: Cell<Vec2>;
+}
+
+export interface ObjectMovingInteraction {
+  readonly pointerPosition: Cell<Vec2>;
+}
+
+export interface ObjectMoving {
+  readonly objects: ReadonlySet<EdObject>;
+  readonly delta: Cell<Vec2>;
 }
 
 export class App {
@@ -110,6 +119,10 @@ class Transform {
   }
 }
 
+export enum Tool {
+  MOVE
+}
+
 export class Editor {
   readonly deleteSelectedObjects = new StreamSink<Unit>();
 
@@ -133,9 +146,13 @@ export class Editor {
 
   readonly selectArea = new LateCellLoop(none<AreaSelectionInteraction>());
 
+  readonly moveObjects = new LateCellLoop(none<ObjectMovingInteraction>());
+
   readonly cameraFocusPoint: Cell<Vec2>;
 
   readonly cameraZoom: Cell<number>;
+
+  readonly invertedCameraTransform: Cell<Transform>;
 
   readonly objectGridIndex: GridIndex<EdObject>;
 
@@ -143,15 +160,38 @@ export class Editor {
 
   readonly visibleObjects: frp.Set<EdObject>;
 
+  private switchMoveTool = new StreamSink<Unit>();
+
+  transformInvV(cv: Cell<Vec2>): Cell<Vec2> {
+    return this.invertedCameraTransform
+      .lift(cv, (t, v) => t.transformV(v));
+  }
+
   @LazyGetter()
   get areaSelection(): Cell<Maybe<AreaSelection>> {
-    return this.selectArea.cell.map((ma) => ma.map(
-      (a) => {
-        const p = this.cameraFocusPoint.lift3(this.cameraZoom, a.pointerPosition,
-          (c, z, p) =>
-            c.add(p.divS(z)),
-        );
-        return new AreaSelection(p, Array.from(this.activePlane.sample().objects.sample()));
+    return this.selectArea.cell
+      .map((ma) => ma.map(
+        (a) => {
+          const objects = this.activePlane.sample().objects.sample();
+          return new AreaSelection(
+            this.transformInvV(a.pointerPosition),
+            Array.from(objects),
+          );
+        },
+      ))
+      .calm((a, b) => a.equals(b));
+  }
+
+  @LazyGetter()
+  get objectMoving(): Cell<Maybe<ObjectMoving>> {
+    return this.moveObjects.cell.map((momi) => momi.map(
+      (omi): ObjectMoving => {
+        const worldPosition = this.transformInvV(omi.pointerPosition);
+        const origin = worldPosition.sample();
+        return ({
+          objects: this.selectedObjects.sample(),
+          delta: worldPosition.map((w) => w.sub(origin)),
+        });
       },
     ));
   }
@@ -174,6 +214,17 @@ export class Editor {
   @LazyGetter()
   get deleteObjects(): Stream<ReadonlySet<EdObject>> {
     return this.deleteSelectedObjects.snapshot1(this.selectedObjects);
+  }
+
+  @LazyGetter()
+  get tool(): Cell<Maybe<Tool>> {
+    return this.switchMoveTool.accum(
+      none(),
+      (_, mt) => mt.fold(
+        () => some(Tool.MOVE),
+        () => none<Tool>(),
+      ),
+    );
   }
 
   private constructor(
@@ -258,6 +309,8 @@ export class Editor {
 
     const invertedCameraTransform = cameraTransform.map((t) => t.invert());
 
+    this.invertedCameraTransform = invertedCameraTransform;
+
     const objectGridIndex = new GridIndex(
       activePlane.objects.map<GridEntry<EdObject>>(
         o => ({
@@ -287,6 +340,8 @@ export class Editor {
     const visibleObjects = objectGridIndex.query(windowRect);
 
     this.visibleObjects = visibleObjects;
+
+    this.objectMoving.listen((objectMoving) => console.log({objectMoving}));
   }
 
   static async create(): Promise<Editor> {
@@ -315,4 +370,7 @@ export class Editor {
 
   //   return areaSelection;
   // }
+  doSwitchMoveTool(): void {
+    this.switchMoveTool.send(Unit.UNIT);
+  }
 }
