@@ -1,6 +1,7 @@
-import { Cell, CellSink, Stream } from "sodium";
-export { Set } from "./frp/Set";
-export { Map } from "./frp/Map";
+import {Cell, CellSink, Stream} from "sodium";
+
+export {Set} from "./frp/Set";
+export {Map} from "./frp/Map";
 // declare module "sodiumjs" {
 //   export interface Cell<A> {
 //     flatMap<R>(f: (value: A) => Cell<R>): Cell<R>;
@@ -22,7 +23,8 @@ export class LateCellLoop<T> {
 
   get cell(): Cell<T> {
     const c = Cell.switchC(this.cellSink);
-    c.listen(() => { });
+    c.listen(() => {
+    });
     return c;
   }
 
@@ -41,18 +43,25 @@ export class LateStreamLoop<T> {
 
   get stream(): Stream<T> {
     const c = Cell.switchS(this.sink);
-    c.listen(() => { });
+    c.listen(() => {
+    });
     return c;
   }
 
   constructor() {
     const sink = new CellSink(new Stream<T>());
     this.sink = sink;
-    sink.listen(() => {});
+    sink.listen(() => {
+    });
   }
 
   lateLoop(stream: Stream<T>) {
     this.sink.send(stream);
-    stream.listen(() => {});
+    stream.listen(() => {
+    });
   }
+}
+
+export function switcherK<A>(initValue: A, stream: Stream<Cell<A>>): Cell<A> {
+  return Cell.switchC(stream.hold(new Cell(initValue)));
 }

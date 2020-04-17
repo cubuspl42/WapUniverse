@@ -1,6 +1,6 @@
 import {LazyGetter} from 'lazy-get-decorator';
 import {AreaSelection} from "../AreaSelection";
-import {LateStreamLoop} from "../frp";
+import {LateStreamLoop, switcherK} from "../frp";
 import {GameImage, LevelResources} from "../LevelResources";
 import {Maybe} from "../Maybe";
 import {Rectangle} from "../Rectangle";
@@ -11,7 +11,7 @@ import {DrawFlags, Object_} from "../wwd";
 import {Editor} from "./Editor";
 import {Plane} from "./Plane";
 import {World} from "./World";
-import {Cell, CellSink, Unit} from "sodium";
+import {Cell, CellSink, Operational, Unit} from "sodium";
 
 interface ImageData {
   readonly imageSetId: String;
@@ -104,7 +104,21 @@ export class EdObject {
       return levelResources.getGameImage(rezImage.path);
     }
 
-    const position = new CellSink(initialPosition);
+    const position = Cell.switchC(
+      Operational.value(editor.objectMoving)
+        .accum(
+          new Cell(initialPosition),
+          (mom, position): Cell<Vec2> => {
+            const originalPosition = position.sample();
+            return mom
+              .filter((om) => om.objects.has(this))
+              .fold(
+                () => new Cell(originalPosition),
+                (om) => om.delta.map((d) => originalPosition.add(d)),
+              );
+          },
+        ),
+    );
 
     const i = new CellSink(wwdObject.i);
 

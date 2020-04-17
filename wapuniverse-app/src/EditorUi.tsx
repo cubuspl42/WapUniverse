@@ -1,7 +1,13 @@
 import React, {useRef, useMemo, useCallback} from 'react';
 
 import './Editor.css';
-import {Editor, CameraDrag, AreaSelectionInteraction, ObjectMovingInteraction, Tool} from "./editor/Editor";
+import {
+  Editor,
+  CameraDrag,
+  Tool,
+  AreaSelectionInteraction,
+  ObjectMovingInteraction,
+} from "./editor/Editor";
 import {AreaSelection} from "./AreaSelection";
 import * as PIXI from 'pixi.js';
 import {Vec2} from "./Vec2";
@@ -16,7 +22,7 @@ import {Scene} from './renderer/Scene';
 import {SceneResources} from './SceneResources';
 import {some, none, Maybe} from './Maybe';
 import {planeNode} from './PlaneUi';
-import {LateCellLoop} from "./frp";
+import {LateCellLoop, switcherK} from "./frp";
 import {Rectangle} from "./Rectangle";
 import Button from '@material-ui/core/Button';
 import DeleteIcon from '@material-ui/icons/Delete';
@@ -66,10 +72,6 @@ function elementV(e: MouseEvent): Vec2 {
   return new Vec2(x, y);
 }
 
-function switcherK<A>(stream: Stream<Cell<A>>, initValue: A): Cell<A> {
-  return Cell.switchC(stream.hold(new Cell(initValue)));
-}
-
 function buildMouseDragCircuit(element: HTMLElement, button: number): Cell<Maybe<MouseDragInteraction>> {
   const mouseRightUp = right(eventStream(element, "mouseup"));
   const mouseRightDown = right(eventStream(element, "mousedown"));
@@ -82,18 +84,18 @@ function buildMouseDragCircuit(element: HTMLElement, button: number): Cell<Maybe
   function buildInteractionCircuit(e: MouseEvent): Cell<Maybe<MouseDragInteraction>> {
     const onMouseRightUp = mouseRightUp.once();
     return switcherK(
-      onMouseRightUp.map(buildIdleCircuit),
       some({
         position: mouseMove.map(elementV).hold(elementV(e)),
       }),
+      onMouseRightUp.map(buildIdleCircuit),
     ).rename("interactionCircuit");
   }
 
   function buildIdleCircuit(): Cell<Maybe<MouseDragInteraction>> {
     const onMouseRightDown = mouseRightDown.once();
     return switcherK(
-      onMouseRightDown.map(buildInteractionCircuit),
       none<MouseDragInteraction>(),
+      onMouseRightDown.map(buildInteractionCircuit),
     ).rename("idleCircuit");
   }
 
@@ -203,28 +205,28 @@ export const EditorUi = ({editor}: EditorUiProps) => {
     //  return  Operational.updates(ca).filter(test).hold(ca.sample());
     // }
 
-    const selectArea = mouseDragLeft.map(lambda1((mdi) =>
-      mdi
-        .filter(() => editor.tool.sample().isNone())
-        .map((di): AreaSelectionInteraction => ({
-          pointerPosition: transformV(di.position),
-        })), [editor.tool],
-    ));
+    const onMouseDragLeft = Operational.value(mouseDragLeft);
 
-    editor.selectArea.lateLoop(selectArea);
+    const selectArea = onMouseDragLeft
+        .filter((mdi) => mdi.isSome() && editor.tool.sample().isNone())
+        .map((mdi): AreaSelectionInteraction => ({
+          pointerPosition: transformV(mdi.get().position),
+          onEnd: onMouseDragLeft.once(),
+        }));
 
-    const moveObjects = mouseDragLeft.map(lambda1((mdi) =>
-      mdi
-        .filter(() => editor.tool.sample().fold(
+    editor.selectArea.loop(selectArea);
+
+    const moveObjects = onMouseDragLeft
+        .filter((mdi) => mdi.isSome() && editor.tool.sample().fold(
           () => false,
           (t) => t === Tool.MOVE),
         )
-        .map((di): ObjectMovingInteraction => ({
-          pointerPosition: transformV(di.position),
-        })), [editor.tool],
-    ));
+        .map((mdi): ObjectMovingInteraction => ({
+          pointerPosition: transformV(mdi.get().position),
+          onEnd: onMouseDragLeft.once(),
+        }));
 
-    editor.moveObjects.lateLoop(moveObjects);
+    editor.moveObjects.loop(moveObjects);
   }, [editor]);
 
   const tool = useCell(editor.tool);

@@ -1,6 +1,6 @@
 import {fetchRezIndex, RezIndex, RezImage} from "../rezIndex";
 import {LevelResources} from "../LevelResources";
-import {LateStreamLoop, LateCellLoop} from "../frp";
+import {LateStreamLoop, LateCellLoop, switcherK} from "../frp";
 import {Vec2} from "../Vec2";
 import {EdObject} from "./EdObject";
 import {AreaSelection} from "../AreaSelection";
@@ -38,13 +38,16 @@ export interface CameraDrag {
   readonly pointerPosition: Cell<Vec2>;
 }
 
-
 export interface AreaSelectionInteraction {
   readonly pointerPosition: Cell<Vec2>;
+
+  readonly onEnd: Stream<Unit>;
 }
 
 export interface ObjectMovingInteraction {
   readonly pointerPosition: Cell<Vec2>;
+
+  readonly onEnd: Stream<Unit>;
 }
 
 export interface ObjectMoving {
@@ -144,9 +147,9 @@ export class Editor {
 
   readonly viewportSize = new LateCellLoop(Vec2.zero);
 
-  readonly selectArea = new LateCellLoop(none<AreaSelectionInteraction>());
+  readonly selectArea = new StreamLoop<AreaSelectionInteraction>();
 
-  readonly moveObjects = new LateCellLoop(none<ObjectMovingInteraction>());
+  readonly moveObjects = new StreamLoop<ObjectMovingInteraction>();
 
   readonly cameraFocusPoint: Cell<Vec2>;
 
@@ -169,31 +172,52 @@ export class Editor {
 
   @LazyGetter()
   get areaSelection(): Cell<Maybe<AreaSelection>> {
-    return this.selectArea.cell
-      .map((ma) => ma.map(
-        (a) => {
-          const objects = this.activePlane.sample().objects.sample();
-          return new AreaSelection(
-            this.transformInvV(a.pointerPosition),
-            Array.from(objects),
-          );
-        },
-      ))
-      .calm((a, b) => a.equals(b));
+    const buildInteractionCircuit = (asi: AreaSelectionInteraction): Cell<Maybe<AreaSelection>> => {
+      const objects = this.activePlane.sample().objects.sample();
+      return switcherK(
+        some<AreaSelection>(new AreaSelection(
+          this.transformInvV(asi.pointerPosition),
+          Array.from(objects),
+        )),
+        asi.onEnd.map(buildIdleCircuit),
+      );
+    };
+
+    const buildIdleCircuit = (): Cell<Maybe<AreaSelection>> => {
+      const onAreaSelect = this.selectArea.once();
+      return switcherK(
+        none<AreaSelection>(),
+        onAreaSelect.map(buildInteractionCircuit),
+      );
+    };
+
+    return buildIdleCircuit();
   }
 
   @LazyGetter()
   get objectMoving(): Cell<Maybe<ObjectMoving>> {
-    return this.moveObjects.cell.map((momi) => momi.map(
-      (omi): ObjectMoving => {
-        const worldPosition = this.transformInvV(omi.pointerPosition);
-        const origin = worldPosition.sample();
-        return ({
-          objects: this.selectedObjects.sample(),
-          delta: worldPosition.map((w) => w.sub(origin)),
-        });
-      },
-    ));
+    const buildInteractionCircuit = (omi: ObjectMovingInteraction): Cell<Maybe<ObjectMoving>> => {
+      const objects = this.selectedObjects.sample();
+      const worldPosition = this.transformInvV(omi.pointerPosition);
+      const origin = worldPosition.sample();
+      const delta = worldPosition.map((w) => w.sub(origin));
+      return switcherK(
+        some<ObjectMoving>({
+          objects, delta,
+        }),
+        omi.onEnd.map(buildIdleCircuit),
+      );
+    };
+
+    const buildIdleCircuit = (): Cell<Maybe<ObjectMoving>> => {
+      const onAreaSelect = this.moveObjects.once();
+      return switcherK(
+        none<ObjectMoving>(),
+        onAreaSelect.map(buildInteractionCircuit),
+      );
+    };
+
+    return buildIdleCircuit();
   }
 
   @LazyGetter()
@@ -340,8 +364,6 @@ export class Editor {
     const visibleObjects = objectGridIndex.query(windowRect);
 
     this.visibleObjects = visibleObjects;
-
-    this.objectMoving.listen((objectMoving) => console.log({objectMoving}));
   }
 
   static async create(): Promise<Editor> {
