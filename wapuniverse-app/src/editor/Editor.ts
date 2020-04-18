@@ -19,6 +19,8 @@ import {GridEntry, GridIndex} from "../GridIndex";
 import * as frp from "frp";
 import {Rectangle} from "../Rectangle";
 import {StreamSink} from "sodiumjs";
+import {ObjectEditing} from "./ObjectEditing";
+import {SetUtils} from "../frp/Set";
 
 const zoomMin = 0.1;
 const zoomExponentMin = Math.log2(zoomMin);
@@ -165,6 +167,8 @@ export class Editor {
 
   private switchMoveTool = new StreamSink<Unit>();
 
+  private editObject = new StreamSink<Unit>();
+
   transformInvV(cv: Cell<Vec2>): Cell<Vec2> {
     return this.invertedCameraTransform
       .lift(cv, (t, v) => t.transformV(v));
@@ -229,7 +233,7 @@ export class Editor {
         .map((mas) =>
           mas.map(
             (as) => as.objectsInArea.sample()
-          ).orElse(() => new Set()),
+          ).getOrElse(() => new Set()),
         );
 
     return selectObjects.hold(new Set());
@@ -249,6 +253,32 @@ export class Editor {
         () => none<Tool>(),
       ),
     );
+  }
+
+
+  @LazyGetter()
+  get objectEditing(): Cell<Maybe<ObjectEditing>> {
+    const buildEditCircuit = (object: EdObject): Cell<Maybe<ObjectEditing>> => {
+      const objectEditing = new ObjectEditing(object);
+      return switcherK(
+        some<ObjectEditing>(objectEditing),
+        objectEditing.onEnd.map(buildIdleCircuit),
+      );
+    };
+
+    const buildIdleCircuit = (): Cell<Maybe<ObjectEditing>> => {
+      const onEditObject = this.editObject
+        .snapshot1(this.selectedObjects)
+        .map((so) => so.size === 1 ? SetUtils.first(so) : null )
+        .filterNotNull()
+        .once();
+      return switcherK(
+        none<ObjectEditing>(),
+        onEditObject.map(buildEditCircuit),
+      );
+    };
+
+    return buildIdleCircuit();
   }
 
   private constructor(
@@ -376,6 +406,10 @@ export class Editor {
 
   doDeleteSelectedObjects(): void {
     this.deleteSelectedObjects.send(Unit.UNIT);
+  }
+
+  doEditObject(): void {
+    this.editObject.send(Unit.UNIT);
   }
 
   // startAreaSelection(origin: Vec2, destination: Cell<Vec2>): AreaSelection {

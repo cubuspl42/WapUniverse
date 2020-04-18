@@ -16,7 +16,7 @@ function link<T>(cell: Cell<T> | T | undefined, set: (value: T) => void): void {
 function linkMaybe<T>(cell: Cell<Maybe<T>> | Maybe<T> | undefined, set: (value: T | null) => void): void {
   link(cell, (v) => set(
     v.map((t) => <T | null>t)
-      .orElse(() => null)
+      .getOrElse(() => null)
   ));
 }
 
@@ -221,6 +221,7 @@ export class Container extends Node {
     link(params.scale, (v) => pixiContainer.scale = v);
 
     params.children.cell.forEach((nodes) => {
+      console.log(`Re-adding children`);
       pixiContainer.removeChildren();
       nodes.forEach((node) => pixiContainer.addChild(node._displayObject));
     });

@@ -29,6 +29,8 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import {OpenWith} from "@material-ui/icons";
 import ToggleButton from '@material-ui/lab/ToggleButton';
 import {useCell} from "./hooks";
+import {MaybeEditObjectDialog} from "./EditObjectDialog";
+import EditIcon from '@material-ui/icons/Edit';
 
 const zoomMultiplier = 0.01;
 const scrollMultiplier = 2;
@@ -208,23 +210,23 @@ export const EditorUi = ({editor}: EditorUiProps) => {
     const onMouseDragLeft = Operational.value(mouseDragLeft);
 
     const selectArea = onMouseDragLeft
-        .filter((mdi) => mdi.isSome() && editor.tool.sample().isNone())
-        .map((mdi): AreaSelectionInteraction => ({
-          pointerPosition: transformV(mdi.get().position),
-          onEnd: onMouseDragLeft.once(),
-        }));
+      .filter((mdi) => mdi.isSome() && editor.tool.sample().isNone())
+      .map((mdi): AreaSelectionInteraction => ({
+        pointerPosition: transformV(mdi.get().position),
+        onEnd: onMouseDragLeft.once(),
+      }));
 
     editor.selectArea.loop(selectArea);
 
     const moveObjects = onMouseDragLeft
-        .filter((mdi) => mdi.isSome() && editor.tool.sample().fold(
-          () => false,
-          (t) => t === Tool.MOVE),
-        )
-        .map((mdi): ObjectMovingInteraction => ({
-          pointerPosition: transformV(mdi.get().position),
-          onEnd: onMouseDragLeft.once(),
-        }));
+      .filter((mdi) => mdi.isSome() && editor.tool.sample().fold(
+        () => false,
+        (t) => t === Tool.MOVE),
+      )
+      .map((mdi): ObjectMovingInteraction => ({
+        pointerPosition: transformV(mdi.get().position),
+        onEnd: onMouseDragLeft.once(),
+      }));
 
     editor.moveObjects.loop(moveObjects);
   }, [editor]);
@@ -240,6 +242,12 @@ export const EditorUi = ({editor}: EditorUiProps) => {
         onClick={() => editor.doDeleteSelectedObjects()}
       >
         <DeleteIcon/>
+      </Button>
+      <Button
+        variant="contained"
+        onClick={() => editor.doEditObject()}
+      >
+        <EditIcon/>
       </Button>
       <ToggleButton
         value="check"
@@ -262,7 +270,7 @@ export const EditorUi = ({editor}: EditorUiProps) => {
         const r = editor.areaSelection.flatMap(ma =>
           ma
             .map(a => a.rectangle)
-            .orElse(() => new Cell(new Rectangle(Vec2.zero, Vec2.zero))),
+            .getOrElse(() => new Cell(new Rectangle(Vec2.zero, Vec2.zero))),
         );
         rootChildren.add(new GraphicRectangle({
           x: r.map(r => r.xMin),
@@ -285,6 +293,7 @@ export const EditorUi = ({editor}: EditorUiProps) => {
         return root;
       }}/>
     </div>
+    <MaybeEditObjectDialog editor={editor}/>
   </div>
 };
 

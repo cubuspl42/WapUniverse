@@ -7,3 +7,6 @@ canvas {
   padding: 8px;
 }
 
+.MuiTextField-root {
+  margin-right: 10px;
+}

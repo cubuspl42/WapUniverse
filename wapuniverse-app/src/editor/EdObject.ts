@@ -11,7 +11,8 @@ import {DrawFlags, Object_} from "../wwd";
 import {Editor} from "./Editor";
 import {Plane} from "./Plane";
 import {World} from "./World";
-import {Cell, CellSink, Operational, Unit} from "sodium";
+import {Cell, CellSink, lambda1, Operational, Unit} from "sodium";
+import {CellLoop, lambda2} from "sodiumjs";
 
 interface ImageData {
   readonly imageSetId: String;
@@ -104,20 +105,38 @@ export class EdObject {
       return levelResources.getGameImage(rezImage.path);
     }
 
-    const position = Cell.switchC(
-      Operational.value(editor.objectMoving)
-        .accum(
-          new Cell(initialPosition),
-          (mom, position): Cell<Vec2> => {
-            const originalPosition = position.sample();
-            return mom
-              .filter((om) => om.objects.has(this))
-              .fold(
-                () => new Cell(originalPosition),
-                (om) => om.delta.map((d) => originalPosition.add(d)),
-              );
-          },
-        ),
+    const buildPropertyCircuit = <A>(initValue: A, f: (property: Cell<A>) => Cell<Cell<A>>) => {
+      const out = new CellLoop<A>();
+      const cell = Cell.switchC(Operational.value(f(out)).hold(new Cell(initValue)));
+      out.loop(cell);
+      return cell;
+    };
+
+    const position = buildPropertyCircuit(initialPosition, (position_: Cell<Vec2>) =>
+      editor.objectMoving.lift(editor.objectEditing, (mom, moe) => {
+        const originalPosition = position_.sample();
+
+        const buildMoveCircuit = () =>
+          mom
+            .filter((om) => om.objects.has(this))
+            .map((om) => om.delta.map((d) => originalPosition.add(d)));
+
+        const buildEditCircuit = () =>
+          moe
+            .filter((oe) => oe.object === this)
+            .map((oe) => oe.position);
+
+        return buildMoveCircuit()
+            .orElse(buildEditCircuit)
+            .getOrElse(() => new Cell(originalPosition));
+
+        // return mom
+        //   .filter((om) => om.objects.has(this))
+        //   .fold(
+        //     () => new Cell(originalPosition),
+        //     (om) => om.delta.map((d) => originalPosition.add(d)),
+        //   );
+      }),
     );
 
     const i = new CellSink(wwdObject.i);
@@ -133,7 +152,7 @@ export class EdObject {
     const image = imageSetId.lift(i,
       (isM, i) => isM
         .flatMap(is => getImageData(is, i))
-        .orElse(() => getImageData("GAME_IMAGES_POWERUPS_EXTRALIFE", -1).get()));
+        .getOrElse(() => getImageData("GAME_IMAGES_POWERUPS_EXTRALIFE", -1).get()));
 
     const correctedPosition = position.lift(image, (p, i) => p.add(i.offset));
 
@@ -147,7 +166,7 @@ export class EdObject {
         return a.objectsInArea
           .map(o => o.has(this));
       })
-      .orElse(() => falseCell)
+      .getOrElse(() => falseCell)
     ).rename("isInSelectionArea");
 
     this.plane = plane;

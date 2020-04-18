@@ -47,7 +47,7 @@ export class SetChange<T> {
 //   }
 // }
 
-class SetUtils {
+export class SetUtils {
   static map<A, B>(s: ReadonlySet<A>, f: (a: A) => B): ReadonlySet<B> {
     const newSet = new Set<B>();
     s.forEach((a) => newSet.add(f(a)));
@@ -75,6 +75,10 @@ class SetUtils {
       });
     });
     return newSet;
+  }
+
+  static first<A>(set: ReadonlySet<A>): A {
+    return set.values().next().value;
   }
 }
 

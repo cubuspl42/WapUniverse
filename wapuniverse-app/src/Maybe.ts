@@ -5,7 +5,9 @@ export abstract class Maybe<T> {
 
   abstract flatMap<R>(f: (value: T) => Maybe<R>): Maybe<R>;
 
-  abstract orElse(value: () => T): T;
+  abstract getOrElse(value: () => T): T;
+
+  abstract orElse(value: () => Maybe<T>): Maybe<T>;
 
   abstract isSome(): boolean;
 
@@ -15,7 +17,7 @@ export abstract class Maybe<T> {
 
   equals(other: Maybe<T>): boolean {
     return Maybe.map2(this, other, (t, o) => t === o)
-      .orElse(() => false);
+      .getOrElse(() => false);
   }
 
 
@@ -52,6 +54,10 @@ export abstract class Maybe<T> {
   static ofUndefined<T>(value: T | undefined): Maybe<T> {
     return Maybe.test(!!value, () => value!);
   }
+
+  static choice2<A>(f1: () => Maybe<A>, f2: () => Maybe<A>) {
+    return f1().orElse(f2);
+  }
 }
 
 
@@ -71,8 +77,12 @@ export class Some<T> extends Maybe<T> {
     return f(this.value);
   }
 
-  orElse(value: () => T): T {
+  getOrElse(value: () => T): T {
     return this.value;
+  }
+
+  orElse(value: () => Maybe<T>): Maybe<T> {
+    return this;
   }
 
   isSome(): boolean {
@@ -107,7 +117,11 @@ export class None<T> extends Maybe<T> {
     return new None<R>();
   }
 
-  orElse(value: () => T): T {
+  getOrElse(value: () => T): T {
+    return value();
+  }
+
+  orElse(value: () => Maybe<T>): Maybe<T> {
     return value();
   }
 
