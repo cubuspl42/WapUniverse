@@ -62,6 +62,10 @@ export class LateStreamLoop<T> {
   }
 }
 
+export function switcher<A>(init: Cell<A>, stream: Stream<Cell<A>>): Cell<A> {
+  return Cell.switchC(stream.hold(init));
+}
+
 export function switcherK<A>(initValue: A, stream: Stream<Cell<A>>): Cell<A> {
-  return Cell.switchC(stream.hold(new Cell(initValue)));
+  return switcher(new Cell(initValue), stream);
 }

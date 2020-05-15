@@ -11,6 +11,7 @@ import {RezImage} from "../rezIndex";
 import * as frp from "frp";
 import {SetChange} from "../frp/Set";
 import {Stream} from "../sodium";
+import {Cell, Unit} from "sodiumjs";
 
 export class Plane {
   readonly world: World;
@@ -20,6 +21,8 @@ export class Plane {
   readonly tiles: Matrix<number>;
 
   readonly objects: frp.Set<EdObject>;
+
+  readonly pin: Cell<Unit>;
 
   get editor(): Editor {
     return this.world.editor;
@@ -58,6 +61,7 @@ export class Plane {
 
     console.log(`Object count: ${this.objects.sample().size}`);
 
+    this.pin = this.objects.pin((o) => o.pin);
   }
 
   getTileRezImage(tileId: number): Maybe<RezImage> {

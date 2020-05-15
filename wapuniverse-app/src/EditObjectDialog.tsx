@@ -9,6 +9,8 @@ import {Editor} from "./editor/Editor";
 import {useCell} from "./hooks";
 import {TextField} from "@material-ui/core";
 import {ObjectEditing} from "./editor/ObjectEditing";
+import {Cell} from "./sodium";
+import {makeStyles} from "@material-ui/core/styles";
 
 interface MaybeEditObjectDialogProps {
   editor: Editor;
@@ -26,34 +28,32 @@ interface EditObjectDialogProps {
   objectEditing: ObjectEditing;
 }
 
+const useStyles = makeStyles((theme) => ({
+  root: {
+    '& .MuiTextField-root': {
+      margin: theme.spacing(1),
+    },
+  },
+}));
+
 export function EditObjectDialog({objectEditing}: EditObjectDialogProps) {
-  const position = useCell(objectEditing.position);
+  const classes = useStyles();
+
+  const oe = objectEditing;
   return <Dialog open={true} onClose={() => objectEditing.doEnd()}>
     <DialogTitle id="alert-dialog-title">Edit object</DialogTitle>
-    <DialogContent>
+    <DialogContent className={classes.root}>
       <DialogContentText id="alert-dialog-description">
         ID: {objectEditing.object.id}
       </DialogContentText>
       <form noValidate autoComplete="off">
         <div>
-          <TextField
-            id="standard-basic" label="X" type="number" defaultValue={position.x}
-            onChange={
-              (e) =>
-                objectEditing.setX(parseInt(e.target.value, 10))
-            }
-          />
-          <TextField
-            id="standard-basic" label="Y" type="number" defaultValue={position.y}
-            onChange={
-              (e) =>
-                objectEditing.setY(parseInt(e.target.value, 10))
-            }
-          />
+          <NumericTextField label={"X"} cell={oe.x} set={(x) => oe.setX(x)}/>
+          <NumericTextField label={"Y"} cell={oe.y} set={(y) => oe.setY(y)}/>
         </div>
         <div>
-          <TextField id="standard-basic" label="Z"/>
-          <TextField id="standard-basic" label="I"/>
+          <NumericTextField label={"Z"} cell={oe.z} set={(z) => oe.z.send(z)}/>
+          <NumericTextField label={"I"} cell={oe.i} set={(i) => oe.i.send(i)}/>
         </div>
       </form>
     </DialogContent>
@@ -64,4 +64,37 @@ export function EditObjectDialog({objectEditing}: EditObjectDialogProps) {
     </DialogActions>
   </Dialog>;
 }
+
+function StringTextField(props: {
+  label: string,
+  cell: Cell<string>,
+  set: (value: string) => void,
+}) {
+  const {cell, set} = props;
+  const value = useCell(cell);
+  return <TextField
+    id="standard-basic" label={props.label} defaultValue={value}
+    onChange={
+      (e) =>
+        set(e.target.value)
+    }
+  />;
+}
+
+function NumericTextField(props: {
+  label: string,
+  cell: Cell<number>,
+  set: (value: number) => void,
+}) {
+  const {cell, set} = props;
+  const value = useCell(cell);
+  return <TextField
+    id="standard-basic" label={props.label} type="number" defaultValue={value}
+    onChange={
+      (e) =>
+        set(parseInt(e.target.value, 10))
+    }
+  />;
+}
+
 

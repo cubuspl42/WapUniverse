@@ -1,18 +1,19 @@
 import {LazyGetter} from 'lazy-get-decorator';
 import {AreaSelection} from "../AreaSelection";
-import {LateStreamLoop, switcherK} from "../frp";
+import {LateStreamLoop, switcher, switcherK} from "../frp";
 import {GameImage, LevelResources} from "../LevelResources";
-import {Maybe} from "../Maybe";
+import {Maybe, none, some} from "../Maybe";
 import {Rectangle} from "../Rectangle";
 import {Texture} from "../renderer/Renderer";
 import {RezImage, RezIndex} from "../rezIndex";
 import {Vec2} from "../Vec2";
 import {DrawFlags, Object_} from "../wwd";
-import {Editor} from "./Editor";
+import {Editor, ObjectMoving} from "./Editor";
 import {Plane} from "./Plane";
 import {World} from "./World";
-import {Cell, CellSink, lambda1, Operational, Unit} from "sodium";
+import {Cell, CellSink, lambda1, Operational, Stream, Unit} from "sodium";
 import {CellLoop, lambda2} from "sodiumjs";
+import {ObjectEditing} from "./ObjectEditing";
 
 interface ImageData {
   readonly imageSetId: String;
@@ -36,7 +37,9 @@ export class EdObject {
 
   readonly correctedPosition: Cell<Vec2>;
 
-  readonly i: CellSink<number>;
+  readonly z: Cell<number>;
+
+  readonly i: Cell<number>;
 
   readonly image: Cell<GameImage>;
 
@@ -53,6 +56,8 @@ export class EdObject {
   readonly select = this.selectLate.stream;
 
   readonly onSelected = this.select.map(() => this);
+
+  readonly pin: Cell<Unit>;
 
   get world(): World {
     return this.plane.world;
@@ -105,41 +110,58 @@ export class EdObject {
       return levelResources.getGameImage(rezImage.path);
     }
 
-    const buildPropertyCircuit = <A>(initValue: A, f: (property: Cell<A>) => Cell<Cell<A>>) => {
-      const out = new CellLoop<A>();
-      const cell = Cell.switchC(Operational.value(f(out)).hold(new Cell(initValue)));
-      out.loop(cell);
-      return cell;
-    };
+    const buildAttributeCircuit = <T>(
+      initValue: T,
+      extract: (oe: ObjectEditing) => Cell<T>,
+    ) => {
+      const changes: Stream<T> = Cell.switchS(editor.objectEditing.map(
+        (moe) => moe
+          .filter((oe) => oe.object === this)
+          .map((oe) => Operational.value(extract(oe)))
+          .getOrElse(() => new Stream<T>()),
+      ));
 
-    const position = buildPropertyCircuit(initialPosition, (position_: Cell<Vec2>) =>
-      editor.objectMoving.lift(editor.objectEditing, (mom, moe) => {
-        const originalPosition = position_.sample();
+      return changes.hold(initValue);
+    }
 
-        const buildMoveCircuit = () =>
-          mom
+    const buildPositionCircuit = (initialPosition: Vec2): Cell<Vec2> => {
+      const buildMoveCircuit = (om: ObjectMoving, p: Vec2): Cell<Vec2> => {
+        const position = om.delta.map((d) => p.add(d));
+        return switcher(
+          position,
+          om.onEnd.map(lambda1(
+            () => buildIdleCircuit(position.sample()),
+            [position],
+          )),
+        );
+      };
+
+      const buildIdleCircuit = (previousPosition: Vec2): Cell<Vec2> => {
+        const position = buildAttributeCircuit(
+          previousPosition,
+          (oe) => oe.position,
+        );
+
+        return switcher(
+          position,
+          editor.onObjectMoving
             .filter((om) => om.objects.has(this))
-            .map((om) => om.delta.map((d) => originalPosition.add(d)));
+            .once()
+            .map(lambda1(
+              (om) => buildMoveCircuit(om, position.sample()),
+              [position],
+            )),
+        );
+      };
 
-        const buildEditCircuit = () =>
-          moe
-            .filter((oe) => oe.object === this)
-            .map((oe) => oe.position);
+      return buildIdleCircuit(initialPosition);
+    }
 
-        return buildMoveCircuit()
-            .orElse(buildEditCircuit)
-            .getOrElse(() => new Cell(originalPosition));
+    const position = buildPositionCircuit(initialPosition);
 
-        // return mom
-        //   .filter((om) => om.objects.has(this))
-        //   .fold(
-        //     () => new Cell(originalPosition),
-        //     (om) => om.delta.map((d) => originalPosition.add(d)),
-        //   );
-      }),
-    );
+    const z = buildAttributeCircuit(wwdObject.z, (oe) => oe.z);
 
-    const i = new CellSink(wwdObject.i);
+    const i = buildAttributeCircuit(wwdObject.i, (oe) => oe.i);
 
     function getImageData(imageSetId: string, i: number): Maybe<GameImage> {
       return world.getRezImage(imageSetId, i).flatMap((rezImage) => getGameImage(rezImage));
@@ -173,11 +195,18 @@ export class EdObject {
     this.wwdObject = wwdObject;
     this.position = position;
     this.correctedPosition = correctedPosition;
+    this.z = z;
     this.i = i;
     this.image = image;
     this.boundingBox = boundingBox;
     this.isHovered = new CellSink<boolean>(false);
     this.isInSelectionArea = isInSelectionArea;
     this.id = id;
+
+    this.pin = Cell.liftArray<Unit>([
+      position,
+      z,
+      i,
+    ]);
   }
 }

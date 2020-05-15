@@ -235,6 +235,8 @@ export const EditorUi = ({editor}: EditorUiProps) => {
 
   console.log({tool, eq: tool.equals(some(Tool.MOVE))});
 
+  useCell(editor.pin);
+
   return <div>
     <div id="toolbar">
       <Button

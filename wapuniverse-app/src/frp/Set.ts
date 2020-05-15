@@ -2,6 +2,7 @@
 import * as frp from "frp";
 import {Cell, Stream} from "../sodium";
 import {Maybe} from "../Maybe";
+import {Unit} from "sodiumjs";
 
 export function remove<T>(array: readonly T[], element: T) {
   return array.filter(e => e !== element)
@@ -181,6 +182,15 @@ class FrpSet<A> {
         return SetUtils.union(s1, s2);
       }),
     );
+  }
+
+  pin(extract: (a: A) => Cell<Unit>): Cell<Unit> {
+    const cell1: Cell<ReadonlyArray<Unit>> = this.cell.flatMap((set) => {
+      const array = Array.from(set);
+      const cellArray = array.map((a) => extract(a))
+      return Cell.liftArray(cellArray);
+    });
+    return cell1;
   }
 }
 

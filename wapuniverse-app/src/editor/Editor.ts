@@ -55,6 +55,7 @@ export interface ObjectMovingInteraction {
 export interface ObjectMoving {
   readonly objects: ReadonlySet<EdObject>;
   readonly delta: Cell<Vec2>;
+  readonly onEnd: Stream<Unit>;
 }
 
 export class App {
@@ -169,6 +170,8 @@ export class Editor {
 
   private editObject = new StreamSink<Unit>();
 
+  readonly pin: Cell<Unit>;
+
   transformInvV(cv: Cell<Vec2>): Cell<Vec2> {
     return this.invertedCameraTransform
       .lift(cv, (t, v) => t.transformV(v));
@@ -199,27 +202,33 @@ export class Editor {
   }
 
   @LazyGetter()
-  get objectMoving(): Cell<Maybe<ObjectMoving>> {
-    const buildInteractionCircuit = (omi: ObjectMovingInteraction): Cell<Maybe<ObjectMoving>> => {
+  get onObjectMoving(): Stream<ObjectMoving> {
+    const buildObjectMoving = (omi: ObjectMovingInteraction): ObjectMoving => {
       const objects = this.selectedObjects.sample();
       const worldPosition = this.transformInvV(omi.pointerPosition);
       const origin = worldPosition.sample();
       const delta = worldPosition.map((w) => w.sub(origin));
-      return switcherK(
-        some<ObjectMoving>({
-          objects, delta,
-        }),
-        omi.onEnd.map(buildIdleCircuit),
-      );
+      return {
+        objects, delta, onEnd: omi.onEnd,
+      };
     };
 
-    const buildIdleCircuit = (): Cell<Maybe<ObjectMoving>> => {
-      const onAreaSelect = this.moveObjects.once();
-      return switcherK(
-        none<ObjectMoving>(),
-        onAreaSelect.map(buildInteractionCircuit),
+    return this.moveObjects.map(buildObjectMoving);
+  }
+
+  @LazyGetter()
+  get objectMoving(): Cell<Maybe<ObjectMoving>> {
+    const buildInteractionCircuit = (om: ObjectMoving): Cell<Maybe<ObjectMoving>> =>
+      switcherK(
+        some(om),
+        om.onEnd.map(buildIdleCircuit),
       );
-    };
+
+    const buildIdleCircuit = (): Cell<Maybe<ObjectMoving>> =>
+      switcherK(
+        none<ObjectMoving>(),
+        this.onObjectMoving.once().map(buildInteractionCircuit),
+      );
 
     return buildIdleCircuit();
   }
@@ -269,7 +278,7 @@ export class Editor {
     const buildIdleCircuit = (): Cell<Maybe<ObjectEditing>> => {
       const onEditObject = this.editObject
         .snapshot1(this.selectedObjects)
-        .map((so) => so.size === 1 ? SetUtils.first(so) : null )
+        .map((so) => so.size === 1 ? SetUtils.first(so) : null)
         .filterNotNull()
         .once();
       return switcherK(
@@ -394,6 +403,8 @@ export class Editor {
     const visibleObjects = objectGridIndex.query(windowRect);
 
     this.visibleObjects = visibleObjects;
+
+    this.pin = this.world.pin;
   }
 
   static async create(): Promise<Editor> {
