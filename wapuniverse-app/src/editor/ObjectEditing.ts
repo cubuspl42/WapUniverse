@@ -24,9 +24,19 @@ export class ObjectEditing {
   setY(y: number) {
     this.position.send(new Vec2(this.position.sample().x, y));
   }
+
   readonly z: CellSink<number>;
 
   readonly i: CellSink<number>;
+
+  readonly name: CellSink<string>;
+
+  readonly logic: CellSink<string>;
+
+  readonly imageSet: CellSink<string>;
+
+  readonly animation: CellSink<string>;
+
 
   readonly onEnd = new StreamSink<Unit>();
 
@@ -39,5 +49,9 @@ export class ObjectEditing {
     this.position = new CellSink(this.object.position.sample());
     this.z = new CellSink(this.object.z.sample());
     this.i = new CellSink(this.object.i.sample());
+    this.name = new CellSink(this.object.name.sample());
+    this.logic = new CellSink(this.object.logic.sample());
+    this.imageSet = new CellSink(this.object.imageSet.sample());
+    this.animation = new CellSink(this.object.animation.sample());
   }
 }

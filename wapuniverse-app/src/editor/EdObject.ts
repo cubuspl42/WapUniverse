@@ -14,6 +14,7 @@ import {World} from "./World";
 import {Cell, CellSink, lambda1, Operational, Stream, Unit} from "sodium";
 import {CellLoop, lambda2} from "sodiumjs";
 import {ObjectEditing} from "./ObjectEditing";
+import {decode} from "../utils/utils";
 
 interface ImageData {
   readonly imageSetId: String;
@@ -32,6 +33,14 @@ export class EdObject {
   readonly plane: Plane;
 
   readonly wwdObject: Object_;
+
+  readonly name: Cell<string>;
+
+  readonly logic: Cell<string>;
+
+  readonly imageSet: Cell<string>;
+
+  readonly animation: Cell<string>;
 
   readonly position: Cell<Vec2>;
 
@@ -157,6 +166,12 @@ export class EdObject {
       return buildIdleCircuit(initialPosition);
     }
 
+    const name = buildAttributeCircuit(decode(wwdObject.name), (oe) => oe.name);
+
+    const logic = buildAttributeCircuit(decode(wwdObject.logic), (oe) => oe.logic);
+
+    const animation = buildAttributeCircuit(decode(wwdObject.animation), (oe) => oe.animation);
+
     const position = buildPositionCircuit(initialPosition);
 
     const z = buildAttributeCircuit(wwdObject.z, (oe) => oe.z);
@@ -167,7 +182,7 @@ export class EdObject {
       return world.getRezImage(imageSetId, i).flatMap((rezImage) => getGameImage(rezImage));
     }
 
-    const shortImageSetId = new CellSink(initialImageSet);
+    const shortImageSetId = buildAttributeCircuit(initialImageSet, (oe) => oe.imageSet);
 
     const imageSetId = shortImageSetId.map((s) => world.expandShortImageSetId(s));
 
@@ -193,6 +208,10 @@ export class EdObject {
 
     this.plane = plane;
     this.wwdObject = wwdObject;
+    this.name = name;
+    this.logic = logic;
+    this.imageSet = shortImageSetId;
+    this.animation = animation;
     this.position = position;
     this.correctedPosition = correctedPosition;
     this.z = z;
@@ -204,6 +223,9 @@ export class EdObject {
     this.id = id;
 
     this.pin = Cell.liftArray<Unit>([
+      name,
+      logic,
+      shortImageSetId,
       position,
       z,
       i,
